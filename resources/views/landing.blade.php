@@ -1482,5 +1482,7 @@
             @endif
         });
     </script>
+
+    @include('layouts.partials.loading-modal')
 </body>
 </html>

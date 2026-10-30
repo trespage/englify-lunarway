@@ -559,6 +559,7 @@ class AdminController extends Controller
     public function detailHasilQuiz($id)
     {
         $hasil = HasilQuiz::with(['user', 'quiz.materi', 'jawaban.quiz'])->findOrFail($id);
+        $this->authorize('view', $hasil);
         return view('admin.detail-hasil-quiz', compact('hasil'));
     }
 

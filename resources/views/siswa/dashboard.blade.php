@@ -502,7 +502,9 @@
                                         <span class="text-[10px] text-slate-400">
                                             {{ $m->created_at ? $m->created_at->diffForHumans() : '-' }}
                                         </span>
-                                        <a href="{{ route('siswa.materi.baca', $m->id_materi) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold {{ $sudahDibaca ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' : 'bg-[#018ABE] text-white hover:bg-[#02457A]' }} transition flex items-center gap-1 shadow-2xs">
+                                        <a href="{{ route('siswa.materi.baca', $m->id_materi) }}" 
+                                           @if(!$sudahDibaca) onclick="return confirmBukaMateri(event, '{{ route('siswa.materi.baca', $m->id_materi) }}')" @endif
+                                           class="px-3 py-1.5 rounded-lg text-xs font-bold {{ $sudahDibaca ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' : 'bg-[#018ABE] text-white hover:bg-[#02457A]' }} transition flex items-center gap-1 shadow-2xs">
                                             <span>{{ $sudahDibaca ? 'Baca Lagi' : 'Mulai Baca' }}</span>
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                         </a>

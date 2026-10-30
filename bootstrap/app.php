@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,
             'role'                  => \App\Http\Middleware\EnsureUserHasRole::class,
+            'lock.learning'         => \App\Http\Middleware\LockActiveMateriAndQuiz::class,
         ]);
 
         $middleware->redirectUsersTo(function () {
@@ -64,7 +65,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'status'  => 'error',
-                    'message' => 'Layanan basis data sedang mengalami gangguan teknis.',
+                    'message' => 'Terjadi kendala koneksi server. Silakan hubungi admin.',
                     'code'    => 500,
                 ], 500);
             }
@@ -91,7 +92,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($request->expectsJson() || $request->is('api/*')) {
                     return response()->json([
                         'status'  => 'error',
-                        'message' => 'Koneksi ke basis data terputus atau tidak dapat diakses.',
+                        'message' => 'Terjadi kendala koneksi server. Silakan hubungi admin.',
                         'code'    => 500,
                     ], 500);
                 }

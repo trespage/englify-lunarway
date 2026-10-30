@@ -27,6 +27,7 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     protected $casts = [
@@ -59,6 +60,11 @@ class User extends Authenticatable
     public function materiDibuat()
     {
         return $this->hasMany(Materi::class, 'id_admin');
+    }
+
+    public function pesanAdmin()
+    {
+        return $this->hasMany(PesanAdmin::class, 'id_user', 'id_user');
     }
 
     /**

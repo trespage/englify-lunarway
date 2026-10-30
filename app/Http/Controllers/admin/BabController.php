@@ -209,4 +209,73 @@ class BabController extends Controller
 
         return response()->json($babs);
     }
+
+    /**
+     * API JSON: Daftar seluruh Bab (dengan filter kategori & pencarian judul)
+     */
+    public function apiIndex(Request $request)
+    {
+        $query = Bab::with('kategori')
+            ->withCount(['materi', 'quizzes'])
+            ->orderBy('id_kategori')
+            ->orderBy('urutan');
+
+        if ($request->filled('id_kategori')) {
+            $query->where('id_kategori', $request->id_kategori);
+        }
+
+        if ($request->filled('q')) {
+            $query->where('judul', 'like', '%' . $request->q . '%');
+        }
+
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+        if (!$isAdmin) {
+            $query->where('is_active', true);
+        }
+
+        $babs = $query->get();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data bab berhasil dimuat',
+            'data'    => $babs,
+        ]);
+    }
+
+    /**
+     * API JSON: Detail satu Bab beserta materi di dalamnya
+     */
+    public function apiShow($id)
+    {
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+
+        $query = Bab::with(['kategori', 'materi' => function ($q) use ($isAdmin) {
+            if (!$isAdmin) {
+                $q->where(function ($sub) {
+                    $sub->whereIn('status', ['Published', 'Aktif'])->orWhereNull('status');
+                });
+            }
+            $q->orderBy('urutan');
+        }]);
+
+        if (!$isAdmin) {
+            $query->where('is_active', true);
+        }
+
+        $bab = $query->find($id);
+
+        if (!$bab) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Bab tidak ditemukan',
+                'data'    => null,
+            ], 404);
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Detail bab berhasil dimuat',
+            'data'    => $bab,
+        ]);
+    }
 }

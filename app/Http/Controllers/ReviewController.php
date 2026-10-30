@@ -46,4 +46,23 @@ class ReviewController extends Controller
             ->with('review_success', 'Terima kasih banyak! Review kamu berhasil ditambahkan dan langsung tampil di halaman ini.')
             ->with('latest_review', $newReview);
     }
+
+    /**
+     * API JSON: Daftar ulasan / testimoni publik yang telah disetujui
+     */
+    public function apiIndex(Request $request)
+    {
+        $limit = min((int) $request->input('limit', 20), 100);
+
+        $reviews = Review::where('is_approved', true)
+            ->latest()
+            ->take($limit)
+            ->get();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data ulasan berhasil dimuat',
+            'data'    => $reviews,
+        ]);
+    }
 }

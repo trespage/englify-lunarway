@@ -57,8 +57,8 @@
                     <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
                         Basis Data Sedang Tidak Tersedia
                     </h1>
-                    <p class="text-slate-500 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                        Sistem tidak dapat terhubung ke server database. Hal ini biasanya bersifat sementara karena proses pemeliharaan atau koneksi jaringan.
+                    <p class="text-slate-600 text-xs sm:text-sm font-semibold max-w-sm mx-auto leading-relaxed">
+                        Terjadi kendala koneksi server. Silakan hubungi admin.
                     </p>
                     <p class="font-cute text-base sm:text-lg text-amber-600 font-semibold pt-0.5">
                         “Hold on tight, our database will be right back!” 🐾

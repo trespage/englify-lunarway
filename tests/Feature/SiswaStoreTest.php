@@ -65,4 +65,51 @@ class SiswaStoreTest extends TestCase
 
         $this->assertDatabaseMissing('users', ['email' => $email]);
     }
+
+    public function test_hapus_siswa_membersihkan_pesan_admin_terkait(): void
+    {
+        $superadmin = User::where('id_role', 1)->first();
+        $admin = User::where('id_role', 2)->first() ?? $superadmin;
+
+        $siswa = User::create([
+            'nama' => 'QA Siswa Reminder Cascade',
+            'username' => 'qa-cascade-' . uniqid(),
+            'email' => 'qa-cascade-' . uniqid() . '@example.com',
+            'password' => bcrypt('password123'),
+            'id_role' => 3,
+            'status' => 'aktif',
+            'must_change_password' => false,
+        ]);
+
+        $pesan = \App\Models\PesanAdmin::create([
+            'id_user' => $siswa->id_user,
+            'id_admin' => $admin->id_user,
+            'pesan' => 'Pesan pengingat untuk testing cascade delete',
+            'is_read' => false,
+        ]);
+
+        $this->assertDatabaseHas('pesan_admin', ['id' => $pesan->id]);
+
+        // Hapus siswa via route destroy
+        $this->actingAs($superadmin)->delete(route('superadmin.siswa.destroy', $siswa->id_user));
+
+        // Pesan admin harus otomatis terhapus (cascade)
+        $this->assertDatabaseMissing('pesan_admin', ['id' => $pesan->id]);
+    }
+
+    public function test_superadmin_tidak_dapat_dihapus_atau_diedit_sembarangan_via_generic_route(): void
+    {
+        $superadmin = User::where('id_role', 1)->first();
+
+        // Coba hapus superadmin via users.destroy
+        $resDelete = $this->actingAs($superadmin)->delete(route('superadmin.users.destroy', $superadmin->id_user));
+        $resDelete->assertSessionHas('error');
+        $this->assertDatabaseHas('users', ['id_user' => $superadmin->id_user]);
+
+        // Coba edit superadmin via users.update
+        $resUpdate = $this->actingAs($superadmin)->put(route('superadmin.users.update', $superadmin->id_user), [
+            'nama' => 'Hacker Name',
+        ]);
+        $resUpdate->assertSessionHas('error');
+    }
 }

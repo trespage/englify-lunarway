@@ -204,8 +204,14 @@ function openQuizDetailModal(target) {
         if (!data.is_locked && data.url_materi) {
             btnBacaMateri.classList.remove('hidden');
             btnBacaMateri.href = data.url_materi;
+            btnBacaMateri.onclick = function(e) {
+                if (!data.sudah_selesai && typeof window.confirmBukaMateri === 'function') {
+                    return window.confirmBukaMateri(e, data.url_materi);
+                }
+            };
         } else {
             btnBacaMateri.classList.add('hidden');
+            btnBacaMateri.onclick = null;
         }
     }
 

@@ -3,15 +3,32 @@
 @section('title', $materi->judul ?? 'Materi')
 
 @section('content')
+@if(empty($sudahSelesaiQuiz))
+<!-- PENGUNCIAN HALAMAN MATERI AGAR USER TIDAK BISA KELUAR / TEKAN NAVBAR SEBELUM QUIZ SELESAI -->
+<style>
+    /* Sembunyikan & nonaktifkan navbar header, sidebar desktop, mobile drawer, search bar, dan bottom docked nav */
+    #sidebar, 
+    #mobile-sidebar, 
+    #mobile-backdrop, 
+    header, 
+    nav.fixed.bottom-0, 
+    #mobileSearchWrapper,
+    footer {
+        display: none !important;
+    }
+
+    /* Pastikan padding halaman rapi dan fokus */
+    main {
+        padding-top: 1.5rem !important;
+        padding-bottom: 3.5rem !important;
+    }
+</style>
+@endif
+
 <div class="max-w-5xl mx-auto space-y-6">
 
-    <!-- BACK BUTTON + HEADER -->
+    <!-- HEADER -->
     <div class="flex items-center gap-3 sm:gap-4">
-        <a href="{{ url('/siswa/materi') }}" class="p-2 sm:p-2.5 rounded-xl bg-white border border-[#97CADB]/30 hover:bg-slate-50 transition shrink-0" title="Kembali ke Daftar Materi">
-            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </a>
         <div class="flex-1 min-w-0">
             <h1 class="text-lg sm:text-2xl font-extrabold text-slate-800 break-words leading-tight content-text-wrap" style="overflow-wrap: anywhere; word-break: break-word;">{{ $materi->judul ?? 'Materi' }}</h1>
             <p class="text-slate-500 text-xs sm:text-sm mt-0.5 truncate">{{ $materi->kategori?->nama_kategori ?? '-' }} • {{ $materi->babModel?->judul ?? $materi->bab ?? '' }}</p>
@@ -24,14 +41,30 @@
                 <span class="text-xs font-bold text-emerald-700">Materi & Quiz Selesai</span>
             </div>
         @else
-            <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl shrink-0">
-                <svg class="w-4 h-4 text-[#018ABE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                <span class="text-xs font-bold text-[#018ABE]">Materi Dibaca</span>
+            <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl shrink-0">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span class="text-xs font-bold text-amber-700">Mode Belajar Terkunci</span>
             </div>
         @endif
     </div>
+
+    @if(empty($sudahSelesaiQuiz))
+        <!-- BANNER MODE FOKUS TERKUNCI -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 font-bold text-base shadow-xs">
+                    🔒
+                </div>
+                <div class="min-w-0">
+                    <p class="text-xs sm:text-sm font-bold leading-tight">Halaman Materi Sedang Terkunci</p>
+                    <p class="text-[11px] sm:text-xs text-amber-700 mt-0.5">Selesaikan membaca materi ini dan kerjakan kuis dengan menekan tombol <strong>"Lanjut ke Quiz"</strong> di bawah sebelum kamu dapat keluar.</p>
+                </div>
+            </div>
+            <span class="hidden sm:inline-flex px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 shrink-0">
+                Quiz Wajib Selesai
+            </span>
+        </div>
+    @endif
 
     <!-- MAIN CONTENT CARD -->
     <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm overflow-hidden">
@@ -228,15 +261,14 @@
     </div>
 
     <!-- NAVIGATION BUTTONS -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <a href="{{ route('siswa.materi') }}" class="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#97CADB]/30 text-slate-700 font-semibold rounded-xl hover:border-slate-300 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            Kembali ke Daftar Materi
-        </a>
-
+    <div class="flex flex-col sm:flex-row items-center {{ !empty($sudahSelesaiQuiz) ? 'justify-between' : 'justify-end' }} gap-4">
         @if(!empty($sudahSelesaiQuiz))
+            <a href="{{ route('siswa.materi') }}" class="w-full sm:w-auto px-6 py-3 bg-white border-2 border-[#97CADB]/30 text-slate-700 font-semibold rounded-xl hover:border-slate-300 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Daftar Materi
+            </a>
             <!-- Sudah selesai kuis: Cukup buka dan baca materi, TIDAK menayangkan lanjut ke quiz lagi -->
             @if(!empty($hasilQuiz))
                 <a href="{{ route('siswa.quiz.hasil', $hasilQuiz->id_quiz) }}" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-2xs">
@@ -247,8 +279,8 @@
                 </a>
             @endif
         @elseif($targetQuiz)
-            <!-- Belum selesai kuis: Muncul tombol lanjut kuis -->
-            <a href="{{ route('siswa.quiz.kerjakan', $targetQuiz->id_quiz) }}" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#018ABE] to-[#02457A] hover:from-[#02457A] hover:to-[#001B48] text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-[#018ABE]/30">
+            <!-- Belum selesai kuis: Muncul tombol lanjut kuis (satu-satunya tombol navigasi keluar resmi) -->
+            <a href="{{ route('siswa.quiz.kerjakan', $targetQuiz->id_quiz) }}" id="btnLanjutKeQuiz" class="btn-lanjut-quiz w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#018ABE] to-[#02457A] hover:from-[#02457A] hover:to-[#001B48] text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-[#018ABE]/30">
                 <span>Lanjut ke Quiz</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -256,7 +288,7 @@
             </a>
         @else
             <!-- Materi tanpa kuis -->
-            <a href="{{ route('siswa.peta-quiz') }}" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#018ABE] to-[#02457A] hover:from-[#02457A] hover:to-[#001B48] text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-[#018ABE]/30">
+            <a href="{{ route('siswa.peta-quiz') }}" id="btnLanjutKeQuiz" class="btn-lanjut-quiz w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#018ABE] to-[#02457A] hover:from-[#02457A] hover:to-[#001B48] text-white font-semibold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-[#018ABE]/30">
                 <span>Lihat Peta Quiz</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -273,8 +305,8 @@
                 <p class="font-cute text-base sm:text-lg text-emerald-700 leading-tight">Hebat! Kamu sudah menyelesaikan materi dan quiz ini. 🌟</p>
                 <p class="text-xs sm:text-sm text-slate-600 mt-1">Materi ini dapat kamu buka dan baca kembali kapan saja sebagai bahan referensi belajar. ✨</p>
             @elseif($targetQuiz)
-                <p class="font-cute text-base sm:text-lg text-[#018ABE] leading-tight">Hebat! Kamu sudah membaca materi ini.</p>
-                <p class="text-xs sm:text-sm text-slate-600 mt-1">Sekarang saatnya menguji pemahamanmu dengan mengerjakan quiz! 💪</p>
+                <p class="font-cute text-base sm:text-lg text-[#018ABE] leading-tight">Hebat! Kamu sedang membaca materi ini.</p>
+                <p class="text-xs sm:text-sm text-slate-600 mt-1">Selesaikan membaca dan klik <strong>"Lanjut ke Quiz"</strong> untuk menguji pemahamanmu! 💪</p>
             @else
                 <p class="font-cute text-base sm:text-lg text-[#018ABE] leading-tight">Hebat! Kamu sudah membaca materi ini.</p>
                 <p class="text-xs sm:text-sm text-slate-600 mt-1">Lanjutkan pembelajaranmu ke materi atau bab berikutnya! 📚</p>
@@ -283,4 +315,88 @@
     </div>
 
 </div>
+
+@if(empty($sudahSelesaiQuiz))
+@push('scripts')
+<script>
+(function() {
+    let canLeave = false;
+
+    // 1. Tombol resmi "Lanjut ke Quiz" memberi izin navigasi
+    const btnQuiz = document.getElementById('btnLanjutKeQuiz');
+    if (btnQuiz) {
+        btnQuiz.addEventListener('click', function() {
+            canLeave = true;
+            if (typeof window.startPageLoader === 'function') {
+                window.startPageLoader();
+            }
+        });
+    }
+
+    // 2. Blokir tombol Back di browser / history popstate
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        history.pushState(null, null, location.href);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Halaman Terkunci! 🔒',
+                html: '<p class="text-sm text-slate-600 leading-relaxed">Kamu tidak bisa keluar dari halaman materi sebelum selesai membaca dan mengerjakan kuis.</p>',
+                confirmButtonText: 'Lanjut Membaca Materi',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'englify-swal',
+                    confirmButton: 'englify-swal-confirm'
+                }
+            });
+        }
+    });
+
+    // 3. Blokir reload atau berpindah URL langsung dari browser
+    window.addEventListener('beforeunload', function(e) {
+        if (!canLeave) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    });
+
+    // 4. Blokir klik pada tautan keluar selain kuis atau unduh dokumen materi
+    document.addEventListener('click', function(e) {
+        const a = e.target.closest('a');
+        if (!a) return;
+
+        // Izinkan jika tombol lanjut ke quiz
+        if (a.id === 'btnLanjutKeQuiz' || a.classList.contains('btn-lanjut-quiz')) {
+            canLeave = true;
+            return;
+        }
+
+        // Izinkan jika tombol unduh dokumen materi (download file)
+        if (a.hasAttribute('download') || a.getAttribute('target') === '_blank') {
+            return;
+        }
+
+        // Blokir tautan lainnya
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selesaikan Materi & Kuis 📚',
+                html: '<p class="text-sm text-slate-600 leading-relaxed">Kamu tidak bisa keluar dari halaman materi sebelum selesai membaca dan mengerjakan kuis.</p>',
+                confirmButtonText: 'Lanjut Membaca',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'englify-swal',
+                    confirmButton: 'englify-swal-confirm'
+                }
+            });
+        }
+    }, true);
+})();
+</script>
+@endpush
+@endif
 @endsection

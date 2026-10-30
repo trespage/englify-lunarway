@@ -123,7 +123,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // =================================================================
 // 5. SISWA
 // =================================================================
-Route::middleware(['auth', 'force.password.change', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+Route::middleware(['auth', 'force.password.change', 'role:siswa', 'lock.learning'])->prefix('siswa')->name('siswa.')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [SiswaController::class, 'index'])->name('dashboard');

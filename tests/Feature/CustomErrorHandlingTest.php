@@ -81,5 +81,40 @@ class CustomErrorHandlingTest extends TestCase
         $response->assertStatus(500);
         $response->assertSee('Basis Data Sedang Tidak Tersedia');
         $response->assertSee('Koneksi Basis Data Terputus');
+        $response->assertSee('Terjadi kendala koneksi server. Silakan hubungi admin.');
+
+        // Respon API JSON juga mengembalikan pesan instruktif yang sama
+        $resJson = $this->getJson('/testing-error-db');
+        $resJson->assertStatus(500);
+        $resJson->assertJson([
+            'status'  => 'error',
+            'message' => 'Terjadi kendala koneksi server. Silakan hubungi admin.',
+            'code'    => 500,
+        ]);
+    }
+
+    /**
+     * Memastikan ketika database dimatikan secara sengaja, aplikasi tidak menampilkan
+     * error merah mentah PHP, melainkan pesan instruktif:
+     * "Terjadi kendala koneksi server. Silakan hubungi admin."
+     */
+    public function test_when_database_connection_fails_shows_instructional_message(): void
+    {
+        Route::get('/testing-real-query-fail', function () {
+            // Sengaja memicu kueri basis data saat database mati / bermasalah
+            throw new \Illuminate\Database\QueryException(
+                'mysql',
+                'select * from users',
+                [],
+                new \PDOException('SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it')
+            );
+        });
+
+        $response = $this->get('/testing-real-query-fail');
+
+        $response->assertStatus(500);
+        $response->assertSee('Terjadi kendala koneksi server. Silakan hubungi admin.');
+        $response->assertDontSee('SQLSTATE');
+        $response->assertDontSee('QueryException');
     }
 }

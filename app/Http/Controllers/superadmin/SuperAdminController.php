@@ -204,14 +204,65 @@ class SuperAdminController extends Controller
     }
 
     // API: Daftar semua user (JSON)
-    public function apiUsers()
+    public function apiUsers(Request $request)
     {
-        $users = User::with('role')->latest()->get();
+        $query = User::with(['role', 'kategori'])->latest();
+
+        if ($request->filled('q')) {
+            $q = '%' . $request->q . '%';
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nama', 'like', $q)
+                    ->orWhere('email', 'like', $q);
+            });
+        }
+
+        if ($request->filled('role')) {
+            $roleVal = $request->role;
+            if (is_numeric($roleVal)) {
+                $query->where('id_role', (int) $roleVal);
+            } else {
+                $roleId = match (strtolower($roleVal)) {
+                    'superadmin', 'super_admin' => 1,
+                    'admin', 'admin_divisi'     => 2,
+                    'siswa', 'student'          => 3,
+                    default                     => null,
+                };
+                if ($roleId) {
+                    $query->where('id_role', $roleId);
+                }
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $users = $query->get();
 
         return response()->json([
             'status'  => 'success',
             'message' => 'Data berhasil dimuat',
             'data'    => $users,
+        ]);
+    }
+
+    // API: Detail satu user berdasarkan ID (JSON)
+    public function apiShowUser($id)
+    {
+        $user = User::with(['role', 'kategori'])->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Pengguna tidak ditemukan',
+                'data'    => null,
+            ], 404);
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Detail pengguna berhasil dimuat',
+            'data'    => $user,
         ]);
     }
 
@@ -230,6 +281,10 @@ class SuperAdminController extends Controller
         // Modal "Edit Akun" di dashboard: arahkan sesuai role asli user
         $user = User::findOrFail($id);
 
+        if ((int) $user->id_role === 1) {
+            return back()->with('error', 'Profil Super Admin hanya dapat diedit melalui menu Profil!');
+        }
+
         if ((int) $user->id_role === 2) {
             return $this->updateAdminDivisi($request, $id);
         }
@@ -240,6 +295,10 @@ class SuperAdminController extends Controller
     public function destroyUser($id)
     {
         $user = User::findOrFail($id);
+
+        if ((int) $user->id_role === 1) {
+            return back()->with('error', 'Akun Super Admin tidak dapat dihapus!');
+        }
 
         if ((int) $user->id_role === 2) {
             return $this->destroyAdminDivisi($id);

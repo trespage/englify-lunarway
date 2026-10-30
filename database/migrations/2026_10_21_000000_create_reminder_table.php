@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('pesan_admin', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_user');
-            $table->unsignedBigInteger('id_admin');
+            $table->foreignId('id_user')->constrained('users', 'id_user')->onDelete('cascade');
+            $table->foreignId('id_admin')->constrained('users', 'id_user')->onDelete('cascade');
             $table->text('pesan');
             $table->boolean('is_read')->default(false);
             $table->timestamps();

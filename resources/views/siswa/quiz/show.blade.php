@@ -3,31 +3,47 @@
 @section('title', 'Kerjakan Quiz')
 
 @section('content')
+<!-- PENGUNCIAN HALAMAN KUIS AGAR SISWA TIDAK BISA KELUAR ATAU TEKAN NAVBAR -->
+<style>
+    /* Sembunyikan & nonaktifkan navbar header, sidebar desktop, mobile drawer, search bar, dan bottom docked nav */
+    #sidebar, 
+    #mobile-sidebar, 
+    #mobile-backdrop, 
+    header, 
+    nav.fixed.bottom-0, 
+    #mobileSearchWrapper,
+    footer {
+        display: none !important;
+    }
+
+    main {
+        padding-top: 1.5rem !important;
+        padding-bottom: 3.5rem !important;
+    }
+</style>
+
 <div class="max-w-4xl mx-auto space-y-6">
 
     @php
         $targetMateri = $quiz->materi ?? ($quiz->id_materi ? \App\Models\Materi::find($quiz->id_materi) : null);
-        $urlKembaliMateri = $targetMateri ? route('siswa.materi.baca', $targetMateri->id_materi) : route('siswa.materi');
         $judulMateri = $targetMateri?->judul ?? ($quiz->judul ?? 'Materi');
         $durasiMenit = $durasiMenit ?? 15;
         $menitFormatted = str_pad($durasiMenit, 2, '0', STR_PAD_LEFT) . ':00';
     @endphp
 
-    <!-- TOP BAR KEMBALI KE MATERI -->
-    <div class="flex items-center justify-between gap-3">
-        <button type="button" 
-                onclick="handleKembaliKeMateri('{{ $urlKembaliMateri }}')" 
-                class="px-4 py-2 bg-white border border-[#97CADB]/40 hover:bg-slate-50 hover:border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-2xs group cursor-pointer"
-                title="Kembali ke halaman materi pembelajaran">
-            <svg class="w-4 h-4 text-slate-500 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            <span>Kembali ke Materi</span>
-        </button>
-
-        <span class="text-xs text-slate-500 font-medium hidden sm:flex items-center gap-1.5 truncate max-w-md">
-            <span class="w-2 h-2 rounded-full bg-[#018ABE] shrink-0"></span>
-            <span class="truncate">Materi: <strong class="text-slate-700 font-semibold">{{ $judulMateri }}</strong></span>
+    <!-- BANNER MODE KUIS TERKUNCI -->
+    <div class="p-3.5 sm:p-4 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 flex items-center justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 font-bold text-base shadow-xs">
+                🔒
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-bold leading-tight">Halaman Kuis Sedang Terkunci</p>
+                <p class="text-[11px] sm:text-xs text-amber-700 mt-0.5">Selesaikan seluruh soal dan tekan tombol <strong>"Kirim Jawaban"</strong> untuk mengumpulkan kuis sebelum kamu dapat membuka halaman lain.</p>
+            </div>
+        </div>
+        <span class="hidden sm:inline-flex px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 shrink-0">
+            Kuis Wajib Selesai
         </span>
     </div>
 
@@ -35,14 +51,6 @@
     <div class="bg-white rounded-2xl p-5 sm:p-6 border border-[#97CADB]/30 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div class="flex items-center gap-3 min-w-0">
-                <button type="button" 
-                        onclick="handleKembaliKeMateri('{{ $urlKembaliMateri }}')"
-                        class="sm:hidden w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-600 border border-slate-200 flex items-center justify-center transition shrink-0 cursor-pointer" 
-                        title="Kembali ke Materi">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                </button>
                 <div class="w-10 h-10 rounded-xl bg-[#97CADB] flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5 text-[#02457A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -50,16 +58,10 @@
                 </div>
                 <div class="min-w-0">
                     <h1 class="text-lg sm:text-xl font-extrabold text-slate-800 truncate">Quiz – {{ $quiz->judul ?? $judulMateri }}</h1>
-                    <p class="text-xs text-slate-500 mt-0.5">Pilih jawaban yang paling tepat!</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Materi: <strong class="text-slate-700 font-semibold">{{ $judulMateri }}</strong></p>
                 </div>
             </div>
             <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
-                <button type="button" 
-                        onclick="handleKembaliKeMateri('{{ $urlKembaliMateri }}')" 
-                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200 transition cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span>Kembali ke Materi</span>
-                </button>
                 <div class="flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-rose-50 border border-rose-200 rounded-xl shrink-0" title="Batas waktu pengerjaan quiz">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-rose-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -458,42 +460,59 @@ function executeSubmit() {
 }
 
 // =============================================
-// KEMBALI KE MATERI
+// PROTEKSI HALAMAN KUIS TERKUNCI (ANTI-EXIT)
 // =============================================
-function handleKembaliKeMateri(url) {
-    if (isQuizSubmitted) {
-        window.location.href = url;
-        return;
+// 1. Blokir tombol back di browser / smartphone
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function() {
+    history.pushState(null, null, location.href);
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Kuis Sedang Berlangsung! 🔒',
+            html: '<p class="text-sm text-slate-600 leading-relaxed">Kamu tidak bisa meninggalkan halaman kuis sebelum menyelesaikan dan mengumpulkan kuis.</p>',
+            confirmButtonText: 'Lanjut Mengerjakan Kuis',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'englify-swal',
+                confirmButton: 'englify-swal-confirm'
+            }
+        });
     }
+});
 
-    const hasAnswered = typeof answers === 'object' && Object.keys(answers).length > 0;
-    if (hasAnswered) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Kembali ke Materi?',
-                html: '<p class="text-sm text-slate-600">Jawaban yang sudah kamu pilih belum disimpan. Apakah kamu yakin ingin kembali ke materi pembelajaran?</p>',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Kembali ke Materi',
-                cancelButtonText: 'Lanjut Mengerjakan',
-                buttonsStyling: false,
-                customClass: {
-                    popup: 'englify-swal',
-                    confirmButton: 'englify-swal-confirm',
-                    cancelButton: 'px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition ml-2'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = url;
-                }
-            });
-        } else {
-            window.location.href = url;
-        }
-    } else {
-        window.location.href = url;
+// 2. Blokir reload / keluar halaman via browser
+window.addEventListener('beforeunload', function(e) {
+    if (!isQuizSubmitted) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
     }
-}
+});
+
+// 3. Blokir semua link keluar selama kuis berjalan
+document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (isQuizSubmitted) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Kuis Sedang Berlangsung! 🔒',
+            html: '<p class="text-sm text-slate-600 leading-relaxed">Kamu harus menyelesaikan dan mengumpulkan kuis ini terlebih dahulu sebelum membuka halaman lain.</p>',
+            confirmButtonText: 'Lanjut Mengerjakan',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'englify-swal',
+                confirmButton: 'englify-swal-confirm'
+            }
+        });
+    }
+}, true);
 
 // =============================================
 // COUNTDOWN TIMER & AUTO-SUBMIT LOGIC

@@ -681,6 +681,8 @@
                 </div>
                 @endif
 
+                @include('layouts.partials.breadcrumbs')
+
                 @yield('content')
             </div>
 

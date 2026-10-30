@@ -847,6 +847,8 @@
                 </div>
                 @endif
 
+                @include('layouts.partials.breadcrumbs')
+
                 @yield('content')
             </div>
 
@@ -1739,6 +1741,43 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('pageshow', function() {
     window.finishPageLoader();
 });
+
+// Konfirmasi Pop Up Sebelum Siswa Membaca Materi
+window.confirmBukaMateri = function(event, url) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan Membaca Materi 📚',
+            html: '<p class="text-sm text-slate-600 leading-relaxed">Jika kamu mulai membaca materi, kamu <strong>tidak akan bisa keluar</strong> dari halaman materi sebelum selesai membaca dan mengerjakan kuis.</p><p class="text-xs text-slate-400 mt-2">Apakah kamu siap melanjutkan membaca sekarang? 🐾</p>',
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan',
+            cancelButtonText: 'Batal',
+            buttonsStyling: false,
+            reverseButtons: true,
+            customClass: {
+                popup: 'englify-swal',
+                confirmButton: 'englify-swal-confirm',
+                cancelButton: 'englify-swal-cancel mr-2'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (typeof window.startPageLoader === 'function') {
+                    window.startPageLoader();
+                }
+                window.location.href = url;
+            }
+        });
+    } else {
+        if (confirm('Perhatian! Jika mulai membaca materi, kamu tidak akan bisa keluar sebelum selesai membaca dan mengerjakan kuis. Lanjutkan?')) {
+            window.location.href = url;
+        }
+    }
+    return false;
+};
 </script>
 
 @include('layouts.partials.loading-modal')

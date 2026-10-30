@@ -160,16 +160,77 @@ class MateriController extends Controller
         ));
     }
 
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        $materis = Materi::with(['admin', 'kategori', 'babModel'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Materi::with(['admin', 'kategori', 'babModel'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('id_kategori')) {
+            $query->where('id_kategori', $request->id_kategori);
+        }
+
+        if ($request->filled('id_bab')) {
+            $query->where('id_bab', $request->id_bab);
+        }
+
+        if ($request->filled('q')) {
+            $q = '%' . $request->q . '%';
+            $query->where(function ($sub) use ($q) {
+                $sub->where('judul', 'like', $q)
+                    ->orWhere('deskripsi', 'like', $q)
+                    ->orWhere('isi_materi', 'like', $q);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        } else {
+            $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+            if (!$isAdmin) {
+                $query->where(function ($q) {
+                    $q->whereIn('status', ['Published', 'Aktif'])
+                      ->orWhereNull('status');
+                });
+            }
+        }
+
+        $materis = $query->get();
 
         return response()->json([
             'status'  => 'success',
             'message' => 'Data berhasil dimuat',
             'data'    => $materis,
+        ]);
+    }
+
+    public function apiShow($id)
+    {
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+
+        $query = Materi::with(['admin', 'kategori', 'babModel', 'quizzes']);
+
+        if (!$isAdmin) {
+            $query->visibleForSiswa();
+        }
+
+        $materi = $query->find($id);
+
+        if (!$materi) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Materi tidak ditemukan',
+                'data'    => null,
+            ], 404);
+        }
+
+        if (!$isAdmin && $materi->quizzes) {
+            $materi->quizzes->makeHidden(['kunci_jawaban']);
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Detail materi berhasil dimuat',
+            'data'    => $materi,
         ]);
     }
 

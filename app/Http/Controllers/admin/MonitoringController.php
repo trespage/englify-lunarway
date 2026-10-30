@@ -74,22 +74,87 @@ class MonitoringController extends Controller
         ));
     }
 
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        $siswa = User::where('id_role', 3)
+        $query = User::where('id_role', 3)
             ->with('role')
             ->withCount(['hasilQuiz as total_quiz_dikerjakan'])
             ->withSum('hasilQuiz as total_skor', 'skor_diperoleh')
-            ->withCount(['progressMateri as materi_dibaca' => function ($query) {
-                $query->where('status', 'Completed');
+            ->withCount(['progressMateri as materi_dibaca' => function ($sub) {
+                $sub->where('status', 'Completed');
             }])
-            ->latest()
-            ->get();
+            ->latest();
+
+        if ($request->filled('q')) {
+            $q = '%' . $request->q . '%';
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nama', 'like', $q)
+                    ->orWhere('email', 'like', $q);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $siswa = $query->get();
 
         return response()->json([
             'status'  => 'success',
             'message' => 'Data berhasil dimuat',
             'data'    => $siswa,
+        ]);
+    }
+
+    public function apiShow($id)
+    {
+        $student = User::where('id_role', 3)
+            ->with(['role', 'kategori'])
+            ->find($id);
+
+        if (!$student) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Data monitoring siswa tidak ditemukan',
+                'data'    => null,
+            ], 404);
+        }
+
+        $riwayat_quiz = HasilQuiz::where('id_user', $student->id_user)
+            ->with('quiz.materi')
+            ->latest()
+            ->get();
+
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+        if (!$isAdmin) {
+            $riwayat_quiz->each(function ($item) {
+                if ($item->quiz) {
+                    $item->quiz->makeHidden(['kunci_jawaban']);
+                }
+            });
+        }
+
+        $progress_materi = ProgressMateri::where('id_user', $student->id_user)
+            ->with('materi.babModel')
+            ->get();
+
+        $totalQuizDikerjakan = $riwayat_quiz->count();
+        $totalPoin = (int) $riwayat_quiz->sum('skor_diperoleh');
+        $rataRataNilai = $totalQuizDikerjakan > 0 ? round($riwayat_quiz->avg('skor_diperoleh'), 1) : 0;
+        $totalMateriDibaca = $progress_materi->where('status', 'Completed')->count();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Detail monitoring siswa berhasil dimuat',
+            'data'    => [
+                'siswa'                 => $student,
+                'total_quiz_dikerjakan' => $totalQuizDikerjakan,
+                'total_poin'            => $totalPoin,
+                'rata_rata_nilai'       => $rataRataNilai,
+                'total_materi_dibaca'   => $totalMateriDibaca,
+                'riwayat_quiz'          => $riwayat_quiz,
+                'progress_materi'       => $progress_materi,
+            ],
         ]);
     }
 

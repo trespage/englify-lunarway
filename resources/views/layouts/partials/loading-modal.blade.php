@@ -106,30 +106,69 @@ if (!window._englifyLoaderAttached) {
             });
         });
 
-        // 1. FORM DOUBLE-SUBMIT PROTECTION
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                if (e.defaultPrevented) return;
-                if (typeof this.checkValidity === 'function' && !this.checkValidity()) return;
+        // 1. GLOBAL FORM ANTI-SPAM CLICK & "MEMPROSES..." BUTTON SPINNER (S3-07)
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (!form || form.tagName !== 'FORM') return;
+            if (e.defaultPrevented) return;
 
-                if (this.dataset.submitting === 'true') {
-                    e.preventDefault();
-                    return false;
+            // Jika form HTML5 validasi gagal, jangan kunci tombol
+            if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                return;
+            }
+
+            // Cegah duplikasi pengiriman (anti-spam / anti double-click)
+            if (form.dataset.submitting === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            form.dataset.submitting = 'true';
+
+            // Ambil semua tombol submit di dalam form
+            const submitBtns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+            submitBtns.forEach(btn => {
+                // Simpan dimensi dan konten asli tombol agar UI tidak bergeser
+                if (!btn.dataset.originalHtml && btn.innerHTML) {
+                    btn.dataset.originalHtml = btn.innerHTML;
                 }
-                this.dataset.submitting = 'true';
-
-                // Nonaktifkan tombol submit & berikan indikator visual
-                const submitBtns = this.querySelectorAll('button[type="submit"], input[type="submit"]');
-                submitBtns.forEach(btn => {
-                    btn.style.pointerEvents = 'none';
-                    btn.style.opacity = '0.75';
-                });
-
-                if (typeof window.startPageLoader === 'function') {
-                    window.startPageLoader();
+                if (!btn.dataset.originalVal && btn.value) {
+                    btn.dataset.originalVal = btn.value;
                 }
+                const currentWidth = btn.offsetWidth;
+                if (currentWidth > 0) {
+                    btn.style.minWidth = currentWidth + 'px';
+                }
+
+                // Ubah tampilan menjadi spinner & teks "Memproses..."
+                btn.classList.add('cursor-not-allowed');
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.85';
+
+                if (btn.tagName.toLowerCase() === 'input') {
+                    btn.value = 'Memproses...';
+                } else {
+                    btn.innerHTML = `
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-current shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span>Memproses...</span>
+                        </span>
+                    `;
+                }
+
+                // Beri efek disabled setelah mikro-jeda agar native submit form tetap diproses browser
+                setTimeout(() => {
+                    btn.disabled = true;
+                }, 20);
             });
-        });
+
+            if (typeof window.startPageLoader === 'function') {
+                window.startPageLoader();
+            }
+        }, true);
     });
 
     window.addEventListener('pageshow', function() {
@@ -139,12 +178,21 @@ if (!window._englifyLoaderAttached) {
         if (typeof window.hideLoading === 'function') {
             window.hideLoading();
         }
-        // Pulihkan tombol submit saat user menekan Back / kembali
+        // Pulihkan tombol submit saat user menekan tombol Back / kembali
         document.querySelectorAll('form').forEach(form => {
             form.dataset.submitting = 'false';
             form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
+                btn.disabled = false;
                 btn.style.pointerEvents = '';
                 btn.style.opacity = '';
+                btn.style.minWidth = '';
+                btn.classList.remove('cursor-not-allowed');
+                if (btn.dataset.originalHtml) {
+                    btn.innerHTML = btn.dataset.originalHtml;
+                }
+                if (btn.dataset.originalVal) {
+                    btn.value = btn.dataset.originalVal;
+                }
             });
         });
     });

@@ -202,6 +202,7 @@
                                             @else
                                                 <!-- Tombol: Mulai Baca / Baca Lagi Materi -->
                                                 <a href="{{ route('siswa.materi.baca', $m->id_materi) }}"
+                                                   @if(!$sudahSelesai) onclick="return confirmBukaMateri(event, '{{ route('siswa.materi.baca', $m->id_materi) }}')" @endif
                                                    class="w-full sm:w-auto justify-center px-4 py-2 {{ $sudahSelesai ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' : 'bg-[#018ABE] text-white hover:bg-[#02457A] shadow-sm' }} text-xs font-bold rounded-xl transition flex items-center gap-1.5"
                                                    title="Pelajari materi">
                                                     <span>{{ $sudahSelesai ? 'Baca Lagi' : 'Mulai Baca' }}</span>

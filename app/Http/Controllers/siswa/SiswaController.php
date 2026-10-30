@@ -286,6 +286,15 @@ class SiswaController extends Controller
 
         $sudahSelesaiQuiz = $hasilQuiz !== null;
 
+        if (!$sudahSelesaiQuiz && $targetQuiz) {
+            session([
+                'active_materi_lock' => $materi->id_materi,
+                'active_quiz_lock'   => $targetQuiz->id_quiz,
+            ]);
+        } else {
+            session()->forget(['active_materi_lock', 'active_quiz_lock']);
+        }
+
         // Cari materi lain dalam bab yang sama untuk navigasi sidebar
         $materiLain = Materi::visibleForSiswa()
             ->where('id_bab', $materi->id_bab)
@@ -540,6 +549,11 @@ class SiswaController extends Controller
             ];
         })->values();
 
+        session([
+            'active_quiz_lock'   => $quiz->id_quiz,
+            'active_materi_lock' => $quiz->id_materi,
+        ]);
+
         return view('siswa.quiz.show', compact('quiz', 'soal', 'questionsPayload', 'durasiMenit'));
     }
 
@@ -652,6 +666,9 @@ class SiswaController extends Controller
             ]);
         }
 
+        // Kuis telah berhasil diselesaikan, buka kunci navigasi
+        session()->forget(['active_quiz_lock', 'active_materi_lock']);
+
         return redirect()->route('siswa.quiz.hasil', $quiz->id_quiz)
             ->with('success', 'Jawaban kamu berhasil dikumpulkan!')
             ->with('show_celebration', true)
@@ -685,6 +702,9 @@ class SiswaController extends Controller
             return redirect()->route('siswa.peta-quiz')
                 ->with('warning', 'Anda belum menyelesaikan kuis untuk materi ini.');
         }
+
+        // Kebijakan Otorisasi (Laravel Policy)
+        $this->authorize('view', $hasil);
 
         // Review jawaban dan pembahasan HANYA boleh ditampilkan 1 kali saja tepat setelah siswa menyelesaikan quiz
         $canReview = (bool) (session('can_review_quiz') || session('show_celebration'));
@@ -745,9 +765,9 @@ class SiswaController extends Controller
     {
         $reminder = PesanAdmin::findOrFail($id);
 
-        if ($reminder->id_user == auth()->user()->id_user) {
-            $reminder->update(['is_read' => true]);
-        }
+        $this->authorize('update', $reminder);
+
+        $reminder->update(['is_read' => true]);
 
         return back();
     }
@@ -757,13 +777,11 @@ class SiswaController extends Controller
      */
     public function destroyReminder($id)
     {
-        $reminder = PesanAdmin::where('id', $id)
-            ->where('id_user', auth()->user()->id_user)
-            ->first();
+        $reminder = PesanAdmin::findOrFail($id);
 
-        if ($reminder) {
-            $reminder->delete();
-        }
+        $this->authorize('delete', $reminder);
+
+        $reminder->delete();
 
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json(['status' => 'success', 'message' => 'Reminder berhasil dihapus']);
@@ -948,6 +966,12 @@ class SiswaController extends Controller
             ->where('id_user', $user->id_user)
             ->latest()
             ->get();
+
+        $riwayat->each(function ($item) {
+            if ($item->quiz) {
+                $item->quiz->makeHidden(['kunci_jawaban']);
+            }
+        });
 
         return response()->json([
             'status'  => 'success',

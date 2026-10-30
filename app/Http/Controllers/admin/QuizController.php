@@ -16,14 +16,69 @@ class QuizController extends Controller
         return view('admin.quiz', compact('quizzes', 'materis'));
     }
 
-    public function apiIndex()
+    public function apiIndex(Request $request)
     {
-        $quizzes = Quiz::with('materi')->orderBy('created_at', 'desc')->get();
+        $query = Quiz::with(['materi', 'bab'])->orderBy('created_at', 'desc');
+
+        if ($request->filled('id_materi')) {
+            $query->where('id_materi', $request->id_materi);
+        }
+
+        if ($request->filled('id_bab')) {
+            $query->where('id_bab', $request->id_bab);
+        }
+
+        if ($request->filled('q')) {
+            $query->where('pertanyaan', 'like', '%' . $request->q . '%');
+        }
+
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+
+        if (!$isAdmin) {
+            $query->visibleForSiswa();
+        }
+
+        $quizzes = $query->get();
+
+        if (!$isAdmin) {
+            $quizzes->makeHidden(['kunci_jawaban']);
+        }
 
         return response()->json([
             'status'  => 'success',
             'message' => 'Data berhasil dimuat',
             'data'    => $quizzes,
+        ]);
+    }
+
+    public function apiShow($id)
+    {
+        $isAdmin = auth()->check() && in_array((int) auth()->user()->id_role, [1, 2]);
+
+        $query = Quiz::with(['materi', 'bab']);
+
+        if (!$isAdmin) {
+            $query->visibleForSiswa();
+        }
+
+        $quiz = $query->find($id);
+
+        if (!$quiz) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Soal quiz tidak ditemukan',
+                'data'    => null,
+            ], 404);
+        }
+
+        if (!$isAdmin) {
+            $quiz->makeHidden(['kunci_jawaban']);
+        }
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Detail quiz berhasil dimuat',
+            'data'    => $quiz,
         ]);
     }
 

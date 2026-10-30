@@ -188,6 +188,9 @@
                 </a>
             </div>
 
+            <!-- Breadcrumbs Rekam Jejak Navigasi -->
+            @include('layouts.partials.breadcrumbs')
+
             <!-- Header Form -->
             <div class="mb-4">
                 <div class="flex items-center gap-2.5 mb-1">
@@ -474,5 +477,7 @@
 
         document.getElementById('current_password').addEventListener('input', checkCanSubmit);
     </script>
+
+    @include('layouts.partials.loading-modal')
 </body>
 </html>

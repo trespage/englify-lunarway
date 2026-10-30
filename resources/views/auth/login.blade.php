@@ -283,6 +283,9 @@
             <!-- Login Card -->
             <div class="relative z-10 w-full max-w-md animate-slide-up pt-10 sm:pt-6 lg:pt-0">
 
+                <!-- Breadcrumbs Rekam Jejak Navigasi Publik -->
+                @include('layouts.partials.breadcrumbs')
+
                 <!-- Header -->
                 <div class="mb-8">
                     <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-navy-200 rounded-full mb-4 shadow-sm">
