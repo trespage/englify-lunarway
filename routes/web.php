@@ -16,9 +16,9 @@ use App\Http\Controllers\ReviewController;
 // 1. LANDING PAGE & REVIEW
 // =================================================================
 Route::get('/', function () {
-    $totalSiswa  = 100;
-    $totalMateri = 40;
-    $totalDivisi = 4;
+    $totalSiswa  = \App\Models\User::where('id_role', 3)->count();
+    $totalMateri = \App\Models\Materi::visibleForSiswa()->count();
+    $totalDivisi = \App\Models\Kategori::count();
     $reviews     = \App\Models\Review::where('is_approved', true)->latest()->get();
 
     return view('landing', compact('totalSiswa', 'totalMateri', 'totalDivisi', 'reviews'));
@@ -72,6 +72,7 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::get('/profile', [SuperAdminController::class, 'profile'])->name('profile');
     Route::get('/profile/data', [SuperAdminController::class, 'apiProfile'])->name('profile.data');
     Route::put('/profile', [SuperAdminController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/avatar', [SuperAdminController::class, 'updateAvatar'])->name('profile.avatar');
 });
 
 
@@ -88,11 +89,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 
     Route::get('/bab', [BabController::class, 'index'])->name('bab');
+    Route::get('/bab/next-urutan/{kategoriId}', [BabController::class, 'nextUrutan'])->name('bab.next-urutan');
     Route::post('/bab', [BabController::class, 'store'])->name('bab.store');
     Route::put('/bab/{id}', [BabController::class, 'update'])->name('bab.update');
     Route::delete('/bab/{id}', [BabController::class, 'destroy'])->name('bab.destroy');
 
     Route::get('/materi', [MateriController::class, 'index'])->name('materi');
+    Route::post('/materi/upload-image', [MateriController::class, 'uploadImage'])->name('materi.upload-image');
     Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
     Route::put('/materi/{id}', [MateriController::class, 'update'])->name('materi.update');
     Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('materi.destroy');
@@ -111,6 +114,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/profil', [AdminController::class, 'profil'])->name('profil');
     Route::put('/profil', [AdminController::class, 'updateProfil'])->name('profil.update');
+    Route::post('/profil/avatar', [AdminController::class, 'updateAvatar'])->name('profil.avatar');
 
     // ==========================================
     // KIRIM REMINDER (BARU)
@@ -153,6 +157,7 @@ Route::middleware(['auth', 'force.password.change', 'role:siswa', 'lock.learning
     // Profil
     Route::get('/profil', [SiswaController::class, 'profil'])->name('profil');
     Route::put('/profil', [SiswaController::class, 'updateProfil'])->name('profil.update');
+    Route::post('/profil/avatar', [SiswaController::class, 'updateAvatar'])->name('profil.avatar');
     Route::post('/profil/password', [SiswaController::class, 'updatePassword'])->name('profil.password');
 
     // API

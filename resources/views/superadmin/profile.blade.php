@@ -37,9 +37,9 @@
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
 
             {{-- Avatar --}}
-            <div class="relative shrink-0">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#E0ECFC] border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
-                    <img src="{{ asset('images/cat-welcome.png') }}" alt="Avatar" class="w-full h-full object-cover">
+            <div class="relative shrink-0 group">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden ring-4 ring-sky-100 p-1">
+                    <img id="main-superadmin-avatar" src="{{ auth()->user()->avatar_url }}" alt="Avatar {{ auth()->user()->nama }}" class="w-full h-full object-contain filter drop-shadow-sm transition-transform duration-300 group-hover:scale-110">
                 </div>
                 {{-- Online indicator --}}
                 <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center">
@@ -79,6 +79,59 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- PILIHAN KARAKTER MASKOT AVATAR SUPER ADMIN                   --}}
+    {{-- ============================================================ --}}
+    @php
+        $currentAvatar = auth()->user()->avatar ?? 'avatar-cat-laptop.png';
+        $avatars = \App\Models\User::availableAvatars();
+    @endphp
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/70 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0">
+                    <span class="text-xl">🐱</span>
+                </div>
+                <div>
+                    <h3 class="font-extrabold text-slate-800 text-base sm:text-lg">Karakter Maskot Profil</h3>
+                    <p class="text-xs text-slate-500">Pilih salah satu karakter kucing lucu Englify untuk profil Super Admin!</p>
+                </div>
+            </div>
+            <div id="superadmin-avatar-status" class="hidden items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+                <svg class="w-3.5 h-3.5 animate-spin text-emerald-600 hidden" id="superadmin-avatar-spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                <span id="superadmin-avatar-status-text">Tersimpan</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            @foreach($avatars as $file => $meta)
+                @php
+                    $isSelected = ($currentAvatar === $file);
+                @endphp
+                <button type="button"
+                        onclick="selectSuperAdminAvatar('{{ $file }}', '{{ $meta['nama'] }}')"
+                        class="superadmin-avatar-card relative flex flex-col items-center p-3 rounded-2xl border-2 transition-all duration-200 group text-center cursor-pointer {{ $isSelected ? 'border-sky-500 bg-sky-50/60 ring-2 ring-sky-500/20 shadow-md' : 'border-slate-200/80 bg-white hover:border-sky-300 hover:bg-slate-50/80' }}"
+                        data-avatar="{{ $file }}">
+                    
+                    <div class="superadmin-avatar-check absolute top-2 right-2 w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center {{ $isSelected ? '' : 'hidden' }}">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white p-1 flex items-center justify-center mb-2 shadow-2xs group-hover:scale-105 transition-transform duration-200">
+                        <img src="{{ asset('images/avatars/' . $file) }}" alt="{{ $meta['nama'] }}" class="w-full h-full object-contain filter drop-shadow-sm">
+                    </div>
+
+                    <p class="text-xs font-extrabold text-slate-800 leading-tight truncate w-full">{{ $meta['nama'] }}</p>
+                    <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full {{ $isSelected ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-sky-100 group-hover:text-sky-700' }} transition-colors">
+                        {{ $meta['badge'] }}
+                    </span>
+                </button>
+            @endforeach
         </div>
     </div>
 
@@ -854,5 +907,80 @@ document.addEventListener('DOMContentLoaded', function() {
     showToast("{{ session('success') }}", 'success');
     @endif
 });
+
+function selectSuperAdminAvatar(filename, name) {
+    const cards = document.querySelectorAll('.superadmin-avatar-card');
+    cards.forEach(card => {
+        const isTarget = card.getAttribute('data-avatar') === filename;
+        const check = card.querySelector('.superadmin-avatar-check');
+        const badge = card.querySelector('span');
+
+        if (isTarget) {
+            card.classList.remove('border-slate-200/80', 'bg-white', 'hover:border-sky-300', 'hover:bg-slate-50/80');
+            card.classList.add('border-sky-500', 'bg-sky-50/60', 'ring-2', 'ring-sky-500/20', 'shadow-md');
+            if (check) check.classList.remove('hidden');
+            if (badge) {
+                badge.className = 'inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-600 text-white transition-colors';
+            }
+        } else {
+            card.classList.remove('border-sky-500', 'bg-sky-50/60', 'ring-2', 'ring-sky-500/20', 'shadow-md');
+            card.classList.add('border-slate-200/80', 'bg-white', 'hover:border-sky-300', 'hover:bg-slate-50/80');
+            if (check) check.classList.add('hidden');
+            if (badge) {
+                badge.className = 'inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 group-hover:bg-sky-100 group-hover:text-sky-700 transition-colors';
+            }
+        }
+    });
+
+    const newUrl = "{{ asset('images/avatars') }}/" + filename;
+    const mainImg = document.getElementById('main-superadmin-avatar');
+    if (mainImg) {
+        mainImg.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+            mainImg.src = newUrl;
+            mainImg.style.transform = 'scale(1)';
+        }, 120);
+    }
+
+    document.querySelectorAll('.header-user-avatar').forEach(img => {
+        img.src = newUrl;
+    });
+
+    const statusBox = document.getElementById('superadmin-avatar-status');
+    const spinner = document.getElementById('superadmin-avatar-spinner');
+    const statusText = document.getElementById('superadmin-avatar-status-text');
+
+    if (statusBox) {
+        statusBox.classList.remove('hidden');
+        statusBox.classList.add('flex');
+        if (spinner) spinner.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'Menyimpan...';
+    }
+
+    fetch("{{ route('superadmin.profile.avatar') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ avatar: filename })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (spinner) spinner.classList.add('hidden');
+        if (statusText) statusText.textContent = 'Tersimpan! ✨';
+        setTimeout(() => {
+            if (statusBox) {
+                statusBox.classList.add('hidden');
+                statusBox.classList.remove('flex');
+            }
+        }, 2200);
+    })
+    .catch(err => {
+        if (spinner) spinner.classList.add('hidden');
+        if (statusText) statusText.textContent = 'Gagal';
+    });
+}
 </script>
 @endpush

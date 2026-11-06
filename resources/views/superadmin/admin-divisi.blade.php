@@ -104,7 +104,7 @@
                     <span class="text-slate-400 text-xs font-semibold uppercase tracking-wide">Role</span>
                     <span class="font-medium text-right text-xs flex items-center gap-1">
                         <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5h1.5a1.5 1.5 0 000-3H9V6"/></svg>
-                        Admin Divisi
+                        {{ $admin->kategori ? 'Divisi ' . $admin->kategori->nama_kategori : 'Admin Divisi (Semua)' }}
                     </span>
                 </div>
                 <div class="flex justify-between items-center">
@@ -113,7 +113,7 @@
                 </div>
             </div>
             <div class="flex gap-2 pt-2 border-t border-slate-100">
-                <button onclick="editAdmin(@js($admin->id_user), @js($admin->nama), @js($admin->email), @js($admin->status ?? 'aktif'))" class="flex-1 py-2.5 bg-sky-50 text-sky-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:bg-sky-100 transition">Edit</button>
+                <button onclick="editAdmin(@js($admin->id_user), @js($admin->nama), @js($admin->email), @js($admin->status ?? 'aktif'), @js($admin->id_kategori))" class="flex-1 py-2.5 bg-sky-50 text-sky-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:bg-sky-100 transition">Edit</button>
                 <button onclick="deleteAdmin(@js($admin->id_user))" class="flex-1 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:bg-rose-100 transition">Hapus</button>
             </div>
         </div>
@@ -143,7 +143,7 @@
                     @forelse($admins ?? [] as $admin)
                     <tr class="hover:bg-sky-50/40 transition group"
                         data-search="{{ mb_strtolower(trim(($admin->nama ?? '') . ' ' . ($admin->email ?? ''))) }}" data-status="{{ $admin->status ?? 'aktif' }}">
-                        <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ ($admins->firstItem() ?? 1) + $loop->index }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -156,7 +156,7 @@
                         <td class="px-6 py-4 text-sm text-slate-600">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5h1.5a1.5 1.5 0 000-3H9V6"/></svg>
-                                Admin Divisi
+                                {{ $admin->kategori ? 'Divisi ' . $admin->kategori->nama_kategori : 'Admin Divisi (Semua)' }}
                             </span>
                         </td>
                         <td class="px-6 py-4">
@@ -169,7 +169,7 @@
                         <td class="px-6 py-4 text-sm text-slate-600">{{ \Carbon\Carbon::parse($admin->created_at)->format('d M Y H:i') }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="editAdmin(@js($admin->id_user), @js($admin->nama), @js($admin->email), @js($admin->status ?? 'aktif'))" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition" title="Edit">
+                                <button onclick="editAdmin(@js($admin->id_user), @js($admin->nama), @js($admin->email), @js($admin->status ?? 'aktif'), @js($admin->id_kategori))" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </button>
                                 <button onclick="deleteAdmin(@js($admin->id_user))" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition" title="Hapus">
@@ -227,6 +227,16 @@
                 <p class="text-xs text-slate-400 mt-1" id="passwordHint">Wajib diisi (min. 6 karakter) saat tambah akun. Kosongkan hanya saat edit jika tidak ingin mengubah password.</p>
             </div>
             <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Divisi (Kategori)</label>
+                <select id="inputIdKategori" name="id_kategori" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
+                    <option value="">Semua Divisi (Umum)</option>
+                    @foreach($kategoris ?? [] as $kat)
+                        <option value="{{ $kat->id_kategori }}">{{ $kat->nama_kategori }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-slate-400 mt-1">Pilih kategori jika admin bertanggung jawab pada satu divisi saja.</p>
+            </div>
+            <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Status</label>
                 <select id="inputStatus" name="status" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition">
                     <option value="aktif" {{ old('status', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif</option>
@@ -277,6 +287,7 @@ function openModal(type = 'add', admin = null) {
         document.getElementById('inputNama').value = admin.nama;
         document.getElementById('inputEmail').value = admin.email;
         document.getElementById('inputStatus').value = admin.status ?? 'aktif';
+        document.getElementById('inputIdKategori').value = admin.id_kategori ?? '';
         document.getElementById('inputPassword').value = '';
         document.getElementById('inputPassword').required = false;
     } else {
@@ -285,6 +296,7 @@ function openModal(type = 'add', admin = null) {
         form.action = @js(route('superadmin.adminDivisi.store'));
         document.getElementById('adminMethod').disabled = true;
         document.getElementById('adminId').value = '';
+        document.getElementById('inputIdKategori').value = '';
         document.getElementById('inputPassword').required = true;
     }
     modal.classList.remove('hidden');
@@ -297,8 +309,8 @@ function closeModal() {
     document.getElementById('adminForm').reset();
 }
 
-function editAdmin(id, nama, email, status = 'aktif') {
-    openModal('edit', { id_user: id, nama: nama, email: email, status: status });
+function editAdmin(id, nama, email, status = 'aktif', id_kategori = null) {
+    openModal('edit', { id_user: id, nama: nama, email: email, status: status, id_kategori: id_kategori });
 }
 
 function deleteAdmin(id) {

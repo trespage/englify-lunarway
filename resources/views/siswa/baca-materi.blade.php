@@ -25,6 +25,198 @@
 </style>
 @endif
 
+<style>
+    /* Styling Format Konten Materi Terformat (Word Style) */
+    .materi-rendered h1:not([style*="font-size"]) {
+        font-size: 1.5rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        margin-top: 1.25rem !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.3 !important;
+    }
+    .materi-rendered h2:not([style*="font-size"]) {
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0.375rem !important;
+        line-height: 1.35 !important;
+    }
+    .materi-rendered h3:not([style*="font-size"]) {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+        line-height: 1.4 !important;
+    }
+    .materi-rendered p {
+        margin-bottom: 0.75rem !important;
+        line-height: 1.7 !important;
+    }
+    .materi-rendered strong, .materi-rendered b {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+    }
+    .materi-rendered em, .materi-rendered i {
+        font-style: italic !important;
+    }
+    .materi-rendered u {
+        text-decoration: underline !important;
+        text-underline-offset: 3px !important;
+    }
+    .materi-rendered s, .materi-rendered strike {
+        text-decoration: line-through !important;
+    }
+    .materi-rendered ul {
+        list-style-type: disc !important;
+        padding-left: 1.5rem !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .materi-rendered ol {
+        list-style-type: decimal;
+        padding-left: 1.75rem !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .materi-rendered ol[type="A"],
+    .materi-rendered ol[style*="upper-alpha"],
+    .materi-rendered ol.list-upper-alpha {
+        list-style-type: upper-alpha !important;
+    }
+    .materi-rendered ol[type="a"],
+    .materi-rendered ol[style*="lower-alpha"],
+    .materi-rendered ol.list-lower-alpha {
+        list-style-type: lower-alpha !important;
+    }
+    .materi-rendered ol[type="I"],
+    .materi-rendered ol[style*="upper-roman"],
+    .materi-rendered ol.list-upper-roman {
+        list-style-type: upper-roman !important;
+    }
+    .materi-rendered ol[type="i"],
+    .materi-rendered ol[style*="lower-roman"],
+    .materi-rendered ol.list-lower-roman {
+        list-style-type: lower-roman !important;
+    }
+    .materi-rendered ol[type="1"],
+    .materi-rendered ol[style*="decimal"],
+    .materi-rendered ol.list-decimal {
+        list-style-type: decimal !important;
+    }
+    .materi-rendered ol ol:not([type]) {
+        list-style-type: lower-alpha !important;
+    }
+    .materi-rendered ol ol ol:not([type]) {
+        list-style-type: lower-roman !important;
+    }
+    .materi-rendered li {
+        margin-bottom: 0.35rem !important;
+        line-height: 1.6 !important;
+    }
+    /* Marker penomoran / huruf (A. B. C. atau 1. 2. 3.) otomatis ikut bold jika teks di sampingnya berformat bold (anak judul) */
+    .materi-rendered li:has(strong)::marker,
+    .materi-rendered li:has(b)::marker,
+    .materi-rendered li:has([style*="font-weight: bold"])::marker,
+    .materi-rendered li:has([style*="font-weight: 700"])::marker,
+    .materi-rendered li.li-marker-bold::marker {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+    }
+    .materi-rendered blockquote {
+        border-left: 4px solid #0284c7;
+        background: rgba(2, 132, 199, 0.06);
+        padding: 0.6rem 1rem !important;
+        margin: 0.85rem 0 !important;
+        color: #334155 !important;
+        font-style: italic;
+        border-radius: 0 0.75rem 0.75rem 0 !important;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .materi-rendered blockquote.callout-green, .materi-rendered blockquote[data-color="green"] {
+        border-left-color: #16a34a !important;
+        background-color: rgba(22, 163, 74, 0.08) !important;
+    }
+    .materi-rendered blockquote.callout-red, .materi-rendered blockquote[data-color="red"] {
+        border-left-color: #dc2626 !important;
+        background-color: rgba(220, 38, 38, 0.08) !important;
+    }
+    .materi-rendered blockquote.callout-blue, .materi-rendered blockquote[data-color="blue"] {
+        border-left-color: #0284c7 !important;
+        background-color: rgba(2, 132, 199, 0.08) !important;
+    }
+    .materi-rendered blockquote.callout-amber, .materi-rendered blockquote[data-color="amber"] {
+        border-left-color: #d97706 !important;
+        background-color: rgba(217, 119, 6, 0.08) !important;
+    }
+    .materi-rendered blockquote.callout-purple, .materi-rendered blockquote[data-color="purple"] {
+        border-left-color: #9333ea !important;
+        background-color: rgba(147, 51, 234, 0.08) !important;
+    }
+    .materi-rendered blockquote.callout-gray, .materi-rendered blockquote[data-color="gray"] {
+        border-left-color: #64748b !important;
+        background-color: rgba(100, 116, 139, 0.08) !important;
+    }
+    .materi-rendered hr {
+        border: 0 !important;
+        border-top: 2px dashed #cbd5e1 !important;
+        margin: 1.25rem 0 !important;
+    }
+    .materi-rendered mark {
+        background-color: #fef08a !important;
+        padding: 0.1rem 0.3rem !important;
+        border-radius: 0.25rem !important;
+    }
+    .materi-rendered a {
+        color: #0284c7 !important;
+        text-decoration: underline !important;
+    }
+    /* Ukuran Font Presisi (10px, 12px Kecil, 14px Normal, 16px Sedang, 18px Besar, 24px Ekstra, 36px Jumbo) */
+    .materi-rendered font[size="1"] { font-size: 0.625rem !important; line-height: 1.4 !important; }
+    .materi-rendered font[size="2"] { font-size: 0.75rem !important; line-height: 1.5 !important; }
+    .materi-rendered font[size="3"] { font-size: 0.875rem !important; line-height: 1.6 !important; }
+    .materi-rendered font[size="4"] { font-size: 1rem !important; line-height: 1.6 !important; }
+    .materi-rendered font[size="5"] { font-size: 1.125rem !important; line-height: 1.5 !important; }
+    .materi-rendered font[size="6"] { font-size: 1.5rem !important; line-height: 1.4 !important; }
+    .materi-rendered font[size="7"] { font-size: 2.25rem !important; line-height: 1.3 !important; }
+    .materi-rendered span[style*="font-size: 10px"] { font-size: 0.625rem !important; }
+    .materi-rendered span[style*="font-size: 12px"] { font-size: 0.75rem !important; }
+    .materi-rendered span[style*="font-size: 14px"] { font-size: 0.875rem !important; }
+    .materi-rendered span[style*="font-size: 16px"] { font-size: 1rem !important; }
+    .materi-rendered span[style*="font-size: 18px"] { font-size: 1.125rem !important; }
+    .materi-rendered span[style*="font-size: 24px"] { font-size: 1.5rem !important; }
+    .materi-rendered span[style*="font-size: 36px"] { font-size: 2.25rem !important; }
+    .materi-rendered figure {
+        margin: 1.5rem 0 !important;
+        display: block !important;
+    }
+    .materi-rendered figure[style*="text-align: left"] {
+        text-align: left !important;
+    }
+    .materi-rendered figure[style*="text-align: center"] {
+        text-align: center !important;
+    }
+    .materi-rendered figure[style*="text-align: right"] {
+        text-align: right !important;
+    }
+    .materi-rendered img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        display: inline-block !important;
+    }
+    .materi-rendered figcaption {
+        font-size: 0.8125rem !important;
+        color: #64748b !important;
+        margin-top: 0.375rem !important;
+        font-style: italic !important;
+        text-align: inherit !important;
+    }
+</style>
+
 <div class="max-w-5xl mx-auto space-y-6">
 
     <!-- HEADER -->
@@ -69,32 +261,70 @@
     <!-- MAIN CONTENT CARD -->
     <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm overflow-hidden">
 
+        @php
+            $katName = $materi->kategori?->nama_kategori ?? '';
+            $bannerThemes = [
+                'Speaking' => [
+                    'bg'        => 'from-rose-100 via-rose-50 to-pink-200/40',
+                    'sparkle'   => 'text-rose-300',
+                    'text'      => 'text-rose-600',
+                    'badge'     => 'bg-rose-50 text-rose-700 border-rose-200',
+                    'label'     => "Let's Learn! 🎙️",
+                    'path'      => 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+                ],
+                'Writing' => [
+                    'bg'        => 'from-blue-100 via-sky-50 to-blue-200/40',
+                    'sparkle'   => 'text-blue-300',
+                    'text'      => 'text-blue-600',
+                    'badge'     => 'bg-blue-50 text-blue-700 border-blue-200',
+                    'label'     => "Let's Learn! ✍️",
+                    'path'      => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+                ],
+                'Reading' => [
+                    'bg'        => 'from-emerald-100 via-teal-50 to-emerald-200/40',
+                    'sparkle'   => 'text-emerald-300',
+                    'text'      => 'text-emerald-600',
+                    'badge'     => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    'label'     => "Let's Learn! 📖",
+                    'path'      => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+                ],
+                'Listening' => [
+                    'bg'        => 'from-purple-100 via-indigo-50 to-purple-200/40',
+                    'sparkle'   => 'text-purple-300',
+                    'text'      => 'text-purple-600',
+                    'badge'     => 'bg-purple-50 text-purple-700 border-purple-200',
+                    'label'     => "Let's Learn! 🎧",
+                    'path'      => 'M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z',
+                ],
+            ];
+            $currentTheme = $bannerThemes[$katName] ?? [
+                'bg'        => 'from-[#D6EBEE] to-[#97CADB]/30',
+                'sparkle'   => 'text-[#97CADB]',
+                'text'      => 'text-[#018ABE]',
+                'badge'     => 'bg-slate-50 text-slate-700 border-slate-200',
+                'label'     => "Let's Learn! 📚",
+                'path'      => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+            ];
+            $badgeStyle = $currentTheme['badge'];
+        @endphp
+
         <!-- Banner -->
-        <div class="w-full h-36 sm:h-48 bg-gradient-to-br from-[#D6EBEE] to-[#97CADB]/30 flex items-center justify-center relative overflow-hidden">
-            <div class="absolute top-4 right-8 text-[#97CADB] text-xs opacity-60">✧</div>
-            <div class="absolute bottom-4 left-12 text-[#97CADB] text-xs opacity-60">✦</div>
+        <div class="w-full h-36 sm:h-48 bg-gradient-to-br {{ $currentTheme['bg'] }} flex items-center justify-center relative overflow-hidden transition-all duration-300">
+            <div class="absolute top-4 right-8 {{ $currentTheme['sparkle'] }} text-xs opacity-60">✧</div>
+            <div class="absolute bottom-4 left-12 {{ $currentTheme['sparkle'] }} text-xs opacity-60">✦</div>
             <div class="text-center relative z-10">
                 <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 rounded-2xl bg-white/80 backdrop-blur flex items-center justify-center shadow-lg">
-                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-[#018ABE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 {{ $currentTheme['text'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $currentTheme['path'] }}"/>
                     </svg>
                 </div>
-                <p class="font-cute text-xl sm:text-2xl text-[#018ABE]">Let's Learn! 📚</p>
+                <p class="font-cute text-xl sm:text-2xl {{ $currentTheme['text'] }}">{{ $currentTheme['label'] }}</p>
             </div>
         </div>
 
         <!-- Content -->
         <div class="p-4 sm:p-8">
             <!-- Meta Info -->
-            @php
-                $catColors = [
-                    'Speaking'  => 'bg-rose-50 text-rose-700 border-rose-200',
-                    'Writing'   => 'bg-blue-50 text-blue-700 border-blue-200',
-                    'Reading'   => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                    'Listening' => 'bg-purple-50 text-purple-700 border-purple-200',
-                ];
-                $badgeStyle = $catColors[$materi->kategori?->nama_kategori] ?? 'bg-slate-50 text-slate-700 border-slate-200';
-            @endphp
             <div class="flex flex-wrap items-center gap-3 mb-6 pb-6 border-b border-[#97CADB]/20">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border {{ $badgeStyle }}">
                     {{ $materi->kategori?->nama_kategori ?? 'Materi' }}
@@ -152,8 +382,16 @@
                 <!-- Konten Utama Materi -->
                 <div class="space-y-2">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Isi Materi Pembelajaran</h3>
-                    <div class="text-slate-800 leading-relaxed text-base whitespace-pre-line break-words content-text-wrap bg-slate-50/50 rounded-2xl p-5 sm:p-6 border border-slate-200/60 shadow-2xs max-w-full overflow-hidden" style="overflow-wrap: anywhere; word-break: break-word;">
-                        {!! nl2br(e($materi->isi_materi ?? $materi->konten ?? 'Belum ada konten tertulis untuk materi ini.')) !!}
+                    @php
+                        $rawKonten = $materi->isi_materi ?? $materi->konten ?? 'Belum ada konten tertulis untuk materi ini.';
+                        $hasHtml = strip_tags($rawKonten) !== $rawKonten;
+                    @endphp
+                    <div class="text-slate-800 leading-relaxed text-base break-words content-text-wrap materi-rendered bg-slate-50/50 rounded-2xl p-5 sm:p-6 border border-slate-200/60 shadow-2xs max-w-full overflow-hidden {{ $hasHtml ? '' : 'whitespace-pre-line' }}" style="overflow-wrap: anywhere; word-break: break-word;">
+                        @if($hasHtml)
+                            {!! strip_tags($rawKonten, '<h1><h2><h3><h4><h5><h6><p><br><b><strong><i><em><u><s><strike><ul><ol><li><blockquote><hr><span><div><a><code><pre><mark><font><figure><figcaption><img><table><thead><tbody><tr><th><td>') !!}
+                        @else
+                            {!! nl2br(e($rawKonten)) !!}
+                        @endif
                     </div>
                 </div>
 
@@ -399,4 +637,18 @@
 </script>
 @endpush
 @endif
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.materi-rendered').forEach(function(container) {
+        container.querySelectorAll('li').forEach(function(li) {
+            const hasBold = li.querySelector('strong, b, [style*="font-weight: bold"], [style*="font-weight: 700"]');
+            if (hasBold) {
+                li.classList.add('li-marker-bold');
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

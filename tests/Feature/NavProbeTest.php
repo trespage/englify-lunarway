@@ -24,6 +24,10 @@ class NavProbeTest extends TestCase
         $siswa->forceFill(['must_change_password' => false])->saveQuietly();
 
         $materi = Materi::first();
+        $materiStatusAsli = $materi?->status;
+        if ($materi) {
+            $materi->forceFill(['status' => 'Published'])->saveQuietly();
+        }
         $hasil = HasilQuiz::first();
 
         $pages = [
@@ -107,6 +111,10 @@ class NavProbeTest extends TestCase
             \App\Models\ProgressMateri::where('id_materi', $materi->id_materi)
                 ->where('id_user', $siswa->id_user)
                 ->delete();
+        }
+
+        if ($materi && $materiStatusAsli) {
+            $materi->forceFill(['status' => $materiStatusAsli])->saveQuietly();
         }
 
         $this->assertSame([], $rusak, "Halaman rusak:\n- " . implode("\n- ", $rusak));

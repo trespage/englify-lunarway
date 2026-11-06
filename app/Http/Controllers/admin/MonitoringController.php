@@ -35,9 +35,9 @@ class MonitoringController extends Controller
             $query->where('status', $request->status);
         }
 
-        $paginator = $query->orderBy('nama')->paginate(10)->withQueryString();
+        $studentUsers = $query->orderBy('nama')->get();
 
-        $students = $paginator->getCollection()->map(function ($user) use ($totalMateri) {
+        $students = $studentUsers->map(function ($user) use ($totalMateri) {
             $progress = $totalMateri > 0 ? (int) round($user->materi_dibaca / $totalMateri * 100) : 0;
 
             return [
@@ -70,7 +70,7 @@ class MonitoringController extends Controller
             : 0;
 
         return view('admin.monitoring', compact(
-            'students', 'paginator', 'totalSiswa', 'siswaAktif', 'siswaNonaktif', 'averageProgress', 'totalPoinTerkumpul'
+            'students', 'totalSiswa', 'siswaAktif', 'siswaNonaktif', 'averageProgress', 'totalPoinTerkumpul'
         ));
     }
 

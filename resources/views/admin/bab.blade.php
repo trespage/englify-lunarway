@@ -17,7 +17,7 @@
             </div>
             <div>
                 <h1 class="text-2xl font-extrabold text-slate-800">Kelola Bab Kurikulum</h1>
-                <p class="text-slate-500 text-sm mt-0.5">Atur urutan Bab 1..N untuk setiap divisi (Speaking, Writing, Reading, Listening).</p>
+                <p class="text-slate-500 text-sm mt-0.5">Atur urutan Bab 1..N untuk setiap divisi kurikulum ({{ $kategoriList->pluck('nama_kategori')->implode(', ') }}).</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -69,55 +69,59 @@
     @endif
 
     <!-- ===================================================== -->
-    <!-- STATS CARDS                                            -->
+    <!-- STATS CARDS (DINAMIS MENGIKUTI KELOLA KATEGORI)        -->
     <!-- ===================================================== -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    @php
+        $cardStyles = [
+            'speaking'  => ['bg' => 'bg-rose-50/70 border-rose-200/80', 'title' => 'text-rose-700', 'dot' => 'bg-rose-500', 'count' => 'text-rose-800', 'unit' => 'text-rose-600', 'desc' => 'text-rose-500', 'default_desc' => 'Praktik Berbicara'],
+            'writing'   => ['bg' => 'bg-blue-50/70 border-blue-200/80', 'title' => 'text-blue-700', 'dot' => 'bg-blue-500', 'count' => 'text-blue-800', 'unit' => 'text-blue-600', 'desc' => 'text-blue-500', 'default_desc' => 'Tata Bahasa & Menulis'],
+            'reading'   => ['bg' => 'bg-emerald-50/70 border-emerald-200/80', 'title' => 'text-emerald-700', 'dot' => 'bg-emerald-500', 'count' => 'text-emerald-800', 'unit' => 'text-emerald-600', 'desc' => 'text-emerald-500', 'default_desc' => 'Membaca & Memahami'],
+            'listening' => ['bg' => 'bg-purple-50/70 border-purple-200/80', 'title' => 'text-purple-700', 'dot' => 'bg-purple-500', 'count' => 'text-purple-800', 'unit' => 'text-purple-600', 'desc' => 'text-purple-500', 'default_desc' => 'Audio & Pemahaman'],
+        ];
+
+        $fallbackStyles = [
+            ['bg' => 'bg-amber-50/70 border-amber-200/80', 'title' => 'text-amber-700', 'dot' => 'bg-amber-500', 'count' => 'text-amber-800', 'unit' => 'text-amber-600', 'desc' => 'text-amber-500', 'default_desc' => 'Divisi Kurikulum'],
+            ['bg' => 'bg-teal-50/70 border-teal-200/80', 'title' => 'text-teal-700', 'dot' => 'bg-teal-500', 'count' => 'text-teal-800', 'unit' => 'text-teal-600', 'desc' => 'text-teal-500', 'default_desc' => 'Divisi Kurikulum'],
+            ['bg' => 'bg-indigo-50/70 border-indigo-200/80', 'title' => 'text-indigo-700', 'dot' => 'bg-indigo-500', 'count' => 'text-indigo-800', 'unit' => 'text-indigo-600', 'desc' => 'text-indigo-500', 'default_desc' => 'Divisi Kurikulum'],
+            ['bg' => 'bg-cyan-50/70 border-cyan-200/80', 'title' => 'text-cyan-700', 'dot' => 'bg-cyan-500', 'count' => 'text-cyan-800', 'unit' => 'text-cyan-600', 'desc' => 'text-cyan-500', 'default_desc' => 'Divisi Kurikulum'],
+        ];
+    @endphp
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <!-- Total Bab -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm col-span-2 lg:col-span-1">
-            <p class="text-xs font-semibold text-slate-500">Total Semua Bab</p>
-            <p class="text-2xl font-extrabold text-slate-800 mt-1">{{ $stats['total'] }}</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">di 4 divisi kurikulum</p>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm col-span-2 sm:col-span-1 flex flex-col justify-between">
+            <div>
+                <p class="text-xs font-semibold text-slate-500">Total Semua Bab</p>
+                <p class="text-2xl font-extrabold text-slate-800 mt-1">{{ $stats['total'] }}</p>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2">di {{ $kategoriList->count() }} divisi kurikulum</p>
         </div>
 
-        <!-- Speaking (Merah) -->
-        <div class="bg-rose-50/70 rounded-2xl p-4 border border-rose-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-rose-700 uppercase tracking-wider">Speaking</span>
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+        <!-- Kartu per Kategori Dinamis -->
+        @foreach($kategoriList as $idx => $kat)
+            @php
+                $key = strtolower($kat->nama_kategori);
+                $style = $cardStyles[$key] ?? $fallbackStyles[$idx % count($fallbackStyles)];
+                $descText = !empty($kat->deskripsi) ? $kat->deskripsi : ($style['default_desc'] ?? 'Divisi Kurikulum');
+                $babCount = $kat->babs_count ?? $kat->babs()->count();
+            @endphp
+            <div class="{{ $style['bg'] }} rounded-2xl p-4 border shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold {{ $style['title'] }} uppercase tracking-wider truncate mr-1" title="{{ $kat->nama_kategori }}">
+                            {{ $kat->nama_kategori }}
+                        </span>
+                        <span class="w-2.5 h-2.5 rounded-full {{ $style['dot'] }} shrink-0"></span>
+                    </div>
+                    <p class="text-2xl font-extrabold {{ $style['count'] }} mt-1">
+                        {{ $babCount }} <span class="text-xs font-normal {{ $style['unit'] }}">Bab</span>
+                    </p>
+                </div>
+                <p class="text-[10px] {{ $style['desc'] }} mt-2 truncate" title="{{ $descText }}">
+                    {{ $descText }}
+                </p>
             </div>
-            <p class="text-2xl font-extrabold text-rose-800 mt-1">{{ $stats['speaking'] }} <span class="text-xs font-normal text-rose-600">Bab</span></p>
-            <p class="text-[10px] text-rose-500 mt-0.5">Praktik Berbicara</p>
-        </div>
-
-        <!-- Writing (Biru) -->
-        <div class="bg-blue-50/70 rounded-2xl p-4 border border-blue-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-blue-700 uppercase tracking-wider">Writing</span>
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-            </div>
-            <p class="text-2xl font-extrabold text-blue-800 mt-1">{{ $stats['writing'] }} <span class="text-xs font-normal text-blue-600">Bab</span></p>
-            <p class="text-[10px] text-blue-500 mt-0.5">Tata Bahasa & Menulis</p>
-        </div>
-
-        <!-- Reading (Hijau) -->
-        <div class="bg-emerald-50/70 rounded-2xl p-4 border border-emerald-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider">Reading</span>
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            </div>
-            <p class="text-2xl font-extrabold text-emerald-800 mt-1">{{ $stats['reading'] }} <span class="text-xs font-normal text-emerald-600">Bab</span></p>
-            <p class="text-[10px] text-emerald-500 mt-0.5">Membaca & Memahami</p>
-        </div>
-
-        <!-- Listening (Ungu) -->
-        <div class="bg-purple-50/70 rounded-2xl p-4 border border-purple-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-purple-700 uppercase tracking-wider">Listening</span>
-                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-            </div>
-            <p class="text-2xl font-extrabold text-purple-800 mt-1">{{ $stats['listening'] }} <span class="text-xs font-normal text-purple-600">Bab</span></p>
-            <p class="text-[10px] text-purple-500 mt-0.5">Audio & Pemahaman</p>
-        </div>
+        @endforeach
     </div>
 
     <!-- ===================================================== -->
@@ -305,10 +309,19 @@
 
             <!-- Urutan Bab -->
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Urutan Bab</label>
-                <input type="number" name="urutan" id="inputBabUrutan" min="1" placeholder="Contoh: 1, 2, 3... (kosongkan untuk nomor berikutnya)"
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700">Nomor Urutan Bab <span class="text-rose-500">*</span></label>
+                    <span id="babUrutanBadge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Otomatis Bersusun
+                    </span>
+                </div>
+                <input type="number" name="urutan" id="inputBabUrutan" min="1" placeholder="Pilih kategori terlebih dahulu"
                        class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
-                <p class="text-[11px] text-slate-400 mt-1">Urutan bab di dalam kategori terkait (misal Bab 1, Bab 2, dst).</p>
+                <p id="babUrutanHint" class="text-[11px] text-slate-400 mt-1">Urutan bab di dalam kategori terkait (misal Bab 1, Bab 2, dst).</p>
+                <div id="babUrutanWarning" class="hidden mt-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span id="babUrutanWarningText">Bab dengan nomor ini sudah ada pada kategori ini. Nomor bab harus bersusun dan tidak boleh sama.</span>
+                </div>
             </div>
 
             <!-- Status Aktif -->
@@ -366,12 +379,119 @@
 
 @push('scripts')
 <script>
+let currentBabMode = 'add';
+let currentOriginalUrutan = null;
+let currentKatUrutans = [];
+
+async function fetchNextUrutanForCategory(katId, autoFill = true) {
+    if (!katId) {
+        currentKatUrutans = [];
+        const urutanInput = document.getElementById('inputBabUrutan');
+        urutanInput.placeholder = 'Pilih kategori terlebih dahulu';
+        document.getElementById('babUrutanBadge').classList.add('hidden');
+        document.getElementById('babUrutanHint').textContent = 'Urutan bab di dalam kategori terkait (misal Bab 1, Bab 2, dst).';
+        checkUrutanValidity();
+        return;
+    }
+
+    try {
+        const res = await fetch(`/admin/bab/next-urutan/${katId}`);
+        if (!res.ok) throw new Error('Gagal mengambil urutan');
+        const data = await res.json();
+        currentKatUrutans = data.existing_urutans || [];
+
+        const urutanInput = document.getElementById('inputBabUrutan');
+        const badge = document.getElementById('babUrutanBadge');
+        const hint = document.getElementById('babUrutanHint');
+
+        urutanInput.placeholder = `Contoh: ${data.next_urutan} (Otomatis Bersusun)`;
+
+        if (currentBabMode === 'add' && autoFill) {
+            urutanInput.value = data.next_urutan;
+            badge.classList.remove('hidden');
+            hint.textContent = `Nomor bab otomatis bersusun: Bab ${data.next_urutan}.`;
+        }
+
+        checkUrutanValidity();
+    } catch (err) {
+        console.error('Error fetching next urutan:', err);
+    }
+}
+
+function checkUrutanValidity() {
+    const urutanInput = document.getElementById('inputBabUrutan');
+    const warning = document.getElementById('babUrutanWarning');
+    const warningText = document.getElementById('babUrutanWarningText');
+    const katSelect = document.getElementById('inputBabKategori');
+    const submitBtn = document.querySelector('#babForm button[type="submit"]');
+
+    if (!urutanInput || !warning) return true;
+
+    const val = parseInt(urutanInput.value, 10);
+    if (!val || !katSelect.value) {
+        warning.classList.add('hidden');
+        urutanInput.classList.remove('border-rose-400', 'ring-2', 'ring-rose-200');
+        if (submitBtn) submitBtn.disabled = false;
+        return true;
+    }
+
+    // Cek apakah nomor urut ini sudah digunakan pada kategori yang sama
+    const isDuplicate = currentKatUrutans.includes(val) && !(currentBabMode === 'edit' && val === currentOriginalUrutan);
+
+    if (isDuplicate) {
+        const katName = katSelect.options[katSelect.selectedIndex]?.text || 'kategori ini';
+        warningText.textContent = `Nomor Bab ${val} sudah terdaftar pada ${katName}! Setiap bab harus memiliki nomor urut bersusun dan tidak boleh kembar.`;
+        warning.classList.remove('hidden');
+        urutanInput.classList.add('border-rose-400', 'ring-2', 'ring-rose-200');
+        if (submitBtn) submitBtn.disabled = true;
+        return false;
+    } else {
+        warning.classList.add('hidden');
+        urutanInput.classList.remove('border-rose-400', 'ring-2', 'ring-rose-200');
+        if (submitBtn) submitBtn.disabled = false;
+        return true;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const katSelect = document.getElementById('inputBabKategori');
+    const urutanInput = document.getElementById('inputBabUrutan');
+    const babForm = document.getElementById('babForm');
+
+    if (katSelect) {
+        katSelect.addEventListener('change', (e) => {
+            fetchNextUrutanForCategory(e.target.value, currentBabMode === 'add');
+        });
+    }
+
+    if (urutanInput) {
+        urutanInput.addEventListener('input', () => {
+            document.getElementById('babUrutanBadge').classList.add('hidden');
+            checkUrutanValidity();
+        });
+    }
+
+    if (babForm) {
+        babForm.addEventListener('submit', (e) => {
+            if (!checkUrutanValidity()) {
+                e.preventDefault();
+                alert('Nomor urut bab ini sudah terdaftar. Harap gunakan nomor urut yang bersusun!');
+            }
+        });
+    }
+});
+
 function openBabModal(type = 'add', data = null) {
+    currentBabMode = type;
     const modal = document.getElementById('babModal');
     const title = document.getElementById('babModalTitle');
     const form  = document.getElementById('babForm');
+    const warning = document.getElementById('babUrutanWarning');
+    const badge = document.getElementById('babUrutanBadge');
+    if (warning) warning.classList.add('hidden');
 
     if (type === 'edit' && data) {
+        currentOriginalUrutan = parseInt(data.urutan, 10);
         title.textContent = 'Edit Bab';
         form.action = `/admin/bab/${data.id}`;
         document.getElementById('babMethod').value = 'PUT';
@@ -380,13 +500,18 @@ function openBabModal(type = 'add', data = null) {
         document.getElementById('inputBabJudul').value = data.judul;
         document.getElementById('inputBabUrutan').value = data.urutan;
         document.getElementById('inputBabActive').checked = Boolean(data.is_active);
+        badge.classList.add('hidden');
+        fetchNextUrutanForCategory(data.id_kategori, false);
     } else {
+        currentOriginalUrutan = null;
         title.textContent = 'Tambah Bab Baru';
         form.action = "{{ route('admin.bab.store') }}";
         form.reset();
         document.getElementById('babMethod').value = 'POST';
         document.getElementById('babId').value = '';
         document.getElementById('inputBabActive').checked = true;
+        badge.classList.add('hidden');
+        currentKatUrutans = [];
     }
 
     modal.classList.remove('hidden');

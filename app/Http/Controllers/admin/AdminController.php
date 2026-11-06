@@ -179,38 +179,43 @@ class AdminController extends Controller
 
         $rataNilaiKelas = (float) (HasilQuiz::avg('skor_diperoleh') ?? 0);
 
-        // Target bulanan dibaca langsung dari tabel target_bulanan di database jika tabel ada
-        $targetRows = \Illuminate\Support\Facades\Schema::hasTable('target_bulanan')
-            ? DB::table('target_bulanan')->where('is_active', 1)->get()
-            : collect();
-        if ($targetRows->isNotEmpty()) {
-            $targetBulanIni = $targetRows->map(function ($t) use ($materiBulanIni, $quizBulanIni, $siswaAktifBulanIni, $rataNilaiKelas, $totalSiswa) {
-                $current = match ($t->kode) {
-                    'materi_baru' => $materiBulanIni,
-                    'quiz_baru'   => $quizBulanIni,
-                    'siswa_aktif' => $siswaAktifBulanIni,
-                    'rata_nilai'  => round($rataNilaiKelas, 1),
-                    default       => 0,
-                };
-                $targetVal = (float) $t->target;
-                if ($t->kode === 'siswa_aktif' && $targetVal <= 0) {
-                    $targetVal = max($totalSiswa, 1);
-                }
-                return [
-                    'label'   => $t->label,
-                    'current' => $current,
-                    'target'  => $targetVal,
-                    'warna'   => $t->warna,
-                ];
-            })->toArray();
-        } else {
-            $targetBulanIni = [
-                ['label' => 'Upload Materi Baru', 'current' => $materiBulanIni, 'target' => 4, 'warna' => 'blue'],
-                ['label' => 'Buat Quiz Baru', 'current' => $quizBulanIni, 'target' => 4, 'warna' => 'purple'],
-                ['label' => 'Siswa Aktif Belajar', 'current' => $siswaAktifBulanIni, 'target' => max($totalSiswa, 1), 'warna' => 'emerald'],
-                ['label' => 'Rata-rata Nilai Kelas', 'current' => round($rataNilaiKelas, 1), 'target' => 80, 'warna' => 'amber'],
-            ];
-        }
+        // Ringkasan aktivitas aktual bulan ini (tanpa target buatan)
+        $aktivitasBulanIni = [
+            [
+                'label'     => 'Upload Materi Baru',
+                'nilai'     => $materiBulanIni,
+                'satuan'    => 'Materi',
+                'deskripsi' => 'Materi kurikulum yang ditambahkan bulan ini',
+                'warna'     => 'blue',
+                'icon'      => 'materi',
+            ],
+            [
+                'label'     => 'Buat Quiz Baru',
+                'nilai'     => $quizBulanIni,
+                'satuan'    => 'Quiz',
+                'deskripsi' => 'Latihan dan butir kuis yang diterbitkan bulan ini',
+                'warna'     => 'purple',
+                'icon'      => 'quiz',
+            ],
+            [
+                'label'     => 'Siswa Aktif Belajar',
+                'nilai'     => $siswaAktifBulanIni,
+                'satuan'    => 'Siswa',
+                'deskripsi' => 'Siswa yang aktif membaca materi & mengerjakan kuis',
+                'warna'     => 'emerald',
+                'icon'      => 'siswa',
+            ],
+            [
+                'label'     => 'Rata-rata Nilai Kelas',
+                'nilai'     => round($rataNilaiKelas, 1),
+                'satuan'    => 'Poin',
+                'deskripsi' => 'Rata-rata pencapaian skor kuis siswa keseluruhan',
+                'warna'     => 'amber',
+                'icon'      => 'nilai',
+            ],
+        ];
+
+        $targetBulanIni = $aktivitasBulanIni;
 
         $periodeBulanIni = now()->locale('id')->isoFormat('MMMM YYYY');
 
@@ -259,6 +264,7 @@ class AdminController extends Controller
             'topSiswa',
             'siswaPerluPerhatian',
             'reminderTerbaru',
+            'aktivitasBulanIni',
             'targetBulanIni',
             'periodeBulanIni',
             'infoCepat',
@@ -450,7 +456,7 @@ class AdminController extends Controller
         // Tangani Audio (Upload file baru atau pilih file yang sudah ada)
         if ($request->hasFile('audio_file')) {
             $file = $request->file('audio_file');
-            $cleanName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $cleanName = time() . '_' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
             $destination = public_path('quiz_audio');
             if (!is_dir($destination)) {
                 mkdir($destination, 0755, true);
@@ -517,7 +523,7 @@ class AdminController extends Controller
             $data['audio'] = null;
         } elseif ($request->hasFile('audio_file')) {
             $file = $request->file('audio_file');
-            $cleanName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $cleanName = time() . '_' . uniqid() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
             $destination = public_path('quiz_audio');
             if (!is_dir($destination)) {
                 mkdir($destination, 0755, true);
@@ -542,13 +548,48 @@ class AdminController extends Controller
 
     public function destroyQuiz($id)
     {
-        Quiz::findOrFail($id)->delete();
+        $quiz = Quiz::findOrFail($id);
+
+        if (!empty($quiz->audio)) {
+            $audioPath = public_path('quiz_audio/' . $quiz->audio);
+            if (file_exists($audioPath)) {
+                @unlink($audioPath);
+            }
+        }
+
+        $quiz->delete();
         return redirect()->route('admin.quiz')->with('success', 'Soal quiz berhasil dihapus!');
     }
 
-    public function hasilQuiz()
+    public function hasilQuiz(Request $request)
     {
-        $hasilQuizzes   = HasilQuiz::with(['user', 'quiz.materi'])->latest('id_hasil')->paginate(15);
+        $query = HasilQuiz::with([
+            'user',
+            'quiz.materi.kategori',
+            'quiz.materi.babModel',
+            'quiz.bab.kategori',
+        ]);
+
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function ($sub) use ($q) {
+                $sub->whereHas('user', function ($uq) use ($q) {
+                    $uq->where('nama', 'like', "%{$q}%")
+                       ->orWhere('email', 'like', "%{$q}%");
+                })
+                ->orWhereHas('quiz.materi', function ($mq) use ($q) {
+                    $mq->where('judul', 'like', "%{$q}%");
+                })
+                ->orWhereHas('quiz.materi.kategori', function ($kq) use ($q) {
+                    $kq->where('nama_kategori', 'like', "%{$q}%");
+                })
+                ->orWhereHas('quiz.materi.babModel', function ($bq) use ($q) {
+                    $bq->where('judul', 'like', "%{$q}%");
+                });
+            });
+        }
+
+        $hasilQuizzes   = $query->latest('id_hasil')->paginate(15)->withQueryString();
         $totalQuiz      = HasilQuiz::count();
         $averageScore   = round((float) HasilQuiz::avg('skor_diperoleh'), 1);
         $totalCompleted = HasilQuiz::count();
@@ -558,24 +599,48 @@ class AdminController extends Controller
 
     public function detailHasilQuiz($id)
     {
-        $hasil = HasilQuiz::with(['user', 'quiz.materi', 'jawaban.quiz'])->findOrFail($id);
+        $hasil = HasilQuiz::with([
+            'user',
+            'quiz.materi.kategori',
+            'quiz.materi.babModel',
+            'quiz.bab.kategori',
+            'jawaban.quiz',
+        ])->findOrFail($id);
         $this->authorize('view', $hasil);
-        return view('admin.detail-hasil-quiz', compact('hasil'));
+
+        $totalSoal  = $hasil->jawaban->count();
+        $totalBenar = $hasil->jawaban->where('benar', true)->count();
+        $totalSalah = $totalSoal - $totalBenar;
+
+        return view('admin.detail-hasil-quiz', compact('hasil', 'totalSoal', 'totalBenar', 'totalSalah'));
     }
 
     // === Profil Admin (Data Real dari Database) ===
     public function profil()
     {
-        $admin = auth()->user();
+        $admin = auth()->user()->load('kategori');
 
-        // Total siswa, materi, quiz, dan bab dari database (kurikulum terpadu)
-        $totalSiswa    = User::where('id_role', 3)->count();
-        $totalMateri   = Materi::count();
-        $totalQuiz     = Quiz::count();
-        $totalBab      = Bab::count();
-        $totalKategori = Kategori::count();
-        $namaDivisi    = 'Kurikulum Englify';
-        $kategoris     = Kategori::withCount(['babs', 'materi'])->orderBy('id_kategori')->get();
+        $kategoriList  = Kategori::withCount(['babs', 'materi'])->orderBy('id_kategori')->get();
+        $totalKategori = $kategoriList->count();
+        $namaKategoriList = $kategoriList->pluck('nama_kategori')->implode(', ');
+
+        // Jika admin terhubung ke kategori tertentu, tampilkan statistik divisinya; jika null, kurikulum platform terpadu
+        if ($admin->id_kategori && $admin->kategori) {
+            $namaDivisi    = 'Divisi ' . $admin->kategori->nama_kategori;
+            $subDivisiText = 'Divisi Pembelajaran: ' . $admin->kategori->nama_kategori;
+            $totalBab      = Bab::where('id_kategori', $admin->id_kategori)->count();
+            $totalMateri   = Materi::where('id_kategori', $admin->id_kategori)->count();
+            $totalQuiz     = Quiz::whereHas('materi', fn($q) => $q->where('id_kategori', $admin->id_kategori))->count();
+        } else {
+            $namaDivisi    = 'Platform Englify';
+            $subDivisiText = $totalKategori . ' Kategori: ' . $namaKategoriList;
+            $totalBab      = Bab::count();
+            $totalMateri   = Materi::count();
+            $totalQuiz     = Quiz::count();
+        }
+
+        $totalSiswa = User::where('id_role', 3)->count();
+        $kategoris  = $kategoriList;
 
         // Aktivitas riil admin dari database
         $aktivitasTerbaru = collect();
@@ -630,6 +695,7 @@ class AdminController extends Controller
             'totalKategori',
             'kategoris',
             'namaDivisi',
+            'subDivisiText',
             'aktivitasTerbaru'
         ));
     }
@@ -690,9 +756,43 @@ class AdminController extends Controller
             $data['must_change_password'] = false;
         }
 
+        if ($request->filled('avatar')) {
+            $data['avatar'] = $request->avatar;
+        }
+
+        if ($request->has('id_kategori')) {
+            $data['id_kategori'] = $request->filled('id_kategori') ? (int) $request->id_kategori : null;
+        }
+
         $user->update($data);
 
         return redirect()->route('admin.profil')->with('success', 'Akun berhasil diperbarui!');
+    }
+
+    /**
+     * Update Avatar Karakter Admin
+     */
+    public function updateAvatar(Request $request)
+    {
+        $validAvatars = array_keys(\App\Models\User::availableAvatars());
+        $request->validate([
+            'avatar' => 'required|string|in:' . implode(',', $validAvatars),
+        ]);
+
+        $user = auth()->user();
+        $user->avatar = $request->avatar;
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'     => 'success',
+                'avatar'     => $user->avatar,
+                'avatar_url' => $user->avatar_url,
+                'message'    => 'Avatar karakter berhasil dipilih! 🐾',
+            ]);
+        }
+
+        return redirect()->route('admin.profil')->with('success', 'Avatar karakter berhasil dipilih! 🐾');
     }
 
     // API: notifikasi sistem (real-time) untuk dropdown notifikasi di header admin
@@ -726,19 +826,39 @@ class AdminController extends Controller
     public function kirimReminder(Request $request)
     {
         $request->validate([
-            'id_user' => 'required|exists:users,id_user',
-            'pesan' => 'required|string|max:1000',
+            'id_user' => 'required',
+            'pesan'   => 'required|string|max:1000',
         ], [
             'id_user.required' => 'Pilih siswa terlebih dahulu.',
-            'pesan.required' => 'Isi pesan reminder.',
-            'pesan.max' => 'Pesan maksimal 1000 karakter.',
+            'pesan.required'   => 'Isi pesan reminder.',
+            'pesan.max'        => 'Pesan maksimal 1000 karakter.',
+        ]);
+
+        if ($request->id_user === 'all') {
+            $siswaList = User::where('id_role', 3)->get();
+            foreach ($siswaList as $s) {
+                PesanAdmin::create([
+                    'id_user'  => $s->id_user,
+                    'id_admin' => auth()->id(),
+                    'pesan'    => $request->pesan,
+                    'is_read'  => false,
+                ]);
+            }
+            return redirect()->route('admin.kirim-reminder')
+                ->with('success', 'Reminder berhasil disiarkan ke seluruh siswa! 📢');
+        }
+
+        $request->validate([
+            'id_user' => 'exists:users,id_user',
+        ], [
+            'id_user.exists' => 'Siswa yang dipilih tidak valid.',
         ]);
 
         PesanAdmin::create([
-            'id_user' => $request->id_user,
+            'id_user'  => $request->id_user,
             'id_admin' => auth()->id(),
-            'pesan' => $request->pesan,
-            'is_read' => false,
+            'pesan'    => $request->pesan,
+            'is_read'  => false,
         ]);
 
         return redirect()->route('admin.kirim-reminder')

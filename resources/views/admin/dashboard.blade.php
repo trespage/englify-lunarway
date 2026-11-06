@@ -527,53 +527,71 @@
     </div>
 
     <!-- ===================================================== -->
-    <!-- ROW 6: TARGET BULANAN + TIPS HARIAN                   -->
-    <!-- (BARU - Biar Ga Kosong)                               -->
+    <!-- ROW 6: AKTIVITAS BULANAN + TIPS HARIAN                  -->
     <!-- ===================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- TARGET BULANAN -->
+        <!-- AKTIVITAS BULAN INI -->
         <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                    </svg>
-                    <h3 class="text-base font-bold text-slate-800">Target Bulan Ini</h3>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Aktivitas Bulan Ini</h3>
+                        <p class="text-xs text-slate-400">Ringkasan aktivitas materi, kuis, dan interaksi pembelajaran siswa</p>
+                    </div>
                 </div>
-                <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">{{ $periodeBulanIni }}</span>
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">{{ $periodeBulanIni }}</span>
             </div>
 
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-3.5">
                 @php
-                    $targetColors = [
-                        'blue'    => ['dot' => 'bg-blue-500', 'bar' => 'from-blue-500 to-blue-600'],
-                        'purple'  => ['dot' => 'bg-purple-500', 'bar' => 'from-purple-500 to-purple-600'],
-                        'emerald' => ['dot' => 'bg-emerald-500', 'bar' => 'from-emerald-500 to-emerald-600'],
-                        'amber'   => ['dot' => 'bg-amber-500', 'bar' => 'from-amber-500 to-amber-600'],
+                    $palette = [
+                        'blue'    => ['bg' => 'bg-blue-50/60 border-blue-100', 'icon_bg' => 'bg-blue-100 text-blue-600', 'badge' => 'text-blue-700 bg-blue-100/70 border-blue-200'],
+                        'purple'  => ['bg' => 'bg-purple-50/60 border-purple-100', 'icon_bg' => 'bg-purple-100 text-purple-600', 'badge' => 'text-purple-700 bg-purple-100/70 border-purple-200'],
+                        'emerald' => ['bg' => 'bg-emerald-50/60 border-emerald-100', 'icon_bg' => 'bg-emerald-100 text-emerald-600', 'badge' => 'text-emerald-700 bg-emerald-100/70 border-emerald-200'],
+                        'amber'   => ['bg' => 'bg-amber-50/60 border-amber-100', 'icon_bg' => 'bg-amber-100 text-amber-600', 'badge' => 'text-amber-700 bg-amber-100/70 border-amber-200'],
                     ];
                 @endphp
 
-                @foreach($targetBulanIni as $target)
+                @foreach($aktivitasBulanIni ?? $targetBulanIni as $item)
                 @php
-                    $persentase = $target['target'] > 0 ? min(100, round($target['current'] / $target['target'] * 100, 1)) : 0;
-                    $warna = $targetColors[$target['warna']] ?? $targetColors['blue'];
-                    $sisa = max($target['target'] - $target['current'], 0);
+                    $warnaKey = $item['warna'] ?? 'blue';
+                    $p = $palette[$warnaKey] ?? $palette['blue'];
+                    $nilai = $item['nilai'] ?? ($item['current'] ?? 0);
+                    $satuan = $item['satuan'] ?? '';
+                    $deskripsi = $item['deskripsi'] ?? 'Aktivitas pembelajaran bulan ini';
                 @endphp
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full {{ $warna['dot'] }}"></span>
-                            <span class="text-sm font-semibold text-slate-700">{{ $target['label'] }}</span>
+                <div class="p-3.5 rounded-2xl border {{ $p['bg'] }} flex items-center justify-between gap-4 transition hover:bg-white hover:shadow-sm">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-10 h-10 rounded-xl {{ $p['icon_bg'] }} flex items-center justify-center shrink-0 shadow-xs">
+                            @if(($item['icon'] ?? '') === 'materi')
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            @elseif(($item['icon'] ?? '') === 'quiz')
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            @elseif(($item['icon'] ?? '') === 'siswa')
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            @else
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            @endif
                         </div>
-                        <span class="text-xs font-bold text-slate-600">{{ $target['current'] }} / {{ $target['target'] }}</span>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-slate-800 truncate">{{ $item['label'] }}</p>
+                            <p class="text-xs text-slate-400 truncate">{{ $deskripsi }}</p>
+                        </div>
                     </div>
-                    <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r {{ $warna['bar'] }} rounded-full transition-all" style="width: {{ $persentase }}%"></div>
+                    <div class="text-right shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border {{ $p['badge'] }} text-sm font-extrabold shadow-2xs">
+                            <span>{{ $nilai }}</span>
+                            @if($satuan)
+                                <span class="text-xs font-semibold opacity-85">{{ $satuan }}</span>
+                            @endif
+                        </span>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1">
-                        {{ $persentase }}% tercapai • {{ $sisa > 0 ? $sisa . ' lagi' : 'Target tercapai' }}
-                    </p>
                 </div>
                 @endforeach
             </div>

@@ -36,6 +36,20 @@ class Materi extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($materi) {
+            if (empty($materi->bab)) {
+                if (!empty($materi->id_bab)) {
+                    $bab = Bab::find($materi->id_bab);
+                    $materi->bab = $bab ? $bab->judul : 'Bab ' . $materi->id_bab;
+                } else {
+                    $materi->bab = '-';
+                }
+            }
+        });
+    }
+
     /**
      * Aksesor untuk mendapatkan array seluruh URL materi
      * Kompatibel dengan format legacy (single string) dan format baru (JSON array)

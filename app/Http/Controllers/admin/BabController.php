@@ -12,6 +12,7 @@ use App\Models\JawabanUser;
 use App\Models\ProgressMateri;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class BabController extends Controller
 {
@@ -20,7 +21,7 @@ class BabController extends Controller
      */
     public function index(Request $request)
     {
-        $kategoriList = Kategori::orderBy('id_kategori')->get();
+        $kategoriList = Kategori::withCount(['babs', 'materi'])->orderBy('id_kategori')->get();
 
         $query = Bab::with(['kategori'])
             ->withCount(['materi', 'quizzes'])
@@ -54,19 +55,29 @@ class BabController extends Controller
      */
     public function store(Request $request)
     {
+        $idKategori = $request->input('id_kategori');
+
+        // Jika nomor urutan tidak diisi, otomatis hitung urutan berikutnya yang bersusun
+        if ($request->filled('id_kategori') && (!$request->filled('urutan') || empty($request->urutan))) {
+            $lastUrutan = Bab::where('id_kategori', $idKategori)->max('urutan') ?? 0;
+            $request->merge(['urutan' => $lastUrutan + 1]);
+        }
+
         $validated = $request->validate([
             'id_kategori'  => 'required|exists:kategori,id_kategori',
             'judul'        => 'required|string|max:255',
-            'urutan'       => 'nullable|integer|min:1',
+            'urutan'       => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('bab', 'urutan')->where('id_kategori', $idKategori),
+            ],
             'durasi_menit' => 'nullable|integer|min:1|max:300',
             'is_active'    => 'nullable|boolean',
+        ], [
+            'urutan.unique' => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
+            'urutan.min'    => 'Nomor urutan bab minimal dimulai dari 1.',
         ]);
-
-        // Jika urutan tidak diisi, otomatis urutkan setelah bab terakhir di kategori tersebut
-        if (empty($validated['urutan'])) {
-            $lastUrutan = Bab::where('id_kategori', $validated['id_kategori'])->max('urutan') ?? 0;
-            $validated['urutan'] = $lastUrutan + 1;
-        }
 
         if (empty($validated['durasi_menit'])) {
             $validated['durasi_menit'] = 15;
@@ -102,13 +113,22 @@ class BabController extends Controller
     public function update(Request $request, $id)
     {
         $bab = Bab::findOrFail($id);
+        $idKategori = $request->input('id_kategori', $bab->id_kategori);
 
         $validated = $request->validate([
             'id_kategori'  => 'required|exists:kategori,id_kategori',
             'judul'        => 'required|string|max:255',
-            'urutan'       => 'required|integer|min:1',
+            'urutan'       => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::unique('bab', 'urutan')->where('id_kategori', $idKategori)->ignore($bab->id),
+            ],
             'durasi_menit' => 'nullable|integer|min:1|max:300',
             'is_active'    => 'nullable',
+        ], [
+            'urutan.unique' => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
+            'urutan.min'    => 'Nomor urutan bab minimal dimulai dari 1.',
         ]);
 
         if (empty($validated['durasi_menit'])) {
@@ -208,6 +228,21 @@ class BabController extends Controller
             ->get(['id', 'judul', 'urutan', 'durasi_menit']);
 
         return response()->json($babs);
+    }
+
+    /**
+     * API JSON: Mengambil nomor urutan Bab berikutnya untuk kategori yang dipilih (agar selalu bersusun)
+     */
+    public function nextUrutan($kategoriId)
+    {
+        $lastUrutan = Bab::where('id_kategori', $kategoriId)->max('urutan') ?? 0;
+        $existing = Bab::where('id_kategori', $kategoriId)->orderBy('urutan')->pluck('urutan')->all();
+
+        return response()->json([
+            'status'           => 'success',
+            'next_urutan'      => (int) $lastUrutan + 1,
+            'existing_urutans' => $existing,
+        ]);
     }
 
     /**

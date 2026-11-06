@@ -21,6 +21,7 @@ class User extends Authenticatable
         'id_role',
         'id_kategori',
         'status',
+        'avatar',
         'must_change_password',
         'last_login_at',
     ];
@@ -110,5 +111,32 @@ class User extends Authenticatable
             }
         }
         return false;
+    }
+
+    /**
+     * Daftar avatar kucing Englify yang tersedia
+     */
+    public static function availableAvatars(): array
+    {
+        return [
+            'avatar-cat-laptop.png'   => ['nama' => 'Cat Laptop', 'label' => 'Tech & Admin', 'badge' => 'Admin / Dev', 'desc' => 'Kucing pintar mengetik di laptop'],
+            'avatar-cat-reading.png'  => ['nama' => 'Cat Reading', 'label' => 'Rajin Belajar', 'badge' => 'Siswa Aktif', 'desc' => 'Kucing asyik membaca materi'],
+            'avatar-cat-waving.png'   => ['nama' => 'Cat Waving', 'label' => 'Ramah & Ceria', 'badge' => 'Sahabat Englify', 'desc' => 'Kucing ramah menyapa berkilau'],
+            'avatar-cat-headphone.png'=> ['nama' => 'Cat Headphone', 'label' => 'Listening Chill', 'badge' => 'Musik & Audio', 'desc' => 'Kucing santai memakai headphone'],
+            'avatar-cat-trophy.png'   => ['nama' => 'Cat Trophy', 'label' => 'Juara Quiz', 'badge' => 'Top Scorer', 'desc' => 'Kucing bangga memeluk piala emas'],
+            'avatar-cat-sleeping.png' => ['nama' => 'Cat Sleepy', 'label' => 'Santai & Cozy', 'badge' => 'Istirahat', 'desc' => 'Kucing lelap tidur di atas buku'],
+        ];
+    }
+
+    /**
+     * Dapatkan URL avatar pengguna (dengan fallback karakter kucing)
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        $avatar = $this->avatar;
+        if (empty($avatar) || !file_exists(public_path('images/avatars/' . $avatar))) {
+            $avatar = ($this->isAdmin() || $this->isSuperAdmin()) ? 'avatar-cat-laptop.png' : 'avatar-cat-reading.png';
+        }
+        return asset('images/avatars/' . $avatar);
     }
 }

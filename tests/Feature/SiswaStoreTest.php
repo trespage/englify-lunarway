@@ -32,8 +32,8 @@ class SiswaStoreTest extends TestCase
             'must_change_password' => 1,
         ]);
 
-        // 3. Muncul di halaman daftar akun siswa
-        $list = $this->actingAs($superadmin)->get(route('superadmin.siswa'));
+        // 3. Muncul di halaman daftar akun siswa (via query filter)
+        $list = $this->actingAs($superadmin)->get(route('superadmin.siswa', ['q' => $email]));
         $list->assertOk();
         $list->assertSee($email);
         $list->assertSee('QA Siswa Testing');
@@ -47,7 +47,7 @@ class SiswaStoreTest extends TestCase
 
         // 5. Update data siswa (nama, status)
         $created = User::where('email', $email)->first();
-        $this->actingAs($superadmin)->put(
+        $this->actingAs($superadmin)->from(route('superadmin.siswa'))->put(
             route('superadmin.siswa.update', ['id' => $created->id_user]),
             ['nama' => 'QA Siswa Updated', 'email' => $email, 'status' => 'nonaktif']
         )->assertRedirect(route('superadmin.siswa'));
@@ -59,7 +59,7 @@ class SiswaStoreTest extends TestCase
         ]);
 
         // 6. Hapus siswa
-        $this->actingAs($superadmin)->delete(
+        $this->actingAs($superadmin)->from(route('superadmin.siswa'))->delete(
             route('superadmin.siswa.destroy', ['id' => $created->id_user])
         )->assertRedirect(route('superadmin.siswa'));
 

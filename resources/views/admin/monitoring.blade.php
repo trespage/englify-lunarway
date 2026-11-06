@@ -252,29 +252,11 @@
 
         <div class="px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p class="text-sm text-slate-500 text-center sm:text-left">
-                Menampilkan {{ $paginator->firstItem() ?? 0 }} - {{ $paginator->lastItem() ?? 0 }} dari {{ $paginator->total() }} data
+                Menampilkan semua {{ count($students) }} data siswa
             </p>
-            <div class="flex items-center gap-2">
-                @if($paginator->onFirstPage())
-                    <span class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-300">‹</span>
-                @else
-                    <a href="{{ $paginator->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">‹</a>
-                @endif
-
-                @foreach($paginator->getUrlRange(1, $paginator->lastPage()) as $page => $url)
-                    @if($page == $paginator->currentPage())
-                        <span class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-bold">{{ $page }}</span>
-                    @else
-                        <a href="{{ $url }}" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">{{ $page }}</a>
-                    @endif
-                @endforeach
-
-                @if($paginator->hasMorePages())
-                    <a href="{{ $paginator->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">›</a>
-                @else
-                    <span class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-semibold text-slate-300">›</span>
-                @endif
-            </div>
+            <span class="text-xs font-medium text-slate-400">
+                Diurutkan berdasarkan nama (A-Z)
+            </span>
         </div>
     </div>
 </div>

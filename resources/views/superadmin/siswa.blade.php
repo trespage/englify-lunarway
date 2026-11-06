@@ -163,7 +163,7 @@
                     @forelse($students ?? [] as $student)
                     <tr class="hover:bg-sky-50/40 transition group"
                         data-search="{{ mb_strtolower(trim(($student->nama ?? '') . ' ' . ($student->email ?? ''))) }}" data-status="{{ $student->status ?? 'aktif' }}">
-                        <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-slate-600">{{ ($students->firstItem() ?? 1) + $loop->index }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">

@@ -457,28 +457,67 @@
             <input type="hidden" name="_method" id="quizMethod" value="">
             <input type="hidden" id="quizId" name="id">
 
-            <!-- Pilih Materi Terkait & Bab -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Materi Terkait <span class="text-rose-500">*</span></label>
-                    <select id="inputQuizMateri" name="id_materi" required onchange="onQuizMateriChanged(this)"
-                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition">
-                        <option value="">-- Pilih Materi --</option>
-                        @foreach($materis as $m)
-                            <option value="{{ $m->id_materi }}" data-bab-id="{{ $m->id_bab }}">{{ $m->judul }} ({{ $m->kategori?->nama_kategori ?? 'Umum' }})</option>
-                        @endforeach
-                    </select>
+            <!-- Pilih Bab Terkait & Materi Terkait -->
+            <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Penempatan Soal Kuis
+                    </span>
+                    <span id="quizPlacementBadge" class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-bold"></span>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Bab Terkait <span class="text-rose-500">*</span></label>
-                    <select id="inputQuizBab" name="id_bab" required
-                            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition">
-                        <option value="">-- Pilih Bab --</option>
-                        @foreach($babs as $b)
-                            <option value="{{ $b->id }}">{{ $b->kategori?->nama_kategori ? '[' . $b->kategori->nama_kategori . '] ' : '' }}{{ $b->judul }}</option>
-                        @endforeach
-                    </select>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <!-- 1. Bab Terkait -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Bab Terkait <span class="text-rose-500">*</span>
+                        </label>
+                        <select id="inputQuizBab" name="id_bab" required onchange="onQuizBabChanged(this.value)"
+                                class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition">
+                            <option value="">-- Pilih Bab Terkait --</option>
+                            @php
+                                $babsGrouped = $babs->groupBy(function($item) {
+                                    return $item->kategori?->nama_kategori ?? 'Umum';
+                                });
+                            @endphp
+                            @foreach($babsGrouped as $kategoriNama => $babsInKat)
+                                <optgroup label="Kategori {{ $kategoriNama }}">
+                                    @foreach($babsInKat as $b)
+                                        <option value="{{ $b->id }}" 
+                                                data-kategori="{{ $kategoriNama }}"
+                                                data-urutan="{{ $b->urutan }}">
+                                            Bab {{ $b->urutan }}: {{ $b->clean_judul }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- 2. Materi Terkait -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Materi Terkait <span class="text-rose-500">*</span>
+                        </label>
+                        <select id="inputQuizMateri" name="id_materi" required onchange="onQuizMateriChanged(this)"
+                                class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition">
+                            <option value="">-- Pilih Materi Pembelajaran --</option>
+                            @foreach($materis as $m)
+                                <option value="{{ $m->id_materi }}" 
+                                        data-bab-id="{{ $m->id_bab }}"
+                                        data-kategori="{{ $m->kategori?->nama_kategori ?? 'Umum' }}">
+                                    Materi {{ $m->urutan }}: {{ $m->judul }} ({{ $m->kategori?->nama_kategori ?? 'Umum' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
+                <p class="text-[11px] text-slate-400 mt-0.5" id="quizPlacementHint">
+                    Pilih bab terlebih dahulu untuk menyaring materi, atau pilih materi secara langsung.
+                </p>
             </div>
 
             <!-- Pertanyaan -->
@@ -660,10 +699,38 @@
 
 @endsection
 
+@php
+    $quizMaterisJson = $materis->map(function($m) {
+        return [
+            'id_materi'   => $m->id_materi,
+            'id_bab'      => $m->id_bab,
+            'id_kategori' => $m->id_kategori,
+            'kategori'    => $m->kategori?->nama_kategori ?? 'Umum',
+            'bab_judul'   => $m->babModel?->clean_judul ?? 'Bab Umum',
+            'bab_urutan'  => $m->babModel?->urutan ?? 1,
+            'urutan'      => $m->urutan,
+            'judul'       => $m->judul,
+        ];
+    })->values();
+
+    $quizBabsJson = $babs->map(function($b) {
+        return [
+            'id'          => $b->id,
+            'id_kategori' => $b->id_kategori,
+            'kategori'    => $b->kategori?->nama_kategori ?? 'Umum',
+            'urutan'      => $b->urutan,
+            'judul'       => $b->clean_judul,
+        ];
+    })->values();
+@endphp
+
 @push('scripts')
 <script>
 const URL_QUIZ_STORE  = @json(route('admin.quiz.store'));
 const URL_QUIZ_UPDATE = @json(route('admin.quiz.update', ['__ID__']));
+
+const QUIZ_MATERIS = {!! json_encode($quizMaterisJson) !!};
+const QUIZ_BABS    = {!! json_encode($quizBabsJson) !!};
 
 let selectedNodeData = null;
 
@@ -766,11 +833,132 @@ function addQuizToBab(babId, babJudul, kategori) {
     openQuizModal('add', { id_bab: babId, bab_judul: babJudul, kategori: kategori });
 }
 
+function onQuizBabChanged(babId) {
+    renderMateriOptions(babId, null);
+    updatePlacementBadge();
+}
+
 function onQuizMateriChanged(select) {
     const selectedOption = select.options[select.selectedIndex];
     const babId = selectedOption ? selectedOption.dataset.babId : null;
     if (babId) {
-        document.getElementById('inputQuizBab').value = babId;
+        const babSelect = document.getElementById('inputQuizBab');
+        if (babSelect && String(babSelect.value) !== String(babId)) {
+            babSelect.value = babId;
+            renderMateriOptions(babId, select.value);
+            return;
+        }
+    }
+    updatePlacementBadge();
+}
+
+function renderMateriOptions(selectedBabId, selectedMateriId = null) {
+    const materiSelect = document.getElementById('inputQuizMateri');
+    if (!materiSelect) return;
+
+    const currentVal = (selectedMateriId !== null && selectedMateriId !== undefined) 
+        ? String(selectedMateriId) 
+        : String(materiSelect.value || '');
+
+    materiSelect.innerHTML = '';
+
+    if (selectedBabId) {
+        const filtered = QUIZ_MATERIS.filter(m => String(m.id_bab) === String(selectedBabId));
+        if (filtered.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '-- Belum ada materi di bab ini --';
+            materiSelect.appendChild(opt);
+        } else {
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = '-- Pilih Materi Pembelajaran --';
+            materiSelect.appendChild(defaultOpt);
+
+            let hasSelected = false;
+            filtered.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id_materi;
+                opt.dataset.babId = m.id_bab;
+                opt.dataset.kategori = m.kategori;
+                opt.textContent = `Materi ${m.urutan}: ${m.judul}`;
+                if (currentVal && String(m.id_materi) === currentVal) {
+                    opt.selected = true;
+                    hasSelected = true;
+                }
+                materiSelect.appendChild(opt);
+            });
+
+            // Jika hanya ada 1 materi dan belum ada yang dipilih, langsung pilih otomatis
+            if (filtered.length === 1 && !hasSelected && !selectedMateriId) {
+                materiSelect.value = filtered[0].id_materi;
+            }
+        }
+    } else {
+        // Jika belum pilih Bab: Tampilkan semua materi dengan optgroup per bab
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '-- Pilih Bab Terlebih Dahulu (atau Pilih Materi Langsung) --';
+        materiSelect.appendChild(defaultOpt);
+
+        const groups = {};
+        QUIZ_MATERIS.forEach(m => {
+            const key = `[${m.kategori}] Bab ${m.bab_urutan}: ${m.bab_judul}`;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(m);
+        });
+
+        for (const groupLabel in groups) {
+            const optGroup = document.createElement('optgroup');
+            optGroup.label = groupLabel;
+            groups[groupLabel].forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id_materi;
+                opt.dataset.babId = m.id_bab;
+                opt.dataset.kategori = m.kategori;
+                opt.textContent = `Materi ${m.urutan}: ${m.judul}`;
+                if (currentVal && String(m.id_materi) === currentVal) {
+                    opt.selected = true;
+                }
+                optGroup.appendChild(opt);
+            });
+            materiSelect.appendChild(optGroup);
+        }
+    }
+
+    updatePlacementBadge();
+}
+
+function updatePlacementBadge() {
+    const babSelect = document.getElementById('inputQuizBab');
+    const badge = document.getElementById('quizPlacementBadge');
+    const hint = document.getElementById('quizPlacementHint');
+    if (!badge || !babSelect) return;
+
+    const selectedOption = babSelect.options[babSelect.selectedIndex];
+    if (selectedOption && selectedOption.value) {
+        const kat = selectedOption.dataset.kategori || 'Umum';
+        const urutan = selectedOption.dataset.urutan || '1';
+        badge.textContent = `${kat} • Bab ${urutan}`;
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition';
+
+        if (kat === 'Writing') {
+            badge.classList.add('bg-blue-100', 'text-blue-700', 'border-blue-200');
+        } else if (kat === 'Listening') {
+            badge.classList.add('bg-purple-100', 'text-purple-700', 'border-purple-200');
+        } else if (kat === 'Reading') {
+            badge.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-200');
+        } else if (kat === 'Speaking') {
+            badge.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-200');
+        } else {
+            badge.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-200');
+        }
+
+        badge.classList.remove('hidden');
+        if (hint) hint.textContent = `Menambahkan butir soal untuk Bab ${urutan} (${kat}).`;
+    } else {
+        badge.classList.add('hidden');
+        if (hint) hint.textContent = 'Pilih bab terlebih dahulu untuk menyaring materi, atau pilih materi secara langsung.';
     }
 }
 
@@ -853,8 +1041,16 @@ function openQuizModal(type = 'add', nodeData = null) {
         document.getElementById('quizMethod').value = 'PUT';
         document.getElementById('quizId').value     = nodeData.id_quiz;
 
-        if (nodeData.id_materi) document.getElementById('inputQuizMateri').value = nodeData.id_materi;
-        if (nodeData.id_bab)    document.getElementById('inputQuizBab').value    = nodeData.id_bab;
+        let editBabId = nodeData.id_bab ? String(nodeData.id_bab) : '';
+        if (!editBabId && nodeData.id_materi) {
+            const foundM = QUIZ_MATERIS.find(m => String(m.id_materi) === String(nodeData.id_materi));
+            if (foundM && foundM.id_bab) editBabId = String(foundM.id_bab);
+        }
+
+        document.getElementById('inputQuizBab').value = editBabId;
+        renderMateriOptions(editBabId, nodeData.id_materi || null);
+        updatePlacementBadge();
+
         document.getElementById('inputPertanyaan').value   = nodeData.pertanyaan || '';
         document.getElementById('inputPilihanA').value     = nodeData.pilihan_a || '';
         document.getElementById('inputPilihanB').value     = nodeData.pilihan_b || '';
@@ -896,21 +1092,28 @@ function openQuizModal(type = 'add', nodeData = null) {
         audioElement.pause();
         audioElement.removeAttribute('src');
 
+        let targetBabId = '';
+        let targetMateriId = null;
+
         if (nodeData) {
-            if (nodeData.id_materi) {
-                document.getElementById('inputQuizMateri').value = nodeData.id_materi;
-                const opt = document.querySelector(`#inputQuizMateri option[value="${nodeData.id_materi}"]`);
-                if (opt && opt.dataset.babId) {
-                    document.getElementById('inputQuizBab').value = opt.dataset.babId;
-                }
-            }
             if (nodeData.id_bab) {
-                document.getElementById('inputQuizBab').value = nodeData.id_bab;
+                targetBabId = String(nodeData.id_bab);
+            }
+            if (nodeData.id_materi) {
+                targetMateriId = String(nodeData.id_materi);
+                if (!targetBabId) {
+                    const matchedM = QUIZ_MATERIS.find(m => String(m.id_materi) === String(nodeData.id_materi));
+                    if (matchedM && matchedM.id_bab) targetBabId = String(matchedM.id_bab);
+                }
             }
             if (nodeData.materi_judul) {
                 title.textContent = `Tambah Soal: ${nodeData.materi_judul}`;
             }
         }
+
+        document.getElementById('inputQuizBab').value = targetBabId;
+        renderMateriOptions(targetBabId, targetMateriId);
+        updatePlacementBadge();
     }
 
     modal.classList.remove('hidden');
@@ -979,6 +1182,7 @@ function applyFilters(category, searchQuery) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    renderMateriOptions('', null);
     const firstNode = document.querySelector('.quiz-item-card');
     if (firstNode) {
         firstNode.click();
