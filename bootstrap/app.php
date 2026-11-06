@@ -79,6 +79,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // 3. Custom Error: QueryException (Koneksi Terputus atau Query Fatal)
         $exceptions->render(function (\Illuminate\Database\QueryException $e, \Illuminate\Http\Request $request) {
+            if (config('app.debug')) {
+                return null;
+            }
+
             $isConnectionFault = str_contains($e->getMessage(), 'Connection refused')
                 || str_contains($e->getMessage(), 'SQLSTATE[HY000]')
                 || str_contains($e->getMessage(), 'server has gone away')
@@ -163,6 +167,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // 6. Custom Error: 500 (HttpException status 500)
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if (config('app.debug')) {
+                return null;
+            }
+
             if ($e->getStatusCode() === 500) {
                 \Illuminate\Support\Facades\Log::channel('single')->error('[HTTP 500 INTERNAL SERVER ERROR] ' . $e->getMessage(), [
                     'url' => $request->fullUrl(),

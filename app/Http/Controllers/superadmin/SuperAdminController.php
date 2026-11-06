@@ -113,7 +113,7 @@ class SuperAdminController extends Controller
         $windowStart = $now->copy()->subDays(6)->startOfDay();
         $perDay = User::where('id_role', 3)->where('created_at', '>=', $windowStart)
             ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
-            ->groupBy('d')
+            ->groupBy(DB::raw('DATE(created_at)'))
             ->pluck('c', 'd');
         $base = User::where('id_role', 3)->where('created_at', '<', $windowStart)->count();
         $chartLabels = [];
@@ -122,7 +122,7 @@ class SuperAdminController extends Controller
         // Grafik admin divisi (kumulatif) + jumlah akun baru per hari
         $perDayAdmin = User::where('id_role', 2)->where('created_at', '>=', $windowStart)
             ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
-            ->groupBy('d')
+            ->groupBy(DB::raw('DATE(created_at)'))
             ->pluck('c', 'd');
         $baseAdmin = User::where('id_role', 2)->where('created_at', '<', $windowStart)->count();
 

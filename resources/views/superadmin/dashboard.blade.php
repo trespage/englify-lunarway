@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
-    @if($errors->any())
+    @if(isset($errors) && $errors->any())
     <div class="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-4 py-3 rounded-2xl shadow-xs">
         <p class="font-bold mb-1">Gagal menyimpan akun:</p>
         <ul class="list-disc list-inside space-y-0.5">
