@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Admin') - Englify</title>
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=20261102b">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}?v=20261102b">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}?v=20261102b">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v=20261102b">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=20261102b">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -176,8 +183,67 @@
         #sidebar.collapsed { width: 4.75rem; }
         #sidebar.collapsed .sidebar-text,
         #sidebar.collapsed .sidebar-cat-quote,
-        #sidebar.collapsed .sidebar-subitems { display: none; }
-        #sidebar.collapsed .sidebar-link { justify-content: center; padding-left: 0.5rem; padding-right: 0.5rem; }
+        #sidebar.collapsed .sidebar-cat-illustration,
+        #sidebar.collapsed .sidebar-subitems { display: none !important; }
+        #sidebar.collapsed .sidebar-header {
+            padding: 1.25rem 0.5rem;
+            justify-content: center;
+        }
+        #sidebar.collapsed .sidebar-header a {
+            justify-content: center;
+            width: 100%;
+        }
+        #sidebar.collapsed nav {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        #sidebar.collapsed .sidebar-link { 
+            justify-content: center; 
+            padding-left: 0.5rem; 
+            padding-right: 0.5rem; 
+            width: 100%;
+        }
+        #sidebar.collapsed .sidebar-link > div {
+            justify-content: center;
+            gap: 0;
+        }
+        #sidebar.collapsed .sidebar-toggle-icon {
+            transform: rotate(180deg);
+        }
+        #sidebar.collapsed .sidebar-bottom {
+            padding: 0.75rem 0.5rem !important;
+        }
+        #sidebar.collapsed .sidebar-bottom form {
+            padding-top: 0 !important;
+            display: flex;
+            justify-content: center;
+        }
+        #sidebar.collapsed .paw-btn {
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+            padding: 0 !important;
+            justify-content: center !important;
+            align-items: center !important;
+            border-radius: 0.75rem !important;
+            margin: 0 auto !important;
+        }
+        #sidebar.collapsed .paw-btn > div {
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sidebar.collapsed .paw-btn .w-7 {
+            width: 2rem !important;
+            height: 2rem !important;
+            background: transparent !important;
+        }
+        #sidebar.collapsed .paw-btn .paw-icon {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+        }
 
         /* ==========================================================
            ENGLIFY NOTIFICATION THEME (SweetAlert2 Custom Styling)
@@ -306,8 +372,8 @@
     <aside id="sidebar" class="w-64 shrink-0 bg-[#001B48] hidden lg:flex flex-col shadow-2xl transition-all duration-300 z-30 select-none relative">
         
         <!-- Sidebar Brand / Logo -->
-        <div class="p-6 pb-5 flex items-center justify-between border-b border-white/10">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group">
+        <div class="sidebar-header p-6 pb-5 flex items-center justify-between border-b border-white/10 relative transition-all duration-300">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 group min-w-0" title="Dashboard Admin">
                 <div class="w-10 h-10 rounded-xl bg-[#D6EBEE] flex items-center justify-center shadow-md p-1.5 transition-transform group-hover:scale-105 shrink-0">
                     <svg viewBox="0 0 36 36" class="w-full h-full text-[#001B48]" fill="currentColor">
                         <polygon points="6,15 11,3 17,9" fill="#001B48"/>
@@ -324,12 +390,19 @@
                         <path d="M18 23 L18 24.5 M16.5 24.5 C17.2 25, 18 24.5, 18 24.5 C18 24.5, 18.8 25, 19.5 24.5" stroke="#001B48" stroke-width="0.8" fill="none" stroke-linecap="round"/>
                     </svg>
                 </div>
-                <div class="sidebar-text">
+                <div class="sidebar-text truncate">
                     <span class="text-2xl font-extrabold text-white tracking-tight leading-none">englify</span>
                 </div>
             </a>
-            <button onclick="toggleSidebarCollapse()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition" title="Toggle Sidebar">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+            <!-- Toggle Sidebar Desktop Button (Floating on edge) -->
+            <button onclick="toggleSidebarCollapse()" 
+                    id="sidebar-toggle-btn"
+                    class="sidebar-toggle-btn absolute -right-3.5 top-1/2 -translate-y-1/2 z-40 w-7 h-7 rounded-full bg-[#001B48] border border-white/20 text-slate-300 hover:text-white hover:border-sky-400 hover:bg-[#002866] shadow-lg flex items-center justify-center transition-all duration-300 group cursor-pointer focus:outline-hidden" 
+                    title="Perkecil / Perbesar Sidebar"
+                    aria-label="Toggle Sidebar">
+                <svg class="w-3.5 h-3.5 transition-transform duration-300 sidebar-toggle-icon group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
             </button>
         </div>
 
@@ -337,16 +410,28 @@
         <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
             <!-- 1. Dashboard -->
             <a href="{{ route('admin.dashboard') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Dashboard">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 <span class="sidebar-text">Dashboard</span>
             </a>
 
-            <!-- 2. Kelola Bab -->
+            <!-- 2. Kelola Kategori -->
+            <a href="{{ route('admin.kategori') }}" 
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.kategori*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Kelola Kategori">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <span class="sidebar-text">Kelola Kategori</span>
+            </a>
+
+            <!-- 3. Kelola Bab -->
             <a href="{{ route('admin.bab') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.bab*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.bab*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Kelola Bab">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                 </svg>
@@ -355,7 +440,8 @@
 
             <!-- 3. Kelola Materi -->
             <a href="{{ route('admin.materi') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.materi*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.materi*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Kelola Materi">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
@@ -364,7 +450,8 @@
 
             <!-- 3. Kelola Quiz -->
             <a href="{{ route('admin.quiz') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.quiz*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.quiz*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Kelola Quiz">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
@@ -373,7 +460,8 @@
 
             <!-- 4. Hasil Quiz -->
             <a href="{{ route('admin.hasil-quiz') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.hasil-quiz*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.hasil-quiz*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Hasil Quiz">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -382,7 +470,8 @@
 
             <!-- 5. Monitoring Per Siswa -->
             <a href="{{ route('admin.monitoring-siswa') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.monitoring-siswa*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.monitoring-siswa*') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Monitoring Siswa">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -391,7 +480,8 @@
 
             <!-- Kirim Reminder -->
             <a href="{{ route('admin.kirim-reminder') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.kirim-reminder') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.kirim-reminder') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Kirim Reminder">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
@@ -400,7 +490,8 @@
 
             <!-- 6. Profil Saya -->
             <a href="{{ route('admin.profil') }}" 
-               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.profil') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition {{ request()->routeIs('admin.profil') ? 'sidebar-item-active' : 'text-slate-300 hover:text-white hover:bg-white/10' }}"
+               title="Profil Saya">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
@@ -409,7 +500,7 @@
         </nav>
 
         <!-- Sidebar Bottom -->
-        <div class="p-4 pt-1 border-t border-white/10 relative overflow-hidden mt-auto">
+        <div class="sidebar-bottom p-4 pt-1 border-t border-white/10 relative overflow-hidden mt-auto transition-all duration-300">
             <div class="sidebar-cat-quote text-left pl-1 pt-2">
                 <p class="font-cute text-base text-sky-200/90 leading-tight">Learn</p>
                 <p class="font-cute text-base text-sky-200/90 leading-tight">Practice</p>
@@ -417,13 +508,13 @@
                 <p class="font-cute text-base text-sky-200/90 leading-tight">Together <span class="text-amber-300">✦</span></p>
             </div>
 
-            <div class="relative flex justify-end -mt-10 pr-1 pointer-events-none">
+            <div class="sidebar-cat-illustration relative flex justify-end -mt-10 pr-1 pointer-events-none">
                 <img src="{{ asset('images/cat-welcome.png') }}" alt="Englify Cat Peeking" class="w-16 h-auto object-contain transform translate-y-1 opacity-90 drop-shadow-md">
             </div>
 
             <form method="POST" action="{{ route('logout') }}" class="pt-1">
                 @csrf
-                <button type="submit" class="paw-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/20 text-slate-200 hover:text-white border border-white/15 transition text-sm font-medium group">
+                <button type="submit" class="paw-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/20 text-slate-200 hover:text-white border border-white/15 transition text-sm font-medium group" title="Logout">
                     <div class="flex items-center gap-3">
                         <div class="w-7 h-7 rounded-lg bg-sky-400/15 group-hover:bg-rose-500/25 flex items-center justify-center transition-colors shrink-0">
                             <!-- PAW ICON (Cakar Kucing) -->
@@ -440,6 +531,16 @@
             </form>
         </div>
     </aside>
+
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem('englify_sidebar_collapsed') === '1') {
+                    document.getElementById('sidebar')?.classList.add('collapsed');
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- Mobile Backdrop -->
     <div id="mobile-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
@@ -477,6 +578,10 @@
             <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('admin.dashboard') ? 'sidebar-item-active' : 'hover:bg-white/10' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Dashboard
+            </a>
+            <a href="{{ route('admin.kategori') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('admin.kategori*') ? 'sidebar-item-active' : 'hover:bg-white/10' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                Kelola Kategori
             </a>
             <a href="{{ route('admin.bab') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('admin.bab*') ? 'sidebar-item-active' : 'hover:bg-white/10' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -645,8 +750,8 @@
 
                 <div class="relative">
                     <button onclick="toggleProfileDropdown()" class="flex items-center gap-2.5 bg-white border border-slate-200/90 rounded-full py-1.5 pl-1.5 pr-3 shadow-xs hover:bg-slate-50 transition">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#018ABE] to-[#02457A] border border-[#97CADB] flex items-center justify-center overflow-hidden shrink-0 text-white font-bold text-sm">
-                            {{ substr(auth()->user()->nama ?? auth()->user()->name ?? 'A', 0, 1) }}
+                        <div class="w-8 h-8 rounded-full bg-blue-50 border border-blue-200/80 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs p-0.5">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="header-user-avatar w-full h-full object-contain">
                         </div>
                         <div class="text-left hidden sm:block">
                             <p class="text-xs font-bold text-slate-800 leading-tight">{{ auth()->user()->nama ?? auth()->user()->name ?? 'Admin' }}</p>
@@ -656,11 +761,16 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50">
-                        <div class="px-4 py-2.5 border-b border-slate-100">
-                            <p class="text-xs font-bold text-slate-800">{{ auth()->user()->nama ?? auth()->user()->name ?? 'Admin' }}</p>
-                            <p class="text-[11px] text-slate-400 truncate">{{ auth()->user()->email ?? 'admin@englify.com' }}</p>
-                            <span class="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider bg-[#D6EBEE] text-[#02457A] px-2 py-0.5 rounded-full">Administrator</span>
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50">
+                        <div class="px-4 py-2.5 border-b border-slate-100 flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full bg-blue-50 border border-blue-200/80 flex items-center justify-center overflow-hidden shrink-0 p-0.5">
+                                <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="header-user-avatar w-full h-full object-contain">
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-bold text-slate-800 truncate">{{ auth()->user()->nama ?? auth()->user()->name ?? 'Admin' }}</p>
+                                <p class="text-[11px] text-slate-400 truncate">{{ auth()->user()->email ?? 'admin@englify.com' }}</p>
+                                <span class="inline-block mt-0.5 text-[9px] font-bold uppercase tracking-wider bg-[#D6EBEE] text-[#02457A] px-2 py-0.5 rounded-full">Administrator</span>
+                            </div>
                         </div>
                         <a href="{{ route('admin.profil') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -734,7 +844,12 @@
 
 <script>
 function toggleSidebarCollapse() {
-    document.getElementById('sidebar').classList.toggle('collapsed');
+    const sb = document.getElementById('sidebar');
+    if (!sb) return;
+    const isCollapsed = sb.classList.toggle('collapsed');
+    try {
+        localStorage.setItem('englify_sidebar_collapsed', isCollapsed ? '1' : '0');
+    } catch(e) {}
 }
 function toggleMobileSidebar() {
     const sb = document.getElementById('mobile-sidebar');
@@ -850,6 +965,7 @@ function highlightText(text, query) {
 // Admin Navigation Quick Links for fast menu discovery
 const adminQuickNavMenus = [
     { name: 'Dashboard', desc: 'Ringkasan & statistik aktivitas', url: '{{ route("admin.dashboard") }}', icon: '🏠', tags: ['dashboard', 'beranda', 'home', 'statistik', 'ringkasan'] },
+    { name: 'Kelola Kategori', desc: 'Kelola kategori materi (Speaking, Writing, Listening, Reading)', url: '{{ route("admin.kategori") }}', icon: '🏷️', tags: ['kategori', 'category', 'divisi', 'speaking', 'writing', 'listening', 'reading'] },
     { name: 'Materi Pembelajaran', desc: 'Kelola isi materi modul siswa', url: '{{ route("admin.materi") }}', icon: '📖', tags: ['materi', 'modul', 'reading', 'writing', 'teks', 'konten'] },
     { name: 'Manajemen Bab', desc: 'Kelola bab kurikulum & kategori', url: '{{ route("admin.bab") }}', icon: '📚', tags: ['bab', 'unit', 'kurikulum', 'kategori', 'chapter'] },
     { name: 'Manajemen Kuis', desc: 'Kelola soal & kuis latihan siswa', url: '{{ route("admin.quiz") }}', icon: '🎯', tags: ['kuis', 'quiz', 'soal', 'latihan', 'skor', 'pertanyaan'] },

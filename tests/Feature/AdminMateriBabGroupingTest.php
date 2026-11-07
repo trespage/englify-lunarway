@@ -247,4 +247,75 @@ class AdminMateriBabGroupingTest extends TestCase
         $this->assertEquals($bab->judul, $created->bab);
         $this->createdMateris[] = $created;
     }
+
+    public function test_admin_can_upload_inline_image_for_materi()
+    {
+        $admin = User::create([
+            'nama'                 => 'Admin Test Upload',
+            'username'             => 'admin-upload-' . uniqid(),
+            'email'                => 'admin-upload-' . uniqid() . '@example.com',
+            'password'             => Hash::make('password123'),
+            'id_role'              => 2,
+            'status'               => 'aktif',
+            'must_change_password' => false,
+        ]);
+        $this->createdUsers[] = $admin;
+
+        $file = \Illuminate\Http\UploadedFile::fake()->create('test_inline.png', 50, 'image/png');
+
+        $response = $this->actingAs($admin)->postJson(route('admin.materi.upload-image'), [
+            'image' => $file,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['success', 'url', 'path']);
+        $this->assertTrue($response->json('success'));
+
+        $savedPath = public_path($response->json('path'));
+        if (file_exists($savedPath)) {
+            @unlink($savedPath);
+        }
+    }
+
+    public function test_admin_materi_page_contains_alphabetical_and_roman_list_controls_and_css()
+    {
+        $admin = User::create([
+            'nama'                 => 'Admin Test List',
+            'username'             => 'admin-list-' . uniqid(),
+            'email'                => 'admin-list-' . uniqid() . '@example.com',
+            'password'             => Hash::make('password123'),
+            'id_role'              => 2,
+            'status'               => 'aktif',
+            'must_change_password' => false,
+        ]);
+        $this->createdUsers[] = $admin;
+
+        $response = $this->actingAs($admin)->get(route('admin.materi'));
+        $response->assertStatus(200);
+
+        // Memastikan tombol A.B.C dan dropdown format penomoran tersedia
+        $response->assertSee('A.B.C');
+        $response->assertSee('data-list-type="A"', false);
+        $response->assertSee('data-list-type="1"', false);
+        $response->assertSee('applyListStyle', false);
+        $response->assertSee('continueListNumbering', false);
+        $response->assertSee('restartListNumbering', false);
+        $response->assertSee('setListCustomStart', false);
+        $response->assertSee('Lanjutkan Penomoran', false);
+        $response->assertSee('Mulai Ulang', false);
+        $response->assertSee('upper-alpha', false);
+        $response->assertSee('lower-alpha', false);
+        $response->assertSee('upper-roman', false);
+
+        // Memastikan dukungan marker tebal otomatis pada anak judul (A., 1., dsb)
+        $response->assertSee('li:has(strong)::marker', false);
+        $response->assertSee('li.li-marker-bold::marker', false);
+        $response->assertSee('syncListMarkerBoldState', false);
+
+        // Memastikan tersedianya dua mode pembuatan materi (Standar & Mode Luas Word)
+        $response->assertSee('btnModeCompact', false);
+        $response->assertSee('btnModeLarge', false);
+        $response->assertSee('setMateriModalMode', false);
+        $response->assertSee('Mode Luas', false);
+    }
 }

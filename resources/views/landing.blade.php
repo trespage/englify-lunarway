@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Englify — Learn English, Grow Your Future</title>
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=20261102b">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}?v=20261102b">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}?v=20261102b">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v=20261102b">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=20261102b">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -208,7 +214,6 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="/login" class="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-50 rounded-full transition">Masuk</a>
                 <a href="/login" class="px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-navy-800 rounded-full hover:bg-navy-700 transition shadow-lg shadow-navy-800/20">Mulai →</a>
                 <!-- Mobile Hamburger Button -->
                 <button type="button" id="mobileMenuBtn" onclick="toggleMobileMenu()" class="md:hidden w-8 h-8 rounded-full bg-navy-50 hover:bg-navy-100 text-navy-900 flex items-center justify-center transition cursor-pointer" aria-label="Toggle Menu">
@@ -229,9 +234,8 @@
             <a href="#ulasan" onclick="toggleMobileMenu()" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-navy-50 rounded-2xl transition">Ulasan</a>
             <a href="#tentang" onclick="toggleMobileMenu()" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-navy-50 rounded-2xl transition">Tentang</a>
             <a href="#faq" onclick="toggleMobileMenu()" class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-navy-50 rounded-2xl transition">FAQ</a>
-            <div class="pt-2 border-t border-slate-100 flex gap-2">
-                <a href="/login" class="flex-1 text-center py-2.5 text-xs font-bold text-navy-900 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">Masuk Akun</a>
-                <a href="/login" class="flex-1 text-center py-2.5 text-xs font-bold text-white bg-navy-800 rounded-xl hover:bg-navy-700 transition shadow-md">Mulai Belajar</a>
+            <div class="pt-2 border-t border-slate-100">
+                <a href="/login" class="block w-full text-center py-2.5 text-xs font-bold text-white bg-navy-800 rounded-xl hover:bg-navy-700 transition shadow-md">Mulai →</a>
             </div>
         </div>
     </nav>
@@ -292,15 +296,15 @@
                     <!-- Mini Stats -->
                     <div class="grid grid-cols-3 gap-3 sm:flex sm:flex-wrap sm:gap-8 pt-6 sm:pt-8 border-t border-navy-900/10">
                         <div>
-                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">100+</div>
+                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">{{ $totalSiswa > 0 ? $totalSiswa . '+' : '100+' }}</div>
                             <div class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider">Member Aktif</div>
                         </div>
                         <div>
-                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">40+</div>
+                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">{{ $totalMateri > 0 ? $totalMateri . '+' : '40+' }}</div>
                             <div class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider">Materi</div>
                         </div>
                         <div>
-                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">4</div>
+                            <div class="font-display font-bold text-2xl sm:text-3xl text-navy-900">{{ $totalDivisi > 0 ? $totalDivisi : 4 }}</div>
                             <div class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider">Divisi</div>
                         </div>
                     </div>
@@ -1157,7 +1161,7 @@
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
                         <a href="/login" class="group relative px-6 sm:px-8 py-3.5 sm:py-4 bg-white text-navy-900 font-bold rounded-full overflow-hidden shadow-2xl hover:shadow-white/20 transition-all text-center">
                             <span class="relative z-10 flex items-center justify-center gap-2">
-                                Masuk & Mulai Belajar
+                                Mulai Belajar Sekarang
                                 <svg class="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                             </span>
                         </a>

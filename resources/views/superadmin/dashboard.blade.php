@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
-    @if($errors->any())
+    @if(isset($errors) && $errors->any())
     <div class="bg-rose-50 border border-rose-200 text-rose-800 text-sm px-4 py-3 rounded-2xl shadow-xs">
         <p class="font-bold mb-1">Gagal menyimpan akun:</p>
         <ul class="list-disc list-inside space-y-0.5">
@@ -354,7 +354,7 @@
                     </div>
 
                     <!-- Responsive Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto touch-pan-y cursor-grab active:cursor-grabbing select-none" id="table-container-siswa" title="Geser / swipe ke kiri atau kanan untuk berpindah halaman">
                         <table class="w-full text-left text-xs min-w-[340px]">
                             <thead>
                                 <tr class="text-slate-400 font-bold border-b border-slate-200/60">
@@ -365,9 +365,10 @@
                                     <th class="py-2.5 px-2 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100/80 text-slate-700">
-                                @forelse(($students ?? collect())->take(5) as $idx => $s)
-                                <tr class="hover:bg-sky-50/50 transition">
+                            <tbody class="divide-y divide-slate-100/80 text-slate-700 transition-opacity duration-150" id="tbody-siswa">
+                                @forelse(($students ?? collect()) as $idx => $s)
+                                @php $page = (int) floor($idx / 5) + 1; @endphp
+                                <tr class="hover:bg-sky-50/50 transition row-siswa {{ $page > 1 ? 'hidden' : '' }}" data-page="{{ $page }}">
                                     <td class="py-2.5 px-2 font-semibold text-slate-400">{{ $idx + 1 }}</td>
                                     <td class="py-2.5 px-2 font-bold text-slate-800">{{ $s->nama }}</td>
                                     <td class="py-2.5 px-2 text-slate-500 truncate max-w-[140px]">{{ $s->email }}</td>
@@ -405,12 +406,8 @@
                 </div>
 
                 <!-- Pagination Matching Mockup (< [1] 2 3 >) -->
-                <div class="flex items-center justify-center gap-1 pt-4 mt-3 border-t border-slate-200/60">
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-400 hover:bg-white hover:text-slate-700">&lt;</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold bg-sky-600 text-white shadow-xs">1</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-white">2</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-white">3</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-400 hover:bg-white hover:text-slate-700">&gt;</button>
+                <div id="pagination-siswa" class="flex items-center justify-center gap-1 pt-4 mt-3 border-t border-slate-200/60 select-none">
+                    <!-- Dinamis diinisialisasi oleh JS -->
                 </div>
             </div>
 
@@ -432,7 +429,7 @@
                     </div>
 
                     <!-- Responsive Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto touch-pan-y cursor-grab active:cursor-grabbing select-none" id="table-container-admin" title="Geser / swipe ke kiri atau kanan untuk berpindah halaman">
                         <table class="w-full text-left text-xs min-w-[340px]">
                             <thead>
                                 <tr class="text-slate-400 font-bold border-b border-slate-200/60">
@@ -443,9 +440,10 @@
                                     <th class="py-2.5 px-2 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100/80 text-slate-700">
-                                @forelse(($admins ?? collect())->take(5) as $idx => $a)
-                                <tr class="hover:bg-sky-50/50 transition">
+                            <tbody class="divide-y divide-slate-100/80 text-slate-700 transition-opacity duration-150" id="tbody-admin">
+                                @forelse(($admins ?? collect()) as $idx => $a)
+                                @php $page = (int) floor($idx / 5) + 1; @endphp
+                                <tr class="hover:bg-sky-50/50 transition row-admin {{ $page > 1 ? 'hidden' : '' }}" data-page="{{ $page }}">
                                     <td class="py-2.5 px-2 font-semibold text-slate-400">{{ $idx + 1 }}</td>
                                     <td class="py-2.5 px-2 font-bold text-slate-800">{{ $a->nama }}</td>
                                     <td class="py-2.5 px-2 text-slate-600 break-all">{{ $a->email }}</td>
@@ -483,12 +481,8 @@
                 </div>
 
                 <!-- Pagination Matching Mockup (< [1] 2 3 >) -->
-                <div class="flex items-center justify-center gap-1 pt-4 mt-3 border-t border-slate-200/60">
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-400 hover:bg-white hover:text-slate-700">&lt;</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold bg-sky-600 text-white shadow-xs">1</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-white">2</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-white">3</button>
-                    <button class="w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-400 hover:bg-white hover:text-slate-700">&gt;</button>
+                <div id="pagination-admin" class="flex items-center justify-center gap-1 pt-4 mt-3 border-t border-slate-200/60 select-none">
+                    <!-- Dinamis diinisialisasi oleh JS -->
                 </div>
             </div>
 
@@ -703,9 +697,165 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// Pagination & Horizontal Swipe Gesture for Dashboard Tables (Siswa & Admin)
+function initTablePaging(type) {
+    const tbody = document.getElementById(`tbody-${type}`);
+    const container = document.getElementById(`table-container-${type}`);
+    const paginationEl = document.getElementById(`pagination-${type}`);
+    if (!tbody || !paginationEl) return;
+
+    const rows = Array.from(tbody.querySelectorAll(`.row-${type}`));
+    const perPage = 5;
+    const totalItems = rows.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+    const displayPages = Math.max(3, totalPages);
+    let currentPage = 1;
+
+    function renderPagination() {
+        paginationEl.innerHTML = '';
+
+        // Previous button (<)
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.innerHTML = '&lt;';
+        prevBtn.title = 'Halaman sebelumnya (atau geser/swipe ke kanan)';
+        if (currentPage <= 1) {
+            prevBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-300 cursor-not-allowed opacity-40 select-none';
+            prevBtn.disabled = true;
+        } else {
+            prevBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-600 hover:bg-white hover:text-sky-600 transition cursor-pointer select-none';
+            prevBtn.onclick = () => goToPage(currentPage - 1);
+        }
+        paginationEl.appendChild(prevBtn);
+
+        // Page number buttons (1, 2, 3...)
+        for (let p = 1; p <= displayPages; p++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.textContent = p;
+
+            if (p === currentPage) {
+                pageBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold bg-sky-600 text-white shadow-xs cursor-default select-none';
+            } else if (p <= totalPages) {
+                pageBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-600 hover:bg-white hover:text-sky-600 transition cursor-pointer select-none';
+                pageBtn.onclick = () => goToPage(p);
+            } else {
+                pageBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-slate-300 cursor-not-allowed opacity-40 select-none';
+                pageBtn.disabled = true;
+                pageBtn.title = `Belum ada data untuk halaman ${p}`;
+            }
+            paginationEl.appendChild(pageBtn);
+        }
+
+        // Next button (>)
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.innerHTML = '&gt;';
+        nextBtn.title = 'Halaman berikutnya (atau geser/swipe ke kiri)';
+        if (currentPage >= totalPages) {
+            nextBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-300 cursor-not-allowed opacity-40 select-none';
+            nextBtn.disabled = true;
+        } else {
+            nextBtn.className = 'w-6 h-6 rounded-md flex items-center justify-center text-xs text-slate-600 hover:bg-white hover:text-sky-600 transition cursor-pointer select-none';
+            nextBtn.onclick = () => goToPage(currentPage + 1);
+        }
+        paginationEl.appendChild(nextBtn);
+    }
+
+    function goToPage(targetPage) {
+        if (targetPage < 1 || targetPage > totalPages) return;
+        if (targetPage === currentPage) return;
+
+        currentPage = targetPage;
+
+        // Smooth fade effect
+        tbody.classList.add('opacity-0');
+        setTimeout(() => {
+            rows.forEach(row => {
+                const rowPage = parseInt(row.getAttribute('data-page') || '1', 10);
+                if (rowPage === currentPage) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+            tbody.classList.remove('opacity-0');
+            renderPagination();
+        }, 120);
+    }
+
+    // Initial render
+    renderPagination();
+
+    // Attach Swipe & Drag Gesture Listeners
+    if (container) {
+        let startX = 0;
+        let startY = 0;
+        let isPointerActive = false;
+        let startTime = 0;
+
+        container.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button, a, form, input, select')) return;
+            startX = e.clientX;
+            startY = e.clientY;
+            startTime = Date.now();
+            isPointerActive = true;
+        });
+
+        container.addEventListener('pointerup', (e) => {
+            if (!isPointerActive) return;
+            isPointerActive = false;
+            const diffX = e.clientX - startX;
+            const diffY = e.clientY - startY;
+            const elapsed = Date.now() - startTime;
+
+            if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) && elapsed < 800) {
+                if (diffX < 0) {
+                    // Swiped left -> next page
+                    goToPage(currentPage + 1);
+                } else {
+                    // Swiped right -> prev page
+                    goToPage(currentPage - 1);
+                }
+            }
+        });
+
+        container.addEventListener('pointercancel', () => {
+            isPointerActive = false;
+        });
+
+        // Touch event fallback
+        let touchX = 0;
+        let touchY = 0;
+        container.addEventListener('touchstart', (e) => {
+            if (e.target.closest('button, a, form, input, select')) return;
+            touchX = e.changedTouches[0].clientX;
+            touchY = e.changedTouches[0].clientY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            const diffX = e.changedTouches[0].clientX - touchX;
+            const diffY = e.changedTouches[0].clientY - touchY;
+            if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) {
+                    goToPage(currentPage + 1);
+                } else {
+                    goToPage(currentPage - 1);
+                }
+            }
+        }, { passive: true });
+    }
+}
+
 // Initialize Chart.js Growth Line Chart + auto-refresh real-time
 document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('studentGrowthChart').getContext('2d');
+    // Inisialisasi Paginasi & Swipe untuk tabel dashboard
+    initTablePaging('siswa');
+    initTablePaging('admin');
+
+    const chartEl = document.getElementById('studentGrowthChart');
+    if (!chartEl) return;
+    const ctx = chartEl.getContext('2d');
     
     // Gradient fill under the curve
     const gradient = ctx.createLinearGradient(0, 0, 0, 180);

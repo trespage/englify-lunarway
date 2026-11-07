@@ -33,13 +33,13 @@
         <div class="px-6 sm:px-8 pb-6">
             <div class="relative flex flex-col sm:flex-row items-center sm:items-end -mt-12 sm:-mt-14 mb-4 gap-4">
                 <!-- Avatar -->
-                <div class="relative">
-                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-lg">
-                        <div class="w-full h-full rounded-xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center">
-                            <img src="{{ asset('images/cat-welcome.png') }}" alt="Avatar" class="w-full h-full object-contain p-1">
+                <div class="relative group">
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-lg ring-4 ring-purple-100">
+                        <div class="w-full h-full rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center p-1 overflow-hidden">
+                            <img id="main-admin-avatar" src="{{ auth()->user()->avatar_url }}" alt="Avatar {{ auth()->user()->nama }}" class="w-full h-full object-contain filter drop-shadow-sm transition-transform duration-300 group-hover:scale-110">
                         </div>
                     </div>
-                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
+                    <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-md">
                         <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
@@ -69,7 +69,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
-                            Kurikulum Terpadu (4 Kategori)
+                            {{ $namaDivisi ?? 'Kurikulum Englify' }}
                         </span>
                         <span class="hidden sm:inline text-slate-300">•</span>
                         <span class="flex items-center gap-1.5">
@@ -79,6 +79,48 @@
                             Bergabung sejak {{ \Carbon\Carbon::parse(auth()->user()->created_at)->format('j M Y') }}
                         </span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Pilihan Karakter Maskot Profil -->
+            @php
+                $currentAvatar = auth()->user()->avatar ?? 'avatar-cat-laptop.png';
+                $avatars = \App\Models\User::availableAvatars();
+            @endphp
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">🐱</span>
+                        <h3 class="text-sm font-bold text-slate-800">Karakter Maskot Profil</h3>
+                        <span class="text-xs text-slate-400">• Pilih avatar kucing favorit Anda</span>
+                    </div>
+                    <div id="admin-avatar-status" class="hidden items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+                        <svg class="w-3 h-3 animate-spin text-emerald-600 hidden" id="admin-avatar-spinner" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span id="admin-avatar-status-text">Tersimpan</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                    @foreach($avatars as $file => $meta)
+                        @php
+                            $isSelected = ($currentAvatar === $file);
+                        @endphp
+                        <button type="button"
+                                onclick="selectAdminAvatar('{{ $file }}', '{{ $meta['nama'] }}')"
+                                class="admin-avatar-card relative flex flex-col items-center p-2.5 rounded-xl border-2 transition-all duration-200 text-center cursor-pointer {{ $isSelected ? 'border-purple-600 bg-purple-50/60 ring-2 ring-purple-600/20 shadow-sm' : 'border-slate-200/80 bg-white hover:border-purple-300 hover:bg-slate-50' }}"
+                                data-avatar="{{ $file }}">
+                            <div class="admin-avatar-check absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center {{ $isSelected ? '' : 'hidden' }}">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                            <div class="w-14 h-14 rounded-xl bg-white p-1 flex items-center justify-center mb-1.5">
+                                <img src="{{ asset('images/avatars/' . $file) }}" alt="{{ $meta['nama'] }}" class="w-full h-full object-contain">
+                            </div>
+                            <p class="text-[11px] font-bold text-slate-800 leading-tight truncate w-full">{{ $meta['nama'] }}</p>
+                            <span class="inline-block mt-0.5 text-[9px] font-semibold px-2 py-0.5 rounded-full {{ $isSelected ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-600' }}">
+                                {{ $meta['badge'] }}
+                            </span>
+                        </button>
+                    @endforeach
                 </div>
             </div>
 
@@ -164,7 +206,13 @@
                             </div>
                             <div>
                                 <p class="text-xs text-slate-500 font-medium">Cakupan Pengelolaan</p>
-                                <p class="text-sm font-semibold text-slate-800">Bab, Materi & Quiz (Semua Kategori)</p>
+                                <p class="text-sm font-semibold text-slate-800">
+                                    @if(auth()->user()->kategori)
+                                        Bab, Materi & Quiz (Divisi {{ auth()->user()->kategori->nama_kategori }})
+                                    @else
+                                        Bab, Materi & Quiz (Semua Kategori)
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -233,8 +281,8 @@
                             </svg>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-bold text-slate-800 text-sm">Platform Englify</p>
-                            <p class="text-xs text-slate-500 truncate">4 Kategori: Speaking, Writing, Reading, Listening</p>
+                            <p class="font-bold text-slate-800 text-sm">{{ $namaDivisi ?? 'Platform Englify' }}</p>
+                            <p class="text-xs text-slate-500 truncate" title="{{ $subDivisiText ?? '' }}">{{ $subDivisiText ?? ($totalKategori . ' Kategori') }}</p>
                         </div>
                     </div>
 
@@ -456,6 +504,18 @@
                 <p class="text-[11px] text-rose-500 font-semibold mt-1">{{ $message }}</p>
                 @enderror
             </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Divisi (Kategori)</label>
+                <select name="id_kategori" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition cursor-pointer">
+                    <option value="" {{ empty(auth()->user()->id_kategori) ? 'selected' : '' }}>Semua Divisi (Kurikulum Terpadu)</option>
+                    @foreach($kategoris ?? [] as $k)
+                        <option value="{{ $k->id_kategori }}" {{ (string) auth()->user()->id_kategori === (string) $k->id_kategori ? 'selected' : '' }}>
+                            Divisi {{ $k->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-[11px] text-slate-400 mt-1">Pilih divisi pembelajaran khusus Anda untuk memfilter ringkasan statistik kurikulum.</p>
+            </div>
             <!-- Info Perubahan Password -->
             <div class="p-3.5 bg-purple-50 border border-purple-100 rounded-xl flex items-center gap-2.5 text-xs text-purple-800 font-medium">
                 <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -501,6 +561,81 @@ function openEditModal() {
 function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
     document.getElementById('editModal').classList.remove('flex');
+}
+
+function selectAdminAvatar(filename, name) {
+    const cards = document.querySelectorAll('.admin-avatar-card');
+    cards.forEach(card => {
+        const isTarget = card.getAttribute('data-avatar') === filename;
+        const check = card.querySelector('.admin-avatar-check');
+        const badge = card.querySelector('span');
+
+        if (isTarget) {
+            card.classList.remove('border-slate-200/80', 'bg-white', 'hover:border-purple-300', 'hover:bg-slate-50');
+            card.classList.add('border-purple-600', 'bg-purple-50/60', 'ring-2', 'ring-purple-600/20', 'shadow-sm');
+            if (check) check.classList.remove('hidden');
+            if (badge) {
+                badge.className = 'inline-block mt-0.5 text-[9px] font-semibold px-2 py-0.5 rounded-full bg-purple-600 text-white';
+            }
+        } else {
+            card.classList.remove('border-purple-600', 'bg-purple-50/60', 'ring-2', 'ring-purple-600/20', 'shadow-sm');
+            card.classList.add('border-slate-200/80', 'bg-white', 'hover:border-purple-300', 'hover:bg-slate-50');
+            if (check) check.classList.add('hidden');
+            if (badge) {
+                badge.className = 'inline-block mt-0.5 text-[9px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600';
+            }
+        }
+    });
+
+    const newUrl = "{{ asset('images/avatars') }}/" + filename;
+    const mainImg = document.getElementById('main-admin-avatar');
+    if (mainImg) {
+        mainImg.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+            mainImg.src = newUrl;
+            mainImg.style.transform = 'scale(1)';
+        }, 120);
+    }
+
+    document.querySelectorAll('.header-user-avatar').forEach(img => {
+        img.src = newUrl;
+    });
+
+    const statusBox = document.getElementById('admin-avatar-status');
+    const spinner = document.getElementById('admin-avatar-spinner');
+    const statusText = document.getElementById('admin-avatar-status-text');
+
+    if (statusBox) {
+        statusBox.classList.remove('hidden');
+        statusBox.classList.add('flex');
+        if (spinner) spinner.classList.remove('hidden');
+        if (statusText) statusText.textContent = 'Menyimpan...';
+    }
+
+    fetch("{{ route('admin.profil.avatar') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ avatar: filename })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (spinner) spinner.classList.add('hidden');
+        if (statusText) statusText.textContent = 'Tersimpan! ✨';
+        setTimeout(() => {
+            if (statusBox) {
+                statusBox.classList.add('hidden');
+                statusBox.classList.remove('flex');
+            }
+        }, 2200);
+    })
+    .catch(err => {
+        if (spinner) spinner.classList.add('hidden');
+        if (statusText) statusText.textContent = 'Gagal';
+    });
 }
 
 @if($errors->any())

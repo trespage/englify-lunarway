@@ -17,10 +17,10 @@
 
             <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
                 <!-- User Avatar / Greeting Icon -->
-                <div class="relative shrink-0">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#018ABE] to-[#02457A] text-white p-0.5 shadow-md shadow-[#018ABE]/20 flex items-center justify-center">
-                        <div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center text-[#018ABE] font-black text-lg sm:text-xl">
-                            {{ substr(auth()->user()->nama ?? auth()->user()->name ?? 'S', 0, 1) }}
+                <div class="relative shrink-0 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#018ABE] to-[#02457A] p-0.5 shadow-md shadow-[#018ABE]/20 flex items-center justify-center">
+                        <div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center overflow-hidden p-0.5">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="Avatar {{ auth()->user()->nama }}" class="header-user-avatar w-full h-full object-contain transition-transform duration-300 group-hover:scale-110">
                         </div>
                     </div>
                     <span class="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-[9px] sm:text-[10px] text-white shadow-xs" title="Online & Aktif">✓</span>
@@ -35,7 +35,7 @@
                         Halo, <span class="text-[#018ABE]">{{ auth()->user()->nama }}</span>! ✨
                     </h1>
                     <p class="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
-                        Senang melihatmu kembali! Siap melangkah lebih jauh dalam belajar bahasa Inggris hari ini? Yuk taklukkan materi baru & raih skor tertinggi di quiz!
+                        Fokus pada materi pembelajaranmu hari ini. Belajar teratur langkah demi langkah untuk hasil yang maksimal!
                     </p>
                 </div>
 
@@ -60,7 +60,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-xs font-bold text-slate-800 leading-tight truncate">Materi</span>
-                        <span class="block text-[10px] text-slate-500 truncate">Mulai belajar</span>
+                        <span class="block text-[10px] text-slate-500 truncate">Daftar bacaan</span>
                     </div>
                 </a>
 
@@ -72,7 +72,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-xs font-bold text-slate-800 leading-tight truncate">Peta Quiz</span>
-                        <span class="block text-[10px] text-slate-500 truncate">Uji kemampuan</span>
+                        <span class="block text-[10px] text-slate-500 truncate">Alur tantangan</span>
                     </div>
                 </a>
 
@@ -93,29 +93,23 @@
                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
-                        @php
-                            $unreadCount = \App\Models\PesanAdmin::where('id_user', auth()->user()->id_user)->where('is_read', false)->count();
-                        @endphp
-                        @if($unreadCount > 0)
+                        @if($unreadPesanCount > 0)
                             <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white"></span>
                         @endif
                     </div>
                     <div class="min-w-0">
                         <span class="block text-xs font-bold text-slate-800 leading-tight truncate">Reminder</span>
-                        <span class="block text-[10px] text-slate-500 truncate">{{ $unreadCount > 0 ? $unreadCount . ' baru' : 'Kotak masuk' }}</span>
+                        <span class="block text-[10px] text-slate-500 truncate">{{ $unreadPesanCount > 0 ? $unreadPesanCount . ' baru' : 'Kotak masuk' }}</span>
                     </div>
                 </a>
             </div>
         </div>
 
-        <!-- Live Clock & Inspiration Card (1/3) -->
-        <div id="liveClockCardSiswa" class="relative overflow-hidden rounded-2xl shadow-lg border border-[#97CADB]/40 bg-gradient-to-br from-[#018ABE] to-[#02457A] p-4 sm:p-5 text-white flex flex-col justify-between gap-3">
+        <!-- Live Clock & Motivation Card (1/3) -->
+        <div id="liveClockCardSiswa" class="relative overflow-hidden rounded-2xl shadow-sm border border-[#97CADB]/40 bg-gradient-to-br from-[#018ABE] to-[#02457A] p-4 sm:p-5 text-white flex flex-col justify-between gap-3">
             <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
             <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-            <div class="absolute top-3 right-4 text-white/30 text-xs">✦</div>
-            <div class="absolute bottom-3 left-4 text-white/30 text-xs">✧</div>
 
-            <!-- Bagian Atas: Badge, Tanggal & Jam -->
             <div class="relative space-y-2">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur border border-white/20">
@@ -124,518 +118,399 @@
                     </div>
                     <div class="flex items-center gap-1 text-[10px] font-semibold text-sky-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>LIVE • WIB</span>
+                        <span>WIB</span>
                     </div>
                 </div>
 
-                <div class="flex items-end justify-between">
+                <div class="flex items-end justify-between pt-1">
                     <div>
                         <p id="liveDateSiswa" class="text-xs font-medium text-sky-100">
                             {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
                         </p>
                         <div class="flex items-baseline gap-1 mt-0.5">
-                            <span id="liveTimeSiswa" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums leading-none">
+                            <span id="liveTimeSiswa" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums leading-none">
                                 {{ \Carbon\Carbon::now()->format('H:i') }}
                             </span>
-                            <span id="liveSecondsSiswa" class="text-xs sm:text-base font-bold text-sky-200/80 tabular-nums">
+                            <span id="liveSecondsSiswa" class="text-xs sm:text-sm font-bold text-sky-200/80 tabular-nums">
                                 :{{ \Carbon\Carbon::now()->format('s') }}
                             </span>
                         </div>
                     </div>
 
-                    <!-- Mini Streak / Mood Pill -->
                     <div class="text-right">
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/15 backdrop-blur text-[11px] font-bold text-amber-300 border border-white/20 shadow-2xs">
                             <span>🔥</span>
-                            <span>{{ ($materiSelesai + $quizSelesai) > 0 ? 'Sedang Aktif' : 'Ayo Mulai!' }}</span>
+                            <span>{{ ($materiSelesai + $quizSelesai) > 0 ? 'Aktif' : 'Mulai!' }}</span>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Bagian Tengah: Progress Waktu Hari Ini & Mini Snapshot Belajar -->
-            <div class="relative space-y-2.5 py-1">
-                <!-- Bar Waktu Hari Ini -->
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between text-[10px] text-sky-100 font-semibold">
-                        <span>Waktu Hari Ini Berjalan</span>
-                        <span id="siswaDayProgress" class="font-bold text-white">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-black/20 rounded-full overflow-hidden border border-white/10">
-                        <div id="siswaDayProgressBar" class="h-full bg-gradient-to-r from-emerald-300 to-sky-300 rounded-full transition-all duration-1000" style="width: 0%"></div>
-                    </div>
+            <!-- Mini Progress Waktu Hari Ini -->
+            <div class="relative space-y-1.5 py-1">
+                <div class="flex items-center justify-between text-[10px] text-sky-100 font-semibold">
+                    <span>Waktu Hari Ini Berjalan</span>
+                    <span id="siswaDayProgress" class="font-bold text-white">0%</span>
                 </div>
-
-                <!-- 2 Micro Cards Progress Ringkas -->
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-2 sm:p-2.5 border border-white/15 hover:bg-white/15 transition">
-                        <div class="flex items-center justify-between text-[9px] sm:text-[10px] text-sky-200 font-bold mb-1">
-                            <span>📚 MATERI</span>
-                            <span class="text-white">{{ $totalMateri > 0 ? round(($materiSelesai / $totalMateri) * 100) : 0 }}%</span>
-                        </div>
-                        <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">
-                            {{ $materiSelesai }} <span class="text-[9px] sm:text-[10px] font-normal text-sky-200">/ {{ $totalMateri }}</span>
-                        </p>
-                        <div class="w-full h-1 bg-white/20 rounded-full mt-1.5 overflow-hidden">
-                            <div class="h-full bg-sky-300 rounded-full" style="width: {{ $totalMateri > 0 ? min(100, round(($materiSelesai / $totalMateri) * 100)) : 0 }}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white/10 backdrop-blur-md rounded-xl p-2 sm:p-2.5 border border-white/15 hover:bg-white/15 transition">
-                        <div class="flex items-center justify-between text-[9px] sm:text-[10px] text-sky-200 font-bold mb-1">
-                            <span>🎯 QUIZ</span>
-                            <span class="text-white">{{ $totalQuiz > 0 ? round(($quizSelesai / $totalQuiz) * 100) : 0 }}%</span>
-                        </div>
-                        <p class="text-xs sm:text-sm font-extrabold text-white leading-tight">
-                            {{ $quizSelesai }} <span class="text-[9px] sm:text-[10px] font-normal text-sky-200">/ {{ $totalQuiz }}</span>
-                        </p>
-                        <div class="w-full h-1 bg-white/20 rounded-full mt-1.5 overflow-hidden">
-                            <div class="h-full bg-amber-300 rounded-full" style="width: {{ $totalQuiz > 0 ? min(100, round(($quizSelesai / $totalQuiz) * 100)) : 0 }}%"></div>
-                        </div>
-                    </div>
+                <div class="w-full h-1.5 bg-black/20 rounded-full overflow-hidden border border-white/10">
+                    <div id="siswaDayProgressBar" class="h-full bg-gradient-to-r from-emerald-300 to-sky-300 rounded-full transition-all duration-1000" style="width: 0%"></div>
                 </div>
             </div>
 
-            <!-- Bagian Bawah: Motivational Quote -->
-            <div class="relative pt-2.5 border-t border-white/15">
-                <div class="flex items-start gap-2">
-                    <span class="text-amber-300 text-base leading-none">“</span>
-                    <div class="flex-1">
-                        <p id="dailyQuoteSiswa" class="text-xs font-medium text-sky-100 italic leading-snug">
-                            "A little progress each day adds up to big results."
-                        </p>
-                        <p class="text-[10px] text-sky-200/70 mt-1 font-cute text-right">~ Daily English Motivation ✨</p>
-                    </div>
-                </div>
+            <!-- Daily Motivation Quote -->
+            <div class="relative pt-2 border-t border-white/15">
+                <p id="dailyQuoteSiswa" class="text-xs font-medium text-sky-100 italic leading-snug">
+                    "A little progress each day adds up to big results."
+                </p>
             </div>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- STATS CARDS                                            -->
+    <!-- ROW 2: RINGKASAN INTI STATISTIK (4 STAT CARDS)        -->
     <!-- ===================================================== -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-        <!-- Materi Selesai -->
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#D6EBEE] flex items-center justify-center">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <!-- 1. Materi Selesai -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-xs hover:shadow-md transition">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+                <div class="w-10 h-10 rounded-xl bg-[#D6EBEE] flex items-center justify-center">
                     <svg class="w-5 h-5 text-[#018ABE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
                 </div>
-                <span class="text-xs font-bold text-[#018ABE] bg-[#D6EBEE] px-2 py-1 rounded-full">{{ $materiSelesai }} dari {{ $totalMateri }}</span>
+                <span class="text-[11px] font-bold text-[#018ABE] bg-[#D6EBEE] px-2 py-0.5 rounded-full">
+                    {{ $totalMateri > 0 ? round(($materiSelesai / $totalMateri) * 100) : 0 }}%
+                </span>
             </div>
-            <p class="text-xs sm:text-sm font-semibold text-slate-500">Materi Selesai</p>
-            <p class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1">{{ $materiSelesai }}</p>
-            <p class="text-xs text-slate-400 mt-1">dari {{ $totalMateri }} materi</p>
+            <p class="text-xs font-semibold text-slate-500">Materi Selesai</p>
+            <p class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-0.5">{{ $materiSelesai }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">dari {{ $totalMateri }} materi</p>
         </div>
 
-        <!-- Quiz Selesai -->
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
+        <!-- 2. Quiz Selesai -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-xs hover:shadow-md transition">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{{ $quizSelesai }} dari {{ $totalQuiz }}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    {{ $totalQuiz > 0 ? round(($quizSelesai / $totalQuiz) * 100) : 0 }}%
+                </span>
             </div>
-            <p class="text-xs sm:text-sm font-semibold text-slate-500">Quiz Selesai</p>
-            <p class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1">{{ $quizSelesai }}</p>
-            <p class="text-xs text-slate-400 mt-1">dari {{ $totalQuiz }} quiz</p>
+            <p class="text-xs font-semibold text-slate-500">Quiz Selesai</p>
+            <p class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-0.5">{{ $quizSelesai }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">dari {{ $totalQuiz }} quiz</p>
         </div>
 
-        <!-- Rata-rata Nilai -->
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-sm hover:shadow-md transition">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 flex items-center justify-center">
+        <!-- 3. Rata-rata Nilai -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-xs hover:shadow-md transition">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                     </svg>
                 </div>
-                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{{ $rataRataNilai >= 80 ? '↑ Bagus!' : ($rataRataNilai >= 60 ? 'Cukup' : 'Semangat!') }}</span>
+                <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                    {{ $quizSelesai > 0 ? ($rataRataNilai >= 80 ? 'Bagus!' : ($rataRataNilai >= 60 ? 'Cukup' : 'Semangat!')) : 'Belum Ada' }}
+                </span>
             </div>
-            <p class="text-xs sm:text-sm font-semibold text-slate-500">Rata-rata Nilai</p>
-            <p class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{{ round($rataRataNilai) }}%</p>
-            <p class="text-xs text-slate-400 mt-1">dari semua quiz</p>
+            <p class="text-xs font-semibold text-slate-500">Rata-rata Nilai</p>
+            <p class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-0.5">{{ $quizSelesai > 0 ? round($rataRataNilai) . '%' : '-' }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">dari seluruh kuis</p>
+        </div>
+
+        <!-- 4. Total Poin -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-[#97CADB]/30 shadow-xs hover:shadow-md transition">
+            <div class="flex items-start justify-between mb-2 sm:mb-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                </div>
+                <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">XP</span>
+            </div>
+            <p class="text-xs font-semibold text-slate-500">Total Poin</p>
+            <p class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-0.5">{{ number_format($totalSkor, 0, ',', '.') }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">poin terkumpul</p>
         </div>
     </div>
 
     <!-- ===================================================== -->
-    <!-- MAIN GRID: QUIZ & MATERI (2/3) + REMINDER & STATS (1/3) -->
+    <!-- ROW 3: KARTU AKSI UTAMA ("LANJUTKAN BELAJAR")          -->
+    <!-- ===================================================== -->
+    @if($materiLanjutan)
+        <div class="bg-gradient-to-r from-white via-white to-[#D6EBEE]/40 rounded-2xl border border-[#97CADB]/40 p-5 sm:p-6 shadow-xs hover:shadow-md transition">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#018ABE] to-[#02457A] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#018ABE]/20">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-[#D6EBEE] text-[#02457A]">
+                                Rekomendasi Belajar
+                            </span>
+                            @if($materiLanjutan->kategori)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold {{ $materiLanjutan->kategori->color['badge'] ?? 'bg-slate-100 text-slate-700' }}">
+                                    {{ $materiLanjutan->kategori->nama_kategori }}
+                                </span>
+                            @endif
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 leading-tight truncate" title="{{ $materiLanjutan->judul }}">
+                            {{ $materiLanjutan->judul }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            {{ $materiLanjutan->babModel ? 'Bab ' . $materiLanjutan->babModel->urutan . ' – ' . $materiLanjutan->babModel->judul : 'Kurikulum Englify' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 shrink-0 self-stretch sm:self-center">
+                    <a href="{{ route('siswa.materi.baca', $materiLanjutan->id_materi) }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#018ABE] hover:bg-[#02457A] text-white font-bold text-xs sm:text-sm shadow-sm hover:shadow transition">
+                        <span>Lanjutkan Membaca</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                    <a href="{{ route('siswa.peta-quiz') }}" class="inline-flex items-center justify-center px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm border border-slate-200 transition" title="Buka Peta Quiz">
+                        <span>Peta Quiz</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="bg-white rounded-2xl border border-[#97CADB]/30 p-6 text-center shadow-xs">
+            <span class="text-3xl mb-2 block">🎉</span>
+            <h3 class="text-base font-bold text-slate-800">Luar Biasa! Semua Materi Telah Kamu Selesaikan</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                Kamu telah menuntaskan semua materi bacaan. Asah terus pemahamanmu melalui tantangan quiz di Peta Quiz!
+            </p>
+            <div class="mt-4">
+                <a href="{{ route('siswa.peta-quiz') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#018ABE] hover:bg-[#02457A] text-white font-bold text-xs shadow-xs transition">
+                    <span>Buka Peta Quiz</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+    @endif
+
+    <!-- ===================================================== -->
+    <!-- ROW 4: PROGRESS BELAJAR PER KATEGORI (DIVISI)         -->
+    <!-- ===================================================== -->
+    <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-xs overflow-hidden">
+        <div class="px-5 sm:px-6 py-4 border-b border-[#97CADB]/20 flex items-center justify-between">
+            <div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="text-[#018ABE]">📊</span>
+                    <span>Progres Pembelajaran per Kategori</span>
+                </h3>
+                <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Ringkasan penguasaan kurikulum di setiap divisi pembelajaran</p>
+            </div>
+            <a href="{{ route('siswa.materi') }}" class="text-xs font-bold text-[#018ABE] hover:underline flex items-center gap-1">
+                <span>Lihat Materi</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            @forelse($kategoriList as $kat)
+                @php
+                    $isSpeaking = strtolower($kat->nama_kategori) === 'speaking';
+                    $isWriting = strtolower($kat->nama_kategori) === 'writing';
+                    $isReading = strtolower($kat->nama_kategori) === 'reading';
+                    $isListening = strtolower($kat->nama_kategori) === 'listening';
+
+                    $barColor = 'bg-[#018ABE]';
+                    $cardBg = 'bg-slate-50/60 hover:bg-white border-slate-200/80';
+                    $icon = '📖';
+
+                    if ($isSpeaking) {
+                        $barColor = 'bg-rose-500';
+                        $cardBg = 'bg-rose-50/40 hover:bg-white border-rose-100 hover:border-rose-300';
+                        $icon = '🗣️';
+                    } elseif ($isWriting) {
+                        $barColor = 'bg-[#018ABE]';
+                        $cardBg = 'bg-sky-50/40 hover:bg-white border-sky-100 hover:border-sky-300';
+                        $icon = '✍️';
+                    } elseif ($isReading) {
+                        $barColor = 'bg-emerald-500';
+                        $cardBg = 'bg-emerald-50/40 hover:bg-white border-emerald-100 hover:border-emerald-300';
+                        $icon = '📚';
+                    } elseif ($isListening) {
+                        $barColor = 'bg-purple-500';
+                        $cardBg = 'bg-purple-50/40 hover:bg-white border-purple-100 hover:border-purple-300';
+                        $icon = '🎧';
+                    }
+                @endphp
+
+                <div class="p-4 rounded-xl border {{ $cardBg }} transition flex flex-col justify-between gap-3 shadow-2xs">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-base">{{ $icon }}</span>
+                            <span class="text-xs font-extrabold text-slate-700">{{ $kat->persen }}%</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm leading-tight">{{ $kat->nama_kategori }}</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            {{ $kat->selesai_materi }} dari {{ $kat->total_materi }} materi selesai
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                            <div class="h-full {{ $barColor }} rounded-full transition-all duration-500" style="width: {{ $kat->persen }}%"></div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-[10px] text-slate-400">{{ $kat->babs_count ?? 0 }} Bab</span>
+                            <a href="{{ route('siswa.materi', ['kategori' => $kat->id_kategori]) }}" class="text-[11px] font-bold text-[#018ABE] hover:underline">
+                                Buka Materi →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full text-center py-6 text-slate-400 text-xs">
+                    Belum ada kategori pembelajaran yang dibuat.
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- ROW 5: RIWAYAT QUIZ TERAKHIR & REMINDER DARI ADMIN    -->
     <!-- ===================================================== -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-        <!-- SISI KIRI (2/3): QUIZ PER BAB & MATERI TERBARU -->
-        <div class="lg:col-span-2 space-y-6">
-
-            <!-- 1. Daftar Quiz per Bab -->
-            <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-[#97CADB]/20 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#02457A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                            </svg>
-                            Daftar Quiz per Bab
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Selesaikan quiz untuk menguji pemahaman dan raih nilai terbaik</p>
-                    </div>
-                    <a href="{{ route('siswa.peta-quiz') }}" class="text-xs font-bold text-[#018ABE] hover:underline flex items-center gap-1">
-                        <span>Peta Quiz Lengkap</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
+        <!-- Kolom Kiri (2/3): Riwayat Quiz Terakhir -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-[#97CADB]/30 shadow-xs overflow-hidden">
+            <div class="px-5 sm:px-6 py-4 border-b border-[#97CADB]/20 flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-amber-500">🏆</span>
+                        <span>Riwayat Pengerjaan Quiz Terakhir</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Catatan skor dari quiz yang baru kamu selesaikan</p>
                 </div>
+                <a href="{{ route('siswa.peta-quiz') }}" class="text-xs font-bold text-[#018ABE] hover:underline flex items-center gap-1">
+                    <span>Peta Quiz Lengkap</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
 
-                <div class="p-5 space-y-4">
-                    @forelse($babs as $bab)
-                        @php
-                            $kat = $bab->kategori->nama_kategori ?? '';
-                            $iconBg = 'bg-[#D6EBEE]';
-                            $iconColor = 'text-[#02457A]';
-                            $borderHover = 'hover:border-[#97CADB]';
-
-                            if ($kat == 'Speaking') {
-                                $iconBg = 'bg-rose-100';
-                                $iconColor = 'text-rose-600';
-                                $borderHover = 'hover:border-rose-200';
-                            } elseif ($kat == 'Writing') {
-                                $iconBg = 'bg-blue-100';
-                                $iconColor = 'text-blue-600';
-                                $borderHover = 'hover:border-blue-200';
-                            } elseif ($kat == 'Reading') {
-                                $iconBg = 'bg-emerald-100';
-                                $iconColor = 'text-emerald-600';
-                                $borderHover = 'hover:border-emerald-200';
-                            } elseif ($kat == 'Listening') {
-                                $iconBg = 'bg-purple-100';
-                                $iconColor = 'text-purple-600';
-                                $borderHover = 'hover:border-purple-200';
-                            }
-                        @endphp
-
-                        <!-- Bab Card -->
-                        <div class="dashboard-bab-card border border-[#97CADB]/25 hover:border-[#018ABE]/40 bg-white rounded-2xl p-3.5 sm:p-5 transition-all shadow-xs hover:shadow-sm">
-                            <!-- Header Bab -->
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 mb-3.5 sm:mb-4 pb-3 border-b border-slate-100">
+            <div class="p-5">
+                @if($riwayatQuizTerbaru->isNotEmpty())
+                    <div class="space-y-3">
+                        @foreach($riwayatQuizTerbaru as $hasil)
+                            @php
+                                $materi = $hasil->quiz->materi ?? null;
+                                $skor = (int) $hasil->skor_diperoleh;
+                                $skorBadge = $skor >= 80 ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : ($skor >= 60 ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-rose-100 text-rose-800 border-rose-300');
+                            @endphp
+                            <div class="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200/80 hover:border-[#97CADB] bg-slate-50/40 hover:bg-white transition">
                                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl {{ $iconBg }} flex items-center justify-center font-bold text-xs sm:text-sm {{ $iconColor }} shrink-0 shadow-xs">
-                                        {{ $bab->urutan }}
+                                    <div class="px-3 py-1.5 rounded-xl border font-black text-sm {{ $skorBadge }} shrink-0">
+                                        {{ $skor }}
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
-                                            <h4 class="font-bold text-slate-800 text-sm sm:text-base truncate">Bab {{ $bab->urutan }} – {{ $bab->judul }}</h4>
-                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $iconBg }} {{ $iconColor }} border border-current/20">
-                                                {{ $kat ?: 'English Lesson' }}
-                                            </span>
-                                        </div>
-                                        <p class="text-[11px] text-slate-400 mt-0.5">
-                                            {{ $bab->materi->where('total_soal', '>', 0)->count() }} Quiz • {{ $bab->materi->count() }} Materi
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <a href="{{ route('siswa.peta-quiz') }}" class="text-xs font-semibold text-[#018ABE] hover:underline flex items-center gap-1 self-end sm:self-center shrink-0">
-                                    <span>Peta Lengkap</span>
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                </a>
-                            </div>
-
-                            <!-- Circles Row (Materi / Quiz Nodes) -->
-                            <div class="flex items-center justify-start overflow-x-auto pb-2 pt-1 gap-2 sm:gap-3 scrollbar-hide" style="-webkit-overflow-scrolling: touch;">
-                                @forelse($bab->materi as $materi)
-                                    @php
-                                        $isSelesai = $materi->sudah_selesai;
-                                        $isLocked = $materi->is_locked ?? false;
-                                        $lockedBy = $materi->locked_by ?? 'sebelumnya';
-                                        $hasQuiz = $materi->total_soal > 0;
-                                        $judulMateri = $materi->judul;
-                                        $urlMateri = route('siswa.materi.baca', $materi->id_materi);
-
-                                        $modalData = [
-                                            'id_quiz'       => $materi->target_quiz_id,
-                                            'id_materi'     => $materi->id_materi,
-                                            'judul_materi'  => $judulMateri,
-                                            'bab_judul'     => 'Bab ' . $bab->urutan . ' – ' . $bab->judul,
-                                            'kategori'      => $kat,
-                                            'total_soal'    => $materi->total_soal,
-                                            'total_poin'    => $materi->total_poin,
-                                            'durasi_menit'  => (int) ($materi->durasi_menit ?? $bab->durasi_menit ?? 15),
-                                            'sudah_selesai' => $isSelesai,
-                                            'sudah_dibaca'  => (bool) ($materi->sudah_dibaca ?? false),
-                                            'is_locked'     => $isLocked,
-                                            'locked_by'     => $lockedBy,
-                                            'skor'          => $materi->skor_diperoleh,
-                                            'waktu_selesai' => $materi->waktu_selesai,
-                                            'url_materi'    => $isLocked ? null : $urlMateri,
-                                            'url_quiz'      => ($isLocked || $isSelesai || !$materi->target_quiz_id) ? null : route('siswa.quiz.kerjakan', $materi->target_quiz_id),
-                                            'url_hasil'     => $materi->target_quiz_id ? route('siswa.quiz.hasil', $materi->target_quiz_id) : null,
-                                        ];
-                                    @endphp
-
-                                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                                        @if($isSelesai)
-                                            <!-- Quiz Selesai dengan nilai -->
-                                            <button type="button" 
-                                                    onclick="openQuizDetailModal(this)"
-                                                    data-quiz='@json($modalData)'
-                                                    class="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0 bg-transparent border-0 p-0 text-center min-w-[56px]" 
-                                                    title="{{ $judulMateri }} (Nilai: {{ $materi->skor_diperoleh }}/100)">
-                                                <div class="w-11 h-11 rounded-full bg-emerald-100 border-2 border-emerald-500 flex items-center justify-center group-hover:scale-110 transition shadow-xs">
-                                                    <span class="text-sm font-bold text-emerald-700">{{ $loop->iteration }}</span>
-                                                </div>
-                                                <span class="text-[10px] font-bold text-emerald-600">{{ $materi->skor_diperoleh }}/100</span>
-                                                <span class="text-[9px] text-slate-400">Selesai</span>
-                                            </button>
-                                        @elseif($isLocked)
-                                            <!-- Quiz Terkunci (Selesaikan materi sebelumnya dahulu) -->
-                                            <button type="button" 
-                                                    onclick="openQuizDetailModal(this)"
-                                                    data-quiz='@json($modalData)'
-                                                    class="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0 bg-transparent border-0 p-0 text-center min-w-[56px]" 
-                                                    title="{{ $judulMateri }} (Terkunci: selesaikan '{{ $lockedBy }}')">
-                                                <div class="w-11 h-11 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-slate-400 group-hover:scale-105 transition shadow-xs">
-                                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                                </div>
-                                                <span class="text-[10px] font-semibold text-slate-400">Terkunci</span>
-                                                <span class="text-[9px] text-slate-400">&nbsp;</span>
-                                            </button>
-                                        @elseif($hasQuiz)
-                                            <!-- Quiz Tersedia / Siap dikerjakan -->
-                                            <button type="button" 
-                                                    onclick="openQuizDetailModal(this)"
-                                                    data-quiz='@json($modalData)'
-                                                    class="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0 bg-transparent border-0 p-0 text-center min-w-[56px]" 
-                                                    title="{{ $judulMateri }}">
-                                                <div class="w-11 h-11 rounded-full bg-white border-2 border-[#018ABE] flex items-center justify-center group-hover:bg-[#018ABE] transition shadow-xs group-hover:scale-110">
-                                                    <span class="text-sm font-bold text-[#018ABE] group-hover:text-white">{{ $loop->iteration }}</span>
-                                                </div>
-                                                <span class="text-[10px] font-bold text-[#018ABE]">Mulai</span>
-                                                <span class="text-[9px] text-slate-400">&nbsp;</span>
-                                            </button>
-                                        @else
-                                            <!-- Materi Belum Memiliki Kuis (Materi Bacaan) -->
-                                            <button type="button" 
-                                                    onclick="openQuizDetailModal(this)"
-                                                    data-quiz='@json($modalData)'
-                                                    class="flex flex-col items-center gap-1.5 cursor-pointer group shrink-0 bg-transparent border-0 p-0 text-center min-w-[56px]" 
-                                                    title="{{ $judulMateri }} (Materi Bacaan)">
-                                                <div class="w-11 h-11 rounded-full bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-slate-400 transition shadow-xs">
-                                                    <span class="text-sm font-bold text-slate-400">{{ $loop->iteration }}</span>
-                                                </div>
-                                                <span class="text-[10px] font-semibold text-slate-400">Baca</span>
-                                                <span class="text-[9px] text-slate-400">&nbsp;</span>
-                                            </button>
-                                        @endif
-
-                                        @if(!$loop->last)
-                                            <div class="w-8 sm:w-12 h-0.5 {{ $isSelesai ? 'bg-emerald-400' : 'bg-slate-200' }} shrink-0"></div>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <p class="text-xs text-slate-400 text-center w-full py-3">Belum ada materi atau quiz untuk bab ini.</p>
-                                @endforelse
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-10 px-4">
-                            <div class="w-14 h-14 rounded-2xl bg-[#D6EBEE] text-[#018ABE] flex items-center justify-center mx-auto mb-3 shadow-xs">
-                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm">Belum Ada Quiz Tersedia</h4>
-                            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
-                                Admin sedang menyiapkan materi dan quiz pembelajaran. Begitu admin membuat quiz baru, quiz akan langsung muncul di sini! 🐾
-                            </p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- 2. Materi Pembelajaran Terbaru dari Admin -->
-            <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-[#97CADB]/20 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#018ABE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            Materi Pembelajaran Terbaru
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Materi terstruktur yang dipublikasikan oleh tim pengajar</p>
-                    </div>
-                    <a href="{{ route('siswa.materi') }}" class="text-xs font-bold text-[#018ABE] hover:underline flex items-center gap-1">
-                        <span>Lihat Semua Materi</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-
-                <div class="p-5">
-                    @if($materiTerbaru->isNotEmpty())
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            @foreach($materiTerbaru as $m)
-                                @php
-                                    $sudahDibaca = $m->progress->where('status', 'Completed')->isNotEmpty();
-                                    $color = $m->kategori?->color;
-                                @endphp
-                                <div class="dashboard-materi-card p-4 rounded-xl border border-slate-200/90 hover:border-[#97CADB] bg-slate-50/50 hover:bg-white transition flex flex-col justify-between gap-3 shadow-2xs">
-                                    <div>
-                                        <div class="flex items-center justify-between gap-2 mb-1.5">
-                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide {{ $color['badge'] ?? 'bg-slate-100 text-slate-700' }}">
-                                                {{ $m->kategori->nama_kategori ?? 'Umum' }}
-                                            </span>
-                                            @if($sudahDibaca)
-                                                <span class="text-[10px] font-bold text-emerald-600 flex items-center gap-0.5">
-                                                    <span>✓</span> Selesai
+                                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate">
+                                                {{ $materi->judul ?? 'Quiz Pembelajaran' }}
+                                            </h4>
+                                            @if($materi && $materi->kategori)
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold {{ $materi->kategori->color['badge'] ?? 'bg-slate-100 text-slate-700' }}">
+                                                    {{ $materi->kategori->nama_kategori }}
                                                 </span>
                                             @endif
                                         </div>
-                                        <h4 class="font-bold text-slate-800 text-sm line-clamp-1" title="{{ $m->judul }}">
-                                            {{ $m->judul }}
-                                        </h4>
-                                        <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                                            Bab: {{ $m->babModel->judul ?? $m->bab ?? '-' }}
+                                        <p class="text-[11px] text-slate-400 mt-0.5 truncate">
+                                            {{ $materi && $materi->babModel ? 'Bab ' . $materi->babModel->urutan . ' – ' . $materi->babModel->judul : 'Quiz' }} • {{ $hasil->created_at ? $hasil->created_at->locale('id')->diffForHumans() : '-' }}
                                         </p>
                                     </div>
-                                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-                                        <span class="text-[10px] text-slate-400">
-                                            {{ $m->created_at ? $m->created_at->diffForHumans() : '-' }}
-                                        </span>
-                                        <a href="{{ route('siswa.materi.baca', $m->id_materi) }}" 
-                                           @if(!$sudahDibaca) onclick="return confirmBukaMateri(event, '{{ route('siswa.materi.baca', $m->id_materi) }}')" @endif
-                                           class="px-3 py-1.5 rounded-lg text-xs font-bold {{ $sudahDibaca ? 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' : 'bg-[#018ABE] text-white hover:bg-[#02457A]' }} transition flex items-center gap-1 shadow-2xs">
-                                            <span>{{ $sudahDibaca ? 'Baca Lagi' : 'Mulai Baca' }}</span>
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                        </a>
-                                    </div>
                                 </div>
-                            @endforeach
+
+                                <div class="shrink-0">
+                                    <a href="{{ route('siswa.quiz.hasil', $hasil->id_quiz) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#D6EBEE] text-[#02457A] hover:bg-[#97CADB]/60 transition inline-flex items-center gap-1">
+                                        <span>Hasil</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-8 px-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <span class="text-3xl mb-1.5 block">🎯</span>
+                        <h4 class="text-sm font-bold text-slate-700">Belum Ada Quiz yang Dikerjakan</h4>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                            Selesaikan materi belajarmu dan mulailah mengerjakan quiz pertama untuk melihat nilaimu di sini!
+                        </p>
+                        <div class="mt-3">
+                            <a href="{{ route('siswa.peta-quiz') }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#018ABE] text-white hover:bg-[#02457A] transition shadow-xs">
+                                <span>Mulai di Peta Quiz</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
                         </div>
-                    @else
-                        <div class="text-center py-8 px-4">
-                            <p class="text-sm font-semibold text-slate-700">Belum ada materi pembelajaran</p>
-                            <p class="text-xs text-slate-400 mt-1">Admin belum mempublikasikan materi. Setelah admin menambahkan materi, kamu bisa langsung mempelajarinya di sini!</p>
-                        </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
 
-        <!-- SISI KANAN (1/3): REMINDER ADMIN & PENCAPAIAN -->
-        <div class="space-y-6">
-
-            <!-- 1. KOTAK MASUK & REMINDER DARI ADMIN -->
-            <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm p-5">
-                <div class="flex items-center justify-between mb-3.5 pb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-800 leading-tight">Reminder dari Admin</h4>
-                            <p class="text-[10px] text-slate-500">Pemberitahuan & tugas belajar</p>
-                        </div>
-                    </div>
-                    @if($unreadPesanCount > 0)
-                        <span class="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold animate-pulse shadow-xs">
-                            {{ $unreadPesanCount }} Baru
-                        </span>
-                    @endif
-                </div>
-
-                <div class="space-y-2.5">
-                    @forelse($pesanAdminTerbaru as $pesan)
-                        <div class="p-3 rounded-xl border {{ $pesan->is_read ? 'bg-slate-50/70 border-slate-200/80' : 'bg-rose-50/60 border-rose-200' }} transition">
-                            <div class="flex items-center justify-between gap-1 mb-1">
-                                <span class="text-xs font-bold text-slate-800 truncate">
-                                    {{ $pesan->admin->nama ?? 'Admin' }}
-                                </span>
-                                <span class="text-[10px] text-slate-400 shrink-0">
-                                    {{ $pesan->created_at ? $pesan->created_at->diffForHumans() : '-' }}
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                                {{ $pesan->pesan ?? $pesan->isi_pesan ?? $pesan->subjek ?? 'Tidak ada pesan' }}
-                            </p>
-                        </div>
-                    @empty
-                        <div class="text-center py-6 px-3 bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
-                            <span class="text-2xl mb-1 block">📬</span>
-                            <p class="text-xs font-semibold text-slate-600">Belum ada reminder</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Pesan dari admin akan muncul di sini</p>
-                        </div>
-                    @endforelse
-                </div>
-
-                <div class="mt-3.5 pt-3 border-t border-slate-100 text-center">
-                    <a href="{{ route('siswa.reminder') }}" class="text-xs font-bold text-[#018ABE] hover:underline inline-flex items-center gap-1">
-                        <span>Buka Semua Reminder</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            <!-- 2. PENCAPAIAN MINGGU INI (DATA REAL DARI DATABASE) -->
-            <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-sm p-5">
-                <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg">
-                        🌟
+        <!-- Kolom Kanan (1/3): Reminder & Informasi dari Admin -->
+        <div class="bg-white rounded-2xl border border-[#97CADB]/30 shadow-xs p-5">
+            <div class="flex items-center justify-between mb-3.5 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-bold text-slate-800">Aktivitas Mingguan</p>
-                        <p class="text-[10px] text-slate-500">Pencapaian minggu ini</p>
+                        <h4 class="text-sm font-bold text-slate-800 leading-tight">Reminder Admin</h4>
+                        <p class="text-[10px] text-slate-500">Pemberitahuan & tugas</p>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-100/60">
-                        <span class="text-xs text-slate-700 font-medium">Quiz diselesaikan</span>
-                        <span class="text-xs font-extrabold text-emerald-700">+{{ $aktivitasMingguIni['quiz_dikerjakan'] ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-[#D6EBEE]/70 border border-[#97CADB]/40">
-                        <span class="text-xs text-slate-700 font-medium">Materi dibaca</span>
-                        <span class="text-xs font-extrabold text-[#02457A]">+{{ $aktivitasMingguIni['materi_dibaca'] ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-100/60">
-                        <span class="text-xs text-slate-700 font-medium">Rata-rata skor</span>
-                        <span class="text-xs font-extrabold text-amber-700">{{ $quizSelesai > 0 ? round($rataRataNilai) . '%' : '-' }}</span>
-                    </div>
-                </div>
+                @if($unreadPesanCount > 0)
+                    <span class="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold animate-pulse shadow-xs">
+                        {{ $unreadPesanCount }} Baru
+                    </span>
+                @endif
             </div>
 
-            <!-- 3. TIPS BELAJAR ADAPTIF & MASKOT -->
-            <div class="bg-gradient-to-br from-[#D6EBEE] via-white to-[#97CADB]/30 rounded-2xl p-5 border border-[#97CADB]/40 text-center shadow-xs">
-                <img src="{{ asset('images/cat-welcome.png') }}" alt="Englify Cat" class="w-20 h-auto mx-auto mb-2 drop-shadow-xs">
-                <p class="font-cute text-xl text-[#018ABE] leading-tight">
-                    @if($totalMateri == 0)
-                        Siap Belajar! 🐾
-                    @elseif($materiSelesai == 0)
-                        Ayo Mulai Membaca! 📖
-                    @elseif($quizSelesai == 0)
-                        Waktunya Uji Quiz! 🎯
-                    @elseif($rataRataNilai >= 80)
-                        Luar Biasa, Hebat! 🌟
-                    @else
-                        Terus Berlatih! 💪
-                    @endif
-                </p>
-                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    @if($totalMateri == 0)
-                        Materi pembelajaran sedang dipersiapkan oleh admin. Jangan lupa pantau reminder ya!
-                    @elseif($materiSelesai == 0)
-                        Yuk klik menu Materi untuk mulai membaca bab pembelajaran pertama kamu.
-                    @elseif($quizSelesai == 0)
-                        Kamu sudah membaca materi! Sekarang asah kemampuanmu di menu Peta Quiz.
-                    @elseif($rataRataNilai >= 80)
-                        Pertahankan konsistensimu! Skor rata-ratamu sangat memuaskan.
-                    @else
-                        Setiap kesalahan adalah proses belajar. Ulangi materi yang belum dipahami!
-                    @endif
-                </p>
+            <div class="space-y-2.5">
+                @forelse($pesanAdminTerbaru as $pesan)
+                    <div class="p-3 rounded-xl border {{ $pesan->is_read ? 'bg-slate-50/70 border-slate-200/80' : 'bg-rose-50/60 border-rose-200' }} transition">
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <span class="text-xs font-bold text-slate-800 truncate">
+                                {{ $pesan->admin->nama ?? 'Admin' }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 shrink-0">
+                                {{ $pesan->created_at ? $pesan->created_at->diffForHumans() : '-' }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                            {{ $pesan->pesan ?? $pesan->isi_pesan ?? $pesan->subjek ?? 'Tidak ada pesan' }}
+                        </p>
+                    </div>
+                @empty
+                    <div class="text-center py-6 px-3 bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
+                        <span class="text-2xl mb-1 block">📬</span>
+                        <p class="text-xs font-semibold text-slate-600">Belum ada reminder</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Pesan dari admin akan muncul di sini</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="mt-3.5 pt-3 border-t border-slate-100 text-center">
+                <a href="{{ route('siswa.reminder') }}" class="text-xs font-bold text-[#018ABE] hover:underline inline-flex items-center gap-1">
+                    <span>Buka Semua Pesan</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
+
     </div>
 
 </div>

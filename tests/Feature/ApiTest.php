@@ -48,13 +48,22 @@ class ApiTest extends TestCase
 
         $materi = Materi::first();
         if ($materi) {
+            $materiStatusAsli = $materi->status;
+            $materi->forceFill(['status' => 'Published'])->saveQuietly();
             $res = $this->getJson(route('api.materi.detail', $materi->id_materi));
             $res->assertOk();
             $res->assertJsonStructure(['status', 'message', 'data']);
+            $materi->forceFill(['status' => $materiStatusAsli])->saveQuietly();
         }
 
-        $quiz = Quiz::first();
+        $quiz = Quiz::visibleForSiswa()->first() ?? Quiz::first();
         if ($quiz) {
+            if ($quiz->materi) {
+                $quiz->materi->forceFill(['status' => 'Published'])->saveQuietly();
+                if ($quiz->materi->babModel) {
+                    $quiz->materi->babModel->forceFill(['is_active' => true])->saveQuietly();
+                }
+            }
             $res = $this->getJson(route('api.quiz.detail', $quiz->id_quiz));
             $res->assertOk();
             $res->assertJsonStructure(['status', 'message', 'data']);

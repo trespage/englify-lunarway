@@ -47,6 +47,7 @@
                 <select name="id_user" required
                         class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
                         <option value="">-- Pilih Siswa --</option>
+                        <option value="all" @selected(old('id_user') === 'all')>📢 Semua Siswa (Kirim Massal / Broadcast)</option>
                         @foreach($siswa as $s)
                             <option value="{{ $s->id_user }}" @selected((string) old('id_user', request('id_user')) === (string) $s->id_user)>{{ $s->nama }} ({{ $s->email }})</option>
                         @endforeach

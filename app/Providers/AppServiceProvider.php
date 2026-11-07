@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Support\SystemNotifications;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registrasi Kebijakan Otorisasi (Policies) secara eksplisit
+        Gate::policy(\App\Models\HasilQuiz::class, \App\Policies\HasilQuizPolicy::class);
+        Gate::policy(\App\Models\PesanAdmin::class, \App\Policies\PesanAdminPolicy::class);
+
+        // Dukungan HTTPS di Lingkungan Hosting / Reverse Proxy (Cloudflare, cPanel, Nginx)
+        if (config('app.env') === 'production' || request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
+            URL::forceScheme('https');
+        }
+
         // Notifikasi pada layout admin di isi dari data nyata (bukan dummy)
         View::composer('layouts.admin', function ($view) {
             $view->with('notifikasiTerbaru', SystemNotifications::latest(6));

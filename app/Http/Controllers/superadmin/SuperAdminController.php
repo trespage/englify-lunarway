@@ -42,9 +42,9 @@ class SuperAdminController extends Controller
 
     public function index()
     {
-        // Ambil data siswa dan admin terbaru (misal 5 data terakhir) untuk ditampilkan di tabel dashboard
-        $students = User::where('id_role', 3)->latest()->take(5)->get();
-        $admins = User::where('id_role', 2)->latest()->take(5)->get();
+        // Ambil semua data siswa dan admin diurutkan berdasarkan inisial/nama (A-Z) untuk paginasi & swipe di tabel dashboard
+        $students = User::where('id_role', 3)->orderBy('nama', 'asc')->get();
+        $admins = User::where('id_role', 2)->orderBy('nama', 'asc')->get();
 
         // Statistik dashboard (dipakai bersama oleh halaman & API real-time)
         $stats = $this->dashboardStats();
@@ -113,7 +113,7 @@ class SuperAdminController extends Controller
         $windowStart = $now->copy()->subDays(6)->startOfDay();
         $perDay = User::where('id_role', 3)->where('created_at', '>=', $windowStart)
             ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
-            ->groupBy('d')
+            ->groupBy(DB::raw('DATE(created_at)'))
             ->pluck('c', 'd');
         $base = User::where('id_role', 3)->where('created_at', '<', $windowStart)->count();
         $chartLabels = [];
@@ -122,7 +122,7 @@ class SuperAdminController extends Controller
         // Grafik admin divisi (kumulatif) + jumlah akun baru per hari
         $perDayAdmin = User::where('id_role', 2)->where('created_at', '>=', $windowStart)
             ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
-            ->groupBy('d')
+            ->groupBy(DB::raw('DATE(created_at)'))
             ->pluck('c', 'd');
         $baseAdmin = User::where('id_role', 2)->where('created_at', '<', $windowStart)->count();
 
@@ -206,7 +206,7 @@ class SuperAdminController extends Controller
     // API: Daftar semua user (JSON)
     public function apiUsers(Request $request)
     {
-        $query = User::with(['role', 'kategori'])->latest();
+        $query = User::with(['role', 'kategori'])->orderBy('nama', 'asc');
 
         if ($request->filled('q')) {
             $q = '%' . $request->q . '%';
@@ -368,7 +368,7 @@ class SuperAdminController extends Controller
             $studentsQuery->where(fn ($query) => $query->where('nama', 'like', $like)->orWhere('email', 'like', $like));
         }
 
-        $students = $studentsQuery->latest()->paginate(10)->withQueryString();
+        $students = $studentsQuery->orderBy('nama', 'asc')->paginate(10)->withQueryString();
         $totalStudents = User::where('id_role', $idRoleSiswa)->count();
 
         $startThisMonth = now()->startOfMonth();
@@ -454,14 +454,15 @@ class SuperAdminController extends Controller
         $idRoleAdmin = 2;
         $q = trim((string) $request->query('q', ''));
 
-        $adminsQuery = User::where('id_role', $idRoleAdmin);
+        $adminsQuery = User::where('id_role', $idRoleAdmin)->with('kategori');
         if ($q !== '') {
             $like = '%' . $q . '%';
             $adminsQuery->where(fn ($query) => $query->where('nama', 'like', $like)->orWhere('email', 'like', $like));
         }
 
-        $admins = $adminsQuery->latest()->paginate(10)->withQueryString();
+        $admins = $adminsQuery->orderBy('nama', 'asc')->paginate(10)->withQueryString();
         $totalAdmins = User::where('id_role', $idRoleAdmin)->count();
+        $kategoris = Kategori::orderBy('id_kategori')->get();
 
         $startThisMonth = now()->startOfMonth();
         $adminThisMonth = User::where('id_role', $idRoleAdmin)->where('created_at', '>=', $startThisMonth)->count();
@@ -470,7 +471,7 @@ class SuperAdminController extends Controller
             ->count();
         $adminsGrowth = $this->monthGrowth($adminThisMonth, $adminLastMonth);
 
-        return view('superadmin.admin-divisi', compact('admins', 'totalAdmins', 'q', 'adminsGrowth'));
+        return view('superadmin.admin-divisi', compact('admins', 'totalAdmins', 'q', 'adminsGrowth', 'kategoris'));
     }
 
     public function storeAdminDivisi(Request $request)
@@ -526,8 +527,8 @@ class SuperAdminController extends Controller
             $admin->status = $request->status;
         }
 
-        if ($request->filled('id_kategori')) {
-            $admin->id_kategori = $request->id_kategori;
+        if ($request->has('id_kategori')) {
+            $admin->id_kategori = $request->filled('id_kategori') ? $request->id_kategori : null;
         }
 
         if ($request->filled('password')) {
@@ -767,10 +768,14 @@ class SuperAdminController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . $user->id_user . ',id_user',
         ]);
 
-        $user->update([
+        $fields = [
             'nama'  => $request->nama,
             'email' => $request->email,
-        ]);
+        ];
+        if ($request->filled('avatar')) {
+            $fields['avatar'] = $request->avatar;
+        }
+        $user->update($fields);
 
         $data = $this->profilePayload($user->fresh());
 
@@ -785,6 +790,32 @@ class SuperAdminController extends Controller
         return $this->redirectStay('superadmin.profile', 'Profil berhasil diperbarui! 🐾');
     }
 
+    /**
+     * Update Avatar Karakter Super Admin
+     */
+    public function updateAvatar(Request $request)
+    {
+        $validAvatars = array_keys(\App\Models\User::availableAvatars());
+        $request->validate([
+            'avatar' => 'required|string|in:' . implode(',', $validAvatars),
+        ]);
+
+        $user = auth()->user();
+        $user->avatar = $request->avatar;
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'     => 'success',
+                'avatar'     => $user->avatar,
+                'avatar_url' => $user->avatar_url,
+                'message'    => 'Avatar karakter berhasil dipilih! 🐾',
+            ]);
+        }
+
+        return redirect()->route('superadmin.profile')->with('success', 'Avatar karakter berhasil dipilih! 🐾');
+    }
+
     // Payload standar profil yang dikirim ke halaman (render awal & polling JSON)
     private function profilePayload(User $user): array
     {
@@ -795,6 +826,8 @@ class SuperAdminController extends Controller
         return [
             'nama'        => $user->nama,
             'email'       => $user->email,
+            'avatar'      => $user->avatar,
+            'avatar_url'  => $user->avatar_url,
             'role'        => $user->role?->nama_role ?? 'Super Admin',
             'status'      => $user->status ?: 'aktif',
             'registered'  => $formatDate($user->created_at),

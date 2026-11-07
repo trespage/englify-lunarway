@@ -290,16 +290,31 @@ class MateriController extends Controller
 
     public function destroy($id)
     {
-        $materi = Materi::findOrFail($id);
+        $materi = Materi::with('quiz')->findOrFail($id);
 
-        if ($materi->file && file_exists(public_path($materi->file))) {
-            @unlink(public_path($materi->file));
-        }
-        if ($materi->gambar && file_exists(public_path($materi->gambar))) {
-            @unlink(public_path($materi->gambar));
-        }
+        DB::transaction(function () use ($materi) {
+            if ($materi->file && file_exists(public_path($materi->file))) {
+                @unlink(public_path($materi->file));
+            }
+            if ($materi->gambar && file_exists(public_path($materi->gambar))) {
+                @unlink(public_path($materi->gambar));
+            }
 
-        $materi->delete();
+            // Hapus berkas audio quiz jika ada
+            foreach ($materi->quiz as $q) {
+                if (!empty($q->audio)) {
+                    $audioPath = public_path('quiz_audio/' . $q->audio);
+                    if (file_exists($audioPath)) {
+                        @unlink($audioPath);
+                    }
+                }
+            }
+
+            // Hapus data progres belajar siswa pada materi ini
+            \App\Models\ProgressMateri::where('id_materi', $materi->id_materi)->delete();
+
+            $materi->delete();
+        });
 
         return redirect()->route('admin.materi')->with('success', 'Materi berhasil dihapus!');
     }
@@ -366,6 +381,24 @@ class MateriController extends Controller
     }
 
     /**
+     * Upload gambar inline untuk disisipkan ke dalam konten materi (Word-style).
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+        ]);
+
+        $path = $this->simpanFile($request->file('image'), 'images/materi/inline', 'inline');
+
+        return response()->json([
+            'success' => true,
+            'url'     => asset($path),
+            'path'    => $path,
+        ]);
+    }
+
+    /**
      * Simpan file ke folder publik dan kembalikan path relatifnya.
      */
     private function simpanFile($file, string $folder, string $prefix): string
@@ -374,7 +407,7 @@ class MateriController extends Controller
             mkdir(public_path($folder), 0755, true);
         }
 
-        $fileName = time() . '_' . $prefix . '.' . $file->extension();
+        $fileName = time() . '_' . uniqid() . '_' . $prefix . '.' . $file->extension();
         $file->move(public_path($folder), $fileName);
 
         return $folder . '/' . $fileName;

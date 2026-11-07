@@ -99,6 +99,19 @@ class SiswaController extends Controller
 
         $kategoriList = Kategori::withCount(['babs', 'materi'])->orderBy('id_kategori')->get();
 
+        // Hitung progres materi per kategori untuk siswa saat ini
+        foreach ($kategoriList as $kat) {
+            $totalKatMateri = Materi::visibleForSiswa()->where('id_kategori', $kat->id_kategori)->count();
+            $selesaiKatMateri = ProgressMateri::where('id_user', $user->id_user)
+                ->where('status', 'Completed')
+                ->whereHas('materi', function ($q) use ($kat) {
+                    $q->where('id_kategori', $kat->id_kategori)->visibleForSiswa();
+                })->count();
+            $kat->total_materi = $totalKatMateri;
+            $kat->selesai_materi = $selesaiKatMateri;
+            $kat->persen = $totalKatMateri > 0 ? round(($selesaiKatMateri / $totalKatMateri) * 100) : 0;
+        }
+
         // Materi terbaru yang dipublikasikan oleh admin
         $materiTerbaru = Materi::visibleForSiswa()
             ->with(['kategori', 'babModel', 'progress' => function ($q) use ($user) {
@@ -108,11 +121,59 @@ class SiswaController extends Controller
             ->take(4)
             ->get();
 
-        // Materi yang terakhir dibaca siswa (untuk tombol 'Lanjutkan Belajar')
+        // Materi yang terakhir dibaca siswa
         $terakhirDibaca = ProgressMateri::where('id_user', $user->id_user)
             ->with(['materi.kategori', 'materi.babModel'])
             ->latest('updated_at')
             ->first();
+
+        // Tentukan materi lanjutan yang direkomendasikan untuk siswa (Lanjutkan Belajar)
+        $materiLanjutan = null;
+        if ($terakhirDibaca && $terakhirDibaca->materi) {
+            if ($terakhirDibaca->status !== 'Completed') {
+                $materiLanjutan = $terakhirDibaca->materi;
+            } else {
+                $materiLanjutan = Materi::visibleForSiswa()
+                    ->with(['kategori', 'babModel'])
+                    ->where('id_bab', $terakhirDibaca->materi->id_bab)
+                    ->where('urutan', '>', $terakhirDibaca->materi->urutan)
+                    ->orderBy('urutan')
+                    ->first();
+
+                if (!$materiLanjutan && $terakhirDibaca->materi->babModel) {
+                    $currentBab = $terakhirDibaca->materi->babModel;
+                    $nextBab = Bab::where('id_kategori', $currentBab->id_kategori)
+                        ->where('urutan', '>', $currentBab->urutan)
+                        ->where('is_active', true)
+                        ->orderBy('urutan')
+                        ->first();
+                    if ($nextBab) {
+                        $materiLanjutan = $nextBab->materi()->where(function ($q) {
+                            $q->whereIn('status', ['Published', 'Aktif'])->orWhereNull('status');
+                        })->with(['kategori', 'babModel'])->orderBy('urutan')->first();
+                    }
+                }
+            }
+        }
+
+        if (!$materiLanjutan) {
+            $materiLanjutan = Materi::visibleForSiswa()
+                ->with(['kategori', 'babModel'])
+                ->whereNotIn('id_materi', $materiSelesaiIds)
+                ->orderBy('id_kategori')
+                ->orderBy('id_bab')
+                ->orderBy('urutan')
+                ->first();
+        }
+
+        if (!$materiLanjutan) {
+            $materiLanjutan = Materi::visibleForSiswa()
+                ->with(['kategori', 'babModel'])
+                ->orderBy('id_kategori')
+                ->orderBy('id_bab')
+                ->orderBy('urutan')
+                ->first();
+        }
 
         // Pesan & Reminder dari admin untuk siswa ini
         $pesanAdminTerbaru = PesanAdmin::where('id_user', $user->id_user)
@@ -125,11 +186,11 @@ class SiswaController extends Controller
             ->where('is_read', false)
             ->count();
 
-        // Riwayat quiz terbaru yang baru saja dikerjakan
+        // Riwayat quiz terbaru yang baru saja dikerjakan siswa
         $riwayatQuizTerbaru = HasilQuiz::where('id_user', $user->id_user)
-            ->with('quiz.materi')
+            ->with(['quiz.materi.kategori', 'quiz.materi.babModel'])
             ->latest('id_hasil')
-            ->take(3)
+            ->take(4)
             ->get();
 
         // Aktivitas minggu ini
@@ -144,7 +205,8 @@ class SiswaController extends Controller
         return view('siswa.dashboard', compact(
             'totalMateri', 'materiSelesai', 'totalQuiz', 'quizSelesai',
             'rataRataNilai', 'totalSkor', 'babs', 'kategoriList', 'aktivitasMingguIni',
-            'materiTerbaru', 'terakhirDibaca', 'pesanAdminTerbaru', 'unreadPesanCount', 'riwayatQuizTerbaru'
+            'materiTerbaru', 'terakhirDibaca', 'pesanAdminTerbaru', 'unreadPesanCount', 'riwayatQuizTerbaru',
+            'materiLanjutan'
         ));
     }
 
@@ -640,31 +702,35 @@ class SiswaController extends Controller
         // Perhitungan Skor: Murni dari akumulasi soal benar tanpa pengaruh durasi waktu
         $skor = $totalSoal > 0 ? round(($benarCount / $totalSoal) * 100) : 0;
 
-        // Ganti hasil lama siswa untuk quiz ini (mencakup semua soal pada materi tersebut)
+        // Simpan hasil kuis dan detail jawaban dalam database transaction
         $quizIdsInMateri = $soal->pluck('id_quiz')->all();
-        $hasilLama = HasilQuiz::where('id_user', $user->id_user)
-            ->whereIn('id_quiz', $quizIdsInMateri)
-            ->get();
+        $hasil = null;
 
-        foreach ($hasilLama as $lama) {
-            JawabanUser::where('id_hasil', $lama->id_hasil)->delete();
-            $lama->delete();
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $quizIdsInMateri, $quiz, $skor, $jawabanList, &$hasil) {
+            $hasilLama = HasilQuiz::where('id_user', $user->id_user)
+                ->whereIn('id_quiz', $quizIdsInMateri)
+                ->get();
 
-        $hasil = HasilQuiz::create([
-            'id_user'        => $user->id_user,
-            'id_quiz'        => $quiz->id_quiz,
-            'skor_diperoleh' => $skor,
-        ]);
+            foreach ($hasilLama as $lama) {
+                JawabanUser::where('id_hasil', $lama->id_hasil)->delete();
+                $lama->delete();
+            }
 
-        foreach ($jawabanList as $jawaban) {
-            JawabanUser::create([
-                'id_hasil'      => $hasil->id_hasil,
-                'id_quiz'       => $jawaban['id_quiz'],
-                'jawaban_user'  => $jawaban['jawaban_user'],
-                'benar'         => $jawaban['benar'],
+            $hasil = HasilQuiz::create([
+                'id_user'        => $user->id_user,
+                'id_quiz'        => $quiz->id_quiz,
+                'skor_diperoleh' => $skor,
             ]);
-        }
+
+            foreach ($jawabanList as $jawaban) {
+                JawabanUser::create([
+                    'id_hasil'      => $hasil->id_hasil,
+                    'id_quiz'       => $jawaban['id_quiz'],
+                    'jawaban_user'  => $jawaban['jawaban_user'],
+                    'benar'         => $jawaban['benar'],
+                ]);
+            }
+        });
 
         // Kuis telah berhasil diselesaikan, buka kunci navigasi
         session()->forget(['active_quiz_lock', 'active_materi_lock']);
@@ -911,9 +977,38 @@ class SiswaController extends Controller
 
         $user->nama = $request->nama;
         $user->email = $request->email;
+        if ($request->filled('avatar')) {
+            $user->avatar = $request->avatar;
+        }
         $user->save();
 
         return redirect()->route('siswa.profil')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Update Avatar Karakter Siswa
+     */
+    public function updateAvatar(Request $request)
+    {
+        $validAvatars = array_keys(\App\Models\User::availableAvatars());
+        $request->validate([
+            'avatar' => 'required|string|in:' . implode(',', $validAvatars),
+        ]);
+
+        $user = auth()->user();
+        $user->avatar = $request->avatar;
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'     => 'success',
+                'avatar'     => $user->avatar,
+                'avatar_url' => $user->avatar_url,
+                'message'    => 'Avatar karakter berhasil dipilih! 🐾',
+            ]);
+        }
+
+        return redirect()->route('siswa.profil')->with('success', 'Avatar karakter berhasil dipilih! 🐾');
     }
 
     /**

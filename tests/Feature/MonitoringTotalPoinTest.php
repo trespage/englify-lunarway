@@ -52,7 +52,7 @@ class MonitoringTotalPoinTest extends TestCase
         ]);
 
         try {
-            $response = $this->actingAs($this->admin)->get(route('admin.monitoring-siswa'));
+            $response = $this->actingAs($this->admin)->get(route('admin.monitoring-siswa', ['q' => $this->siswa->email]));
             $response->assertOk();
             $response->assertSee('95 Poin');
 
