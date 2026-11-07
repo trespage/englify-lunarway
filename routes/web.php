@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Superadmin\SuperAdminController;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\BabController;
-use App\Http\Controllers\Admin\KategoriController;
-use App\Http\Controllers\Admin\MateriController;
-use App\Http\Controllers\Siswa\SiswaController;
-use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\superadmin\SuperAdminController;
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\BabController;
+use App\Http\Controllers\admin\KategoriController;
+use App\Http\Controllers\admin\MateriController;
+use App\Http\Controllers\siswa\SiswaController;
+use App\Http\Controllers\admin\MonitoringController;
 
 use App\Http\Controllers\ReviewController;
 
