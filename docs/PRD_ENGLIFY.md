@@ -1,5 +1,6 @@
-# PRODUCT REQUIREMENT DOCUMENT (PRD)
+# PRODUCT REQUIREMENT DOCUMENT (PRD) — FINAL
 ## SISTEM APLIKASI PEMBELAJARAN BAHASA INGGRIS INTERAKTIF (ENGLIFY)
+### Platform Pembelajaran Gamifikasi Berbasis Web untuk Sekolah Menengah Kejuruan
 
 ---
 
@@ -8,17 +9,18 @@
 | Parameter | Keterangan |
 | :--- | :--- |
 | **Nama Produk** | **Englify (English Learning Gamified Platform)** |
-| **Versi Dokumen** | **v4.0 (UKK Assessment & Final Production Ready - All Modules Verified)** |
-| **Status Dokumen** | **Approved & Certified for UKK Assessment & Production Release** |
-| **Tanggal Pembaruan** | 5 November 2026 |
+| **Versi Dokumen** | **v5.0 (Final Production Ready & UKK Assessment Certified)** |
+| **Status Dokumen** | **Approved & Certified for Production Deployment & UKK 2026** |
+| **Tanggal Terbit / Finalisasi** | 8 November 2026 |
 | **Institusi** | **SMK Budi Bakti Ciwidey** |
-| **Program Keahlian** | Rekayasa Perangkat Lunak (RPL) / Pengembangan Perangkat Lunak dan Gim (PPLG) |
+| **Program Keahlian** | **Rekayasa Perangkat Lunak (RPL) / Pengembangan Perangkat Lunak dan Gim (PPLG)** |
+| **Domain Produksi / Live** | **https://englify.my.id** |
 
-#### Tim Pengembang:
+#### Tim Pengembang Proyek:
 1. **Anggia Tresa Putri** — *Backend & Database Developer*
-   - Penanggung jawab arsitektur basis data relasional (16 migrasi konsolidasian berindeks performa), konsistensi *foreign key cascade*, model Eloquent, query optimization (*eager loading* tanpa N+1 query), otorisasi Laravel Policies (`HasilQuizPolicy`, `PesanAdminPolicy`), middleware keamanan (`lock.learning`, `force.password.change`, `role`), penanganan exception terpusat SOP S3-02, serta otomatisasi test suite PHPUnit (**115 feature/unit tests, 701 assertions, 100% passed**).
+   - Penanggung jawab perancangan arsitektur basis data relasional (16 migrasi konsolidasian dengan 14 indeks performa InnoDB), konsistensi integritas relasi *foreign key cascade*, model Eloquent ORM, pencegahan query N+1 via *eager loading*, otorisasi Laravel Policies (`HasilQuizPolicy`, `PesanAdminPolicy`), rancang bangun middleware keamanan (`lock.learning`, `force.password.change`, `role`), penanganan exception terpusat SOP S3-02 (`APP_DEBUG=false`, custom 404, 403, 500, dan database exception), kompatibilitas query SQL agregasi strict mode MariaDB/MySQL, serta otomatisasi test suite PHPUnit (**34 berkas test feature/unit, 125 tests, 762 assertions, 100% passed**).
 2. **Nur Aprilia** — *Frontend Developer & UI/UX Designer*
-   - Penanggung jawab tata letak antarmuka (Blade Views & Components), estetika visual modern Tailwind CSS v4, tipografi ramah baca (Google Fonts: *Plus Jakarta Sans*, *Inter*, *Caveat*), integrasi visualisasi Chart.js, standardisasi modal interaktif SweetAlert2 v11, perancangan antarmuka *Focus Mode* (penyembunyian navigasi saat membaca materi dan mengerjakan kuis), integrasi *Word-Style Rich Text Editor Dual Mode*, penanda anak judul tebal otomatis, serta sistem pemilihan avatar karakter kucing edukasi Englify.
+   - Penanggung jawab rancang antarmuka pengguna (Blade Master Layouts & Components), standarisasi desain visual modern berbasis Tailwind CSS v4, tipografi berstandar keterbacaan tinggi (Google Fonts: *Plus Jakarta Sans*, *Inter*, *Caveat Handwritten*), integrasi visualisasi Chart.js, standardisasi modal interaktif modern SweetAlert2 v11 (eliminasi total dialog bawaan browser), perancangan antarmuka *Focus Mode* (penyembunyian navigasi atas, samping, dan bawah saat membaca materi & mengerjakan kuis), integrasi *Word-Style Rich Text Editor Dual Mode*, fitur penanda anak judul tebal (*auto-bold list markers*), penyisipan foto langsung ke teks (*inline image upload*), dashboard siswa esensial ("intinya aja"), serta sistem kustomisasi persona avatar kucing edukasi Englify.
 
 ---
 
@@ -26,40 +28,44 @@
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-|                                              ENGLIFY ARCHITECTURE                                       |
+|                                        ENGLIFY SYSTEM ARCHITECTURE                                      |
 +---------------------------------------------------------------------------------------------------------+
-|  FRONTEND & INTERACTION LAYER                                                                           |
-|  - Templating Engine    : Laravel Blade Components & Master Layouts (Responsive Web Design)             |
-|  - CSS Styling Engine   : Tailwind CSS v4.0 (Modern Color Tokens: Slate, Indigo, Emerald, Amber, Rose)  |
-|  - Typography           : Google Fonts (Plus Jakarta Sans, Inter, Caveat Handwritten Accent)            |
-|  - Dynamic Modals       : SweetAlert2 v11 (Standar dialog interaktif pengganti alert/confirm browser)   |
-|  - Data Visualization   : Chart.js (Grafik Batang & Garis: Progres Materi & Distribusi Skor Siswa)      |
-|  - Client Interactivity : Modern ES6+ JavaScript (DOM Manipulation, Audio Controller, Event Trapping)  |
-|  - Rich Text Engine     : Word-Style Editor (Dual Mode: Standar & Mode Luas, Auto-Bold Markers,        |
-|                           Smart Paste Cleaner, Inline Images, Preset Callout Blocks, Smart Numbering)   |
-|  - Focus & Anti-Exit    : CSS Element Isolation, Browser History PushState Interceptor, BeforeUnload   |
+|  CLIENT & PRESENTATION LAYER                                                                            |
+|  - Templating Engine    : Laravel Blade Components & Master Layouts (Desktop, Tablet & Mobile Adaptive)  |
+|  - CSS Styling Core     : Tailwind CSS v4.0 (Design Tokens: Sky, Indigo, Emerald, Amber, Rose, Slate)   |
+|  - Typography Core      : Plus Jakarta Sans (Primary UI), Inter (Body Text), Caveat (Handwritten Mascot)|
+|  - Interactive Modals   : SweetAlert2 v11 (Standar dialog konfirmasi dan notifikasi UI modern)         |
+|  - Data Visualization   : Chart.js (Grafik Pertumbuhan Akun, Progres Kurikulum & Distribusi Nilai Siswa)|
+|  - Client Interactivity : Vanilla ES6+ JavaScript (DOM Manipulation, Audio Controller, Event Trapping)  |
+|  - Rich Text Engine     : Word-Style Dual-Mode Editor (Mode Standar & Mode Luas Layar Penuh,            |
+|                           Auto-Bold Marker Anak Judul, Smart Multi-level Lists, Preset Callouts)        |
+|  - Focus & Anti-Exit    : CSS Visual Isolation, Browser History PushState Trap, BeforeUnload Guard     |
 +---------------------------------------------------------------------------------------------------------+
 |  BACKEND & SECURITY LAYER                                                                               |
-|  - Language Runtime     : PHP 8.2+ (Strict Types, Match Expressions, Typed Properties)                 |
-|  - Web Application Core : Laravel 12.x Framework (Model-View-Controller Architecture)                   |
+|  - Language Runtime     : PHP 8.2+ (Strict Types, Match Expressions, Nullable Types, Typed Properties)  |
+|  - Application Framework: Laravel 12.x Core (MVC Architecture, Service Providers, Middleware Pipeline)  |
 |  - Timezone Config      : Asia/Jakarta (WIB / GMT+7 - Sinkronisasi Waktu Nyata Indonesia)              |
 |  - Authorization Engine : Laravel Policies (HasilQuizPolicy, PesanAdminPolicy) & $this->authorize()    |
-|  - Middleware Pipeline  : Role-Based Access Control, ForcePasswordChange, LockActiveMateriAndQuiz      |
+|  - Middleware Pipeline  : Role-Based Access Control (RBAC), ForcePasswordChange, LockActiveMateriAndQuiz|
 |  - Password Cryptography: Bcrypt Hashing Algorithm (Work Factor 12)                                    |
-|  - Error Management     : Prosedur S3-02 Global Handler (Custom Views 404, 403, 500, Database Handler)  |
+|  - Error Handling S3-02 : Custom Exception Renderer (404, 403, 500, Database Exception Handling)       |
+|  - Reverse Proxy / HTTPS: URL::forceScheme('https') & TrustProxies '*' (Cloudflare & Hosting Ready)     |
 +---------------------------------------------------------------------------------------------------------+
 |  DATABASE & STORAGE LAYER                                                                               |
-|  - DBMS Engine          : MySQL 8.x / MariaDB 10.x (InnoDB Storage Engine - ACID Compliant)            |
-|  - Migration Management : 16 Clean Migrations (Zero Redundant Tables, Strict Constraints, 14 Indexes)   |
-|  - Object Relational    : Laravel Eloquent ORM (Relationships, Query Scopes, Eager Loading)             |
-|  - Session & Cache      : Database Drivers (Tabel `sessions` dan `cache` Terisolasi)                   |
-|  - Asset Storage        : Public Storage Symlink (Audio Passages, Covers, Avatars, Lampiran Materi)     |
+|  - Relational DBMS      : MySQL 8.x / MariaDB 10.x (InnoDB Engine, UTF8MB4 Unicode, ACID Compliant)     |
+|  - Migrations Management: 16 Consolidated Migrations (Zero Redundant Tables, Strict Constraints)        |
+|  - Indexing Strategy    : 14 Dedicated Performance Indexes (Foreign Keys & Frequent Lookup Composite)   |
+|  - Object-Relational    : Eloquent ORM (Eager Loading, Cascade Lifecycle Hooks, Auto-cleanup Files)     |
+|  - Session Storage      : Database / File Driver (Tabel `sessions` Terisolasi)                          |
+|  - Cache Storage        : Database / Array Driver (Tabel `cache` & `cache_locks`)                       |
+|  - Asset Storage        : Public Storage Symlink (Audio Passages, Materi Covers, Cat Avatars)           |
 +---------------------------------------------------------------------------------------------------------+
-|  TESTING & DEVOPS LAYER                                                                                 |
-|  - Automated Test Suite : PHPUnit 11.5+ (115 Feature & Unit Tests, 701 Assertions - 100% Passed)        |
-|  - Build & Asset Pipeline: Vite v6                                                                      |
-|  - Production Mode      : APP_DEBUG=false (Proteksi Informasi Internal Sistem dari Pengguna Umum)       |
-|  - Version Control      : Git & GitHub Repository                                                       |
+|  DEVOPS, BUILD & TESTING LAYER                                                                          |
+|  - Automated Test Suite : PHPUnit 11.5+ (34 Test Files, 125 Tests, 762 Assertions - 100% Green Passed)  |
+|  - Asset Bundler        : Vite v6 (Kompilasi Mandiri ke `public/build/` Siap Hosting Tanpa Node/NPM)    |
+|  - Hosting Deployment   : Live di cPanel / Apache / Cloudflare (https://englify.my.id)                 |
+|  - Production Security  : APP_DEBUG=false (Proteksi Stack Trace & Detail Internal Sistem)               |
+|  - Source Code Control  : Git Version Control & GitHub Repository (`main` branch)                       |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
@@ -68,24 +74,24 @@
 ## 1. PENDAHULUAN & LATAR BELAKANG
 
 ### 1.1 Latar Belakang
-Penguasaan Bahasa Inggris merupakan salah satu kompetensi esensial bagi siswa Sekolah Menengah Kejuruan (SMK) untuk bersaing di dunia industri global, sertifikasi kompetensi (seperti TOEIC/TOEFL), serta melanjutkan jenjang akademik. Namun, pembelajaran bahasa konvensional di kelas seringkali menghadapi tantangan nyata:
-1. **Minimnya Aspek Listening Interaktif**: Keterbatasan media audio membuat pemahaman menyimak (*listening comprehension*) sulit dilatih secara terstandarisasi.
-2. **Ketiadaan Alur Belajar Terstruktur (Sequential Lock)**: Siswa kerap kali melompati materi penting dan langsung mencoba kuis tanpa membaca dasar teorinya.
-3. **Rendahnya Integritas Ujian Daring**: Siswa dapat berpindah-pindah tab browser, membuka kunci jawaban, keluar masuk halaman kuis tanpa batas, atau melihat riwayat kunci jawaban setelah selesai kuis untuk dibocorkan ke siswa lain.
-4. **Editor Materi Terbatas**: Pengajar kesulitan menulis materi ajar berstruktur rapi yang memuat anak judul berhuruf tebal, penomoran alfabetis berurutan, gambar pendukung, dan catatan penting berwarna.
-5. **Kesulitan Pemantauan Hasil**: Pengajar kesulitan mengukur secara akurat akumulasi poin, keaktifan membaca materi, serta persentase capaian kuis siswa secara real-time.
+Penguasaan Bahasa Inggris merupakan salah satu kompetensi esensial bagi siswa Sekolah Menengah Kejuruan (SMK) untuk menghadapi persaingan industri global, asesmen sertifikasi keahlian, dan komunikasi profesional. Namun, platform pembelajaran konvensional kerap menghadapi beberapa kendala fundamental:
+1. **Minimnya Aspek Listening Interaktif Terintegrasi**: Media pembelajaran digital seringkali hanya menyajikan teks tanpa sarana audio terpadu untuk menguji pemahaman menyimak (*listening comprehension*).
+2. **Ketiadaan Alur Pembelajaran Berurutan (Sequential Learning Flow)**: Siswa kerap melompati materi penting dan langsung mencoba kuis tanpa membaca materi dasarnya terlebih dahulu.
+3. **Rendahnya Integritas Evaluasi Daring**: Siswa bebas berpindah-pindah tab browser, keluar masuk lembar kuis tanpa batas, atau melihat riwayat kunci jawaban setelah selesai kuis untuk dibocorkan ke siswa lain.
+4. **Editor Materi Pembelajaran Kaku**: Pengajar kesulitan menyusun materi dengan format penulisan terstruktur ala buku teks/Microsoft Word yang memuat anak judul tebal, penomoran berurutan rapi, gambar pelengkap, dan kotak catatan khusus.
+5. **Dashboard Siswa Terlalu Padat**: Tampilan dashboard yang dipenuhi elemen hiasan berlebihan mengurangi fokus siswa terhadap materi dan kuis yang harus segera dikerjakan.
 
-Aplikasi **Englify** dirancang sebagai solusi *Learning Management System (LMS)* modern bertema gamifikasi edukatif. Platform ini mengintegrasikan materi terstruktur per bab divisi, editor modul kaya fitur bergaya Microsoft Word, kuis pilihan ganda berdurasi (*countdown timer*), pengacakan pilihan jawaban (*shuffled options*), audio listening passage, **sistem penguncian fokus belajar anti-keluar (Focus Mode Anti-Exit Lock)**, proteksi kunci jawaban kuis (hanya boleh ditinjau 1 kali saat submit kuis), sistem reminder notifikasi siswa, dan personalisasi avatar maskot kucing edukasi Englify.
+Aplikasi **Englify** dirancang sebagai solusi *Learning Management System (LMS)* modern bertema gamifikasi edukatif. Platform ini memadukan materi terstruktur per bab divisi kurikulum, editor modul ajar bergaya Microsoft Word (*Mode Standar* & *Mode Luas*), bank kuis pilihan ganda berdurasi (*countdown timer*), pengacakan pilihan jawaban (*shuffled options*), audio listening passage, **sistem penguncian fokus belajar anti-keluar (Focus Mode Anti-Exit Lock)**, proteksi kunci jawaban kuis (pembahasan HANYA boleh ditinjau 1 kali saat submit kuis), dashboard siswa esensial berorientasi tindakan ("intinya aja"), sistem pesan pengingat siswa, dan personalisasi avatar maskot kucing edukasi Englify.
 
 ### 1.2 Tujuan Produk
-1. **Menyediakan Media Belajar Terstruktur**: Materi disajikan dalam hierarki rapi (`Kategori Divisi` &rarr; `Bab` &rarr; `Materi` &rarr; `Quiz`) tanpa subbab berbelit.
-2. **Pengalaman Menulis Materi Profesional bagi Pengajar**: Editor penulisan materi dengan pilihan dua mode tampilan (*Mode Standar* dan *Mode Luas Word*), penomoran angka/alfabet otomatis yang cerdas, penanda anak judul tebal (*auto-bold list markers*), penyisipan foto langsung (*inline image upload*), dan blok catatan berwarna (*callout box*).
+1. **Menyediakan Media Belajar Terstruktur**: Materi disusun dalam hierarki bersih (`Kategori Divisi` &rarr; `Bab` &rarr; `Materi` &rarr; `Quiz`) tanpa tingkatan subbab yang redundan.
+2. **Pengalaman Menulis Materi Profesional bagi Pengajar**: Editor teks kaya dengan dua pilihan tampilan (*Mode Standar* dan *Mode Luas Word*), penomoran cerdas angka/huruf/romawi, penanda anak judul tebal (*auto-bold list markers*), penyisipan foto langsung (*inline image upload*), dan blok catatan berwarna (*callout box*).
 3. **Menjamin Integritas dan Fokus Belajar Siswa**:
    - Memastikan siswa benar-benar membaca materi sebelum berlanjut ke kuis melalui alur sekuensial dan konfirmasi komitmen SweetAlert2.
-   - Mengunci layar pengerjaan kuis dan materi sehingga siswa tidak dapat keluar atau beralih halaman sebelum kuis diselesaikan atau waktu habis.
-   - Mengisolasi kunci jawaban: pembahasan kuis HANYA dapat dilihat 1 kali saat submit kuis; pada kunjungan riwayat selanjutnya, pembahasan dan kunci jawaban disembunyikan total.
-4. **Meningkatkan Kemampuan Listening**: Menyediakan fitur unggah audio passage bagi Admin Divisi yang langsung terintegrasi dengan pemutar audio HTML5 pada soal kuis siswa.
-5. **Gamifikasi & Personalisasi Karakter**: Menerapkan sistem poin reputasi, peta pencapaian kuis visual, grafik progres Chart.js, serta pilihan avatar maskot kucing Englify untuk membangun keterikatan emosional siswa dalam belajar.
+   - Mengunci layar pengerjaan kuis dan materi sehingga siswa tidak dapat keluar atau beralih halaman sebelum selesai (*Three-Layer Defensive Lock*).
+   - Mengisolasi kunci jawaban: pembahasan kuis HANYA dapat dilihat 1 kali tepat setelah submit kuis; pada kunjungan riwayat selanjutnya, pembahasan dan kunci jawaban disembunyikan total.
+4. **Meningkatkan Kemampuan Listening**: Menyediakan fitur unggah berkas audio (`.mp3`/`.wav`) atau pemilihan audio bersama bagi Admin Divisi yang langsung terintegrasi dengan pemutar audio HTML5 pada soal kuis siswa.
+5. **Gamifikasi & Personalisasi Karakter**: Menerapkan sistem poin reputasi, peta pencapaian kuis visual, grafik progres Chart.js, dashboard siswa esensial, serta pilihan 6 avatar maskot kucing Englify.
 6. **Menerapkan Pemisahan Peran (RBAC) & Keamanan Data**:
    - Superadmin fokus mengelola master akun pengguna (Siswa & Admin Divisi) dan metrik sistem.
    - Admin Divisi fokus mengelola kurikulum divisinya (Bab, Materi, Kuis, Monitoring Nilai, dan Reminder).
@@ -105,26 +111,49 @@ graph TD
     CheckRole -->|id_role = 2| AdminDivisi[Role 2: Admin Divisi]
     CheckRole -->|id_role = 3| Siswa[Role 3: Siswa]
 
-    SuperAdmin --> SA1[Kelola Akun Siswa & Admin Divisi]
-    SuperAdmin --> SA2[Aktivasi / Nonaktifkan Akun]
-    SuperAdmin --> SA3[Dashboard Statistik Pengguna]
-    SuperAdmin --> SA4[Proteksi Akun SuperAdmin]
-    SuperAdmin --> SA5[Ganti Avatar Profil Superadmin]
+    SuperAdmin --> SA1[Kelola Master Akun Siswa & Admin Divisi]
+    SuperAdmin --> SA2[Aktivasi / Nonaktifkan Akun Instan]
+    SuperAdmin --> SA3[Dashboard Statistik Real-time & Pertumbuhan]
+    SuperAdmin --> SA4[Proteksi Diri Master SuperAdmin]
+    SuperAdmin --> SA5[Kustomisasi Profil & Avatar Superadmin]
 
-    AdminDivisi --> AD1[Kelola Bab & Urutan Unik]
+    AdminDivisi --> AD1[Kelola Master Bab & Urutan Unik Divisi]
     AdminDivisi --> AD2[Editor Materi Word Mode Luas / Standar]
-    AdminDivisi --> AD3[Bank Soal Kuis & Audio Passages]
-    AdminDivisi --> AD4[Monitoring Total Poin & Nilai Siswa]
-    AdminDivisi --> AD5[Kirim Pengingat / Reminder Siswa]
-    AdminDivisi --> AD6[Ganti Avatar Profil Admin]
+    AdminDivisi --> AD3[Bank Soal Kuis & Audio Listening Passage]
+    AdminDivisi --> AD4[Monitoring Nilai, Progres & Total Poin Siswa]
+    AdminDivisi --> AD5[Kirim Pengingat / Reminder Siswa Individual & Broadcast]
+    AdminDivisi --> AD6[Kustomisasi Profil & Avatar Admin]
 
     Siswa --> SW1[Alur Sequential: Baca Materi Terkunci]
     Siswa --> SW2[Focus Mode Anti-Exit Materi & Quiz]
     Siswa --> SW3[Pengerjaan Kuis Berdurasi, Shuffled & Audio]
     Siswa --> SW4[1x Kesempatan Review Jawaban Kuis]
-    Siswa --> SW5[Kotak Reminder & Profil Mandiri]
-    Siswa --> SW6[Pilihan Avatar Karakter Kucing Englify]
+    Siswa --> SW5[Dashboard Esensial & Peta Kuis Visual]
+    Siswa --> SW6[Kotak Reminder, Profil & Avatar Kucing Englify]
 ```
+
+### Matriks Perbandingan Wewenang Antar Peran
+
+| Modul / Fitur Fungsional | SuperAdmin (1) | Admin Divisi (2) | Siswa (3) | Publik / Guest |
+| :--- | :---: | :---: | :---: | :---: |
+| **Akses Landing Page & Kirim Review** | Ya | Ya | Ya | Ya |
+| **Login Email/Username & Logout** | Ya | Ya | Ya | Tidak |
+| **Wajib Ganti Password Login Perdana** | Tidak | Tidak | **Ya (Otomatis)** | Tidak |
+| **Kelola Master Pengguna (Siswa & Admin)** | **Ya (CRUD)** | Tidak | Tidak | Tidak |
+| **Aktivasi / Nonaktifkan Status Akun** | **Ya** | Tidak | Tidak | Tidak |
+| **Kelola Master Kategori Divisi** | Read Only | **Ya (CRUD)** | Read Only | Read Only |
+| **Kelola Bab Kurikulum (Urutan Unik)** | Read Only | **Ya (CRUD)** | Read Only | Tidak |
+| **Editor Materi Word-Style (Dual Mode)** | Tidak | **Ya (CRUD)** | Tidak | Tidak |
+| **Kelola Bank Soal Kuis & Audio Passage** | Tidak | **Ya (CRUD)** | Tidak | Tidak |
+| **Monitoring Nilai & Akumulasi Poin Siswa** | Read Only | **Ya** | Tidak | Tidak |
+| **Kirim Pesan Pengingat (Reminder)** | Tidak | **Ya (Indiv & All)** | Tidak | Tidak |
+| **Baca Materi Pembelajaran (Sequential)** | Tidak | Tidak | **Ya** | Tidak |
+| **Kerjakan Kuis (Focus Mode Anti-Exit)** | Tidak | Tidak | **Ya** | Tidak |
+| **Review Pembahasan Kuis (Hanya 1 Kali)** | Tidak | Tidak | **Ya (1x Submit)** | Tidak |
+| **Peta Kuis Visual & Dashboard Esensial** | Tidak | Tidak | **Ya** | Tidak |
+| **Kotak Masuk Reminder (Read & Delete)** | Tidak | Tidak | **Ya (Policy)** | Tidak |
+| **Pilih Avatar Persona Kucing Englify** | **Ya** | **Ya** | **Ya** | Tidak |
+| **Ganti Kata Sandi Mandiri** | **Ya** | **Ya** | **Ya** | Tidak |
 
 ---
 
@@ -143,21 +172,21 @@ sequenceDiagram
 
     Siswa->>Frontend: Klik Menu Materi Belajar
     Frontend->>SiswaCtrl: GET /siswa/materi
-    SiswaCtrl->>DB: Cek status materi & bab yang terbuka
-    DB-->>SiswaCtrl: Return daftar materi sequential
+    SiswaCtrl->>DB: Query bab & materi yang terbuka (Sequential Logic)
+    DB-->>SiswaCtrl: Return data materi
     SiswaCtrl-->>Frontend: Render daftar materi
     
-    Note over Siswa, Frontend: Materi 1 Bab 1 Terbuka Otomatis.<br>Materi berikutnya terkunci sampai materi sebelumnya selesai.
+    Note over Siswa, Frontend: Bab 1 Materi 1 terbuka otomatis.<br>Materi berikutnya terkunci sampai materi sebelumnya tuntas.
 
     Siswa->>Frontend: Klik "Mulai Baca Materi"
-    Frontend->>Frontend: Tampilkan SweetAlert2 Pop-up Konfirmasi
+    Frontend->>Frontend: Tampilkan Modal Komitmen SweetAlert2
     Note over Frontend: Peringatan: Tidak bisa keluar halaman sampai kuis selesai!
     
     alt Siswa Klik "Batal"
-        Frontend->>Frontend: Tutup Pop-up, tetap di daftar materi
+        Frontend->>Frontend: Tutup Modal, tetap di daftar materi
     else Siswa Klik "Lanjutkan"
         Frontend->>SiswaCtrl: GET /siswa/materi/{id}
-        SiswaCtrl->>DB: Ambil isi materi & simpan session('active_materi_id')
+        SiswaCtrl->>DB: Simpan session('active_materi_id', $id)
         SiswaCtrl-->>Frontend: Render baca-materi.blade.php
         Note over Frontend: Focus Mode Aktif: Navbar, Sidebar, Bottom Bar DIHILANGKAN
         Note over Frontend: Tombol Keluar Dihilangkan, History PushState & BeforeUnload Aktif
@@ -171,7 +200,7 @@ sequenceDiagram
 
     Siswa->>Frontend: Selesai membaca, klik tombol "Lanjut ke Quiz"
     Frontend->>SiswaCtrl: GET /siswa/quiz/{id}
-    SiswaCtrl->>DB: Ambil bank soal bab, acak urutan pilihan (shuffled), load audio
+    SiswaCtrl->>DB: Ambil bank soal materi, acak urutan pilihan (shuffled), load audio
     SiswaCtrl->>DB: Set session('active_quiz_id', $quizId)
     SiswaCtrl-->>Frontend: Render quiz/show.blade.php (Focus Mode Tetap Terkunci)
 
@@ -182,8 +211,8 @@ sequenceDiagram
 
     alt Waktu Habis ATAU Siswa Klik "Submit Kuis"
         Frontend->>SiswaCtrl: POST /siswa/quiz/{id}/submit (jawaban)
-        SiswaCtrl->>DB: Evaluasi jawaban, hitung skor, simpan ke hasil_quiz & progress_materi
-        SiswaCtrl->>DB: Update akumulasi total poin siswa di DB
+        SiswaCtrl->>DB: DB::transaction -> evaluasi jawaban, hitung skor, simpan hasil_quiz & progress_materi
+        SiswaCtrl->>DB: Perbarui akumulasi total poin siswa di DB
         SiswaCtrl->>Frontend: Clear session('active_quiz_id') & Set Flash('can_review_quiz' = true)
         SiswaCtrl-->>Frontend: Redirect ke /siswa/quiz/{id}/hasil
         Frontend->>Frontend: Modal Perayaan Skor Muncul + TABEL PEMBAHASAN LENGKAP
@@ -206,13 +235,14 @@ Untuk menjamin integritas belajar, sistem menerapkan proteksi **tiga lapis** (*T
    - Mencegat tombol *Back* peramban menggunakan teknik `history.pushState(null, null, location.href)` dan pendengar event `window.addEventListener('popstate')`.
    - Mengaktifkan pendengar event `beforeunload` untuk mencegah siswa me-*reload* halaman atau menutup tab peramban tanpa konfirmasi resmi.
 3. **Lapisan Keamanan Server (Server-Side Middleware `lock.learning`)**:
-   - Jika siswa mencoba mengetikkan URL lain secara langsung di *address bar* (misalnya `/siswa/dashboard`, `/siswa/peta-quiz`, `/siswa/materi`, `/siswa/progres`, `/siswa/reminder`, `/siswa/profil`), middleware langsung menangkap request, menghentikan eksekusi rute tujuan, dan mengembalikan siswa secara paksa ke halaman aktif dengan peringatan.
+   - Jika siswa mencoba mengetikkan URL lain secara langsung di *address bar* (misalnya `/siswa/dashboard`, `/siswa/peta-quiz`, `/siswa/materi`, `/siswa/progres`, `/siswa/reminder`, `/siswa/profil`), middleware langsung menangkap request, menghentikan eksekusi rute tujuan, dan mengembalikan siswa secara paksa ke halaman aktif dengan peringatan SweetAlert2.
 
-### 3.3 Penanganan Error Global S3-02 (Database & Exception Architecture)
+### 3.3 Penanganan Error Global SOP S3-02
 Sesuai Standar Operasional Prosedur (SOP) S3-02, sistem menjamin tidak ada kebocoran detail teknis internal (*stack trace*) ke pengguna umum:
-- `APP_DEBUG=false` dikonfigurasi aktif pada file `.env` di lingkungan pengujian akhir dan produksi.
-- Menangani pengecualian koneksi database (`PDOException`, `Connection refused`) secara anggun dengan menyajikan halaman ramah pengguna: **"Terjadi kendala koneksi server. Silakan hubungi admin."**
+- `APP_DEBUG=false` dikonfigurasi aktif pada file `.env` di lingkungan produksi.
+- Menangani pengecualian koneksi database (`PDOException`, `Connection refused`) secara terisolasi dengan menyajikan halaman ramah pengguna: **"Terjadi kendala koneksi server. Silakan hubungi admin."**
 - Halaman error kustom responsif untuk HTTP 404 (Halaman Tidak Ditemukan), HTTP 403 (Akses Ditolak), dan HTTP 500 (Kesalahan Server Internal).
+- Transparansi debug: Jika `APP_DEBUG=true` diaktifkan saat pengembangan/diagnostik, Laravel secara cerdas menampilkan detail stack trace tanpa diblokir oleh error handler generic.
 
 ### 3.4 Arsitektur Word-Style Rich Text Editor & Live POV Simulation
 Admin Divisi dibekali editor materi berspesifikasi tinggi yang mereplikasi kenyamanan Microsoft Word:
@@ -225,22 +255,28 @@ Admin Divisi dibekali editor materi berspesifikasi tinggi yang mereplikasi kenya
 4. **Preset Callout Berwarna**: Blok kutipan/catatan penting dengan kode warna visual (Hijau untuk Contoh Benar, Merah untuk Contoh Salah, Biru untuk Informasi, Kuning untuk Hal Penting, Ungu untuk Rumus, Abu untuk Catatan Netral).
 5. **Live POV Simulation**: Tombol "POV Siswa" di panel admin yang mensimulasikan rendering tampilan baca materi siswa secara instan lengkap dengan tema warna per divisi (Speaking merah/rose, Writing biru, Reading hijau/emerald, Listening ungu/purple).
 
-### 3.5 Arsitektur Avatar Karakter Kucing Englify
-Pengguna sistem dapat memilih persona avatar visual bertema maskot kucing Englify:
-- `avatar-cat-laptop.png` (Tech & Admin / Kucing laptop)
-- `avatar-cat-reading.png` (Rajin Belajar / Kucing membaca buku)
-- `avatar-cat-waving.png` (Ramah & Ceria / Kucing menyapa)
-- `avatar-cat-headphone.png` (Listening Chill / Kucing headphone)
-- `avatar-cat-trophy.png` (Juara Quiz / Kucing memeluk piala emas)
-- `avatar-cat-sleeping.png` (Santai & Cozy / Kucing tertidur lelap)
+### 3.5 Arsitektur Audio Listening Passage Terpadu
+Admin Divisi dapat mengelola media audio kuis melalui dua mekanisme praktis:
+1. **Upload Langsung Form Web**: Mengunggah berkas audio baru (`.mp3`, `.wav`, `.ogg`, `.m4a`, `.aac` hingga 30MB) langsung pada form modal tambah/edit soal.
+2. **Reuse Audio yang Tersedia**: Memilih berkas audio yang sudah pernah diunggah atau ditaruh di `public/quiz_audio` untuk digunakan bersama oleh beberapa butir soal (misalnya 1 audio dialog panjang dipakai untuk soal nomor 1 sampai 3).
+3. **Pembersihan Otomatis Berkas Yatim**: Saat materi atau soal kuis dihapus, sistem secara otomatis membersihkan file audio fisik terkait dari disk server guna mencegah penumpukan sampah penyimpanan.
 
-Pilihan avatar disimpan pada kolom `users.avatar` dan disinkronkan secara konsisten di seluruh antarmuka (Navbar, Sidebar, Halaman Profil, dan Kartu Ulasan Landing Page).
+### 3.6 Arsitektur Avatar Karakter Kucing Englify
+Pengguna sistem dapat memilih persona avatar visual bertema maskot kucing Englify:
+- `avatar-cat-laptop.png` (Tech & Admin / Kucing laptop cerdas)
+- `avatar-cat-reading.png` (Rajin Belajar / Kucing asyik membaca buku)
+- `avatar-cat-waving.png` (Ramah & Ceria / Kucing menyapa bersahabat)
+- `avatar-cat-headphone.png` (Listening Chill / Kucing santai mendengarkan audio)
+- `avatar-cat-trophy.png` (Juara Quiz / Kucing bangga memeluk piala emas)
+- `avatar-cat-sleeping.png` (Santai & Cozy / Kucing lelap tidur di atas buku)
+
+Pilihan avatar disimpan pada kolom `users.avatar` dan disinkronkan secara konsisten di seluruh antarmuka (Navbar, Dropdown Profil, Halaman Profil, dan Kartu Ulasan Landing Page).
 
 ---
 
-## 4. SKEMA BASIS DATA LENGKAP & ERD FINAL (14 TABEL MIGRASI & INDEKS PERFORMA)
+## 4. SKEMA BASIS DATA LENGKAP & ERD FINAL (16 TABEL MIGRASI & INDEKS PERFORMA)
 
-Struktur basis data Englify terdiri dari **14 tabel relasional** yang dinormalisasi ke Bentuk Normal Ketiga (3NF) dengan penyimpanan *storage engine* InnoDB serta 14 indeks performa:
+Struktur basis data Englify terdiri dari **16 tabel relasional** yang dinormalisasi ke Bentuk Normal Ketiga (3NF) dengan penyimpanan *storage engine* InnoDB serta 14 indeks performa:
 
 ```mermaid
 erDiagram
@@ -312,7 +348,7 @@ erDiagram
         bigint id_bab FK "Nullable Constrained bab.id SET NULL"
         bigint id_admin FK "Constrained users.id_user CASCADE"
         string judul "VARCHAR 255"
-        string bab "VARCHAR 100 Snapshot Bab"
+        string bab "VARCHAR 100 Nullable Snapshot Bab"
         int urutan "INT Urutan dalam Bab"
         int durasi_menit "INT Default 15"
         string status "ENUM Draft Published Default Draft"
@@ -423,46 +459,60 @@ erDiagram
         mediumtext value "Data Cache Serialized"
         int expiration "Timestamp Kedaluwarsa"
     }
+
+    CACHE_LOCKS {
+        string key PK "VARCHAR 255"
+        string owner "VARCHAR 255"
+        int expiration "Timestamp Kedaluwarsa"
+    }
+
+    MIGRATIONS {
+        int id PK "Auto Increment"
+        string migration "VARCHAR 255"
+        int batch "INT"
+    }
 ```
 
-### 4.1 Rincian Kamus Data Entitas
-1. **`roles`**: Master wewenang sistem (`1` = Superadmin, `2` = Admin Divisi, `3` = Siswa).
-2. **`kategori`**: Divisi materi belajar bahasa Inggris (`Speaking`, `Writing`, `Reading`, `Listening`).
-3. **`users`**: Master akun pengguna terpusat. Dilengkapi hash password Bcrypt, flag `must_change_password`, status `aktif`/`nonaktif`, dan koleksi `avatar` kucing Englify.
-4. **`bab`**: Satuan kurikulum materi belajar di bawah kategori divisi dengan atribut `urutan`, `durasi_menit`, dan `is_active`.
+### 4.1 Rincian Kamus Data 16 Entitas
+1. **`roles`**: Master wewenang pengguna sistem (`1` = Superadmin, `2` = Admin Divisi, `3` = Siswa).
+2. **`kategori`**: Divisi bahan ajar bahasa Inggris (`Speaking`, `Writing`, `Reading`, `Listening`).
+3. **`users`**: Master akun pengguna terpusat. Dilengkapi hash password Bcrypt, flag `must_change_password`, status `aktif`/`nonaktif`, kolom `avatar` kucing Englify, dan `last_login_at`.
+4. **`bab`**: Satuan kurikulum materi belajar di bawah kategori divisi dengan atribut `urutan` (divalidasi unik per divisi), `durasi_menit`, dan toggle `is_active`.
 5. **`materi`**: Konten bahan ajar teks kaya (Rich Text HTML), relasi bab (`id_bab`), cover materi (`gambar`), dokumen digital (`file`), tautan eksternal (`url`), transkrip, dan audio.
 6. **`referensi`**: Sumber rujukan referensi belajar pelengkap materi (`judul_referensi`, `url`, `deskripsi`).
 7. **`progress_materi`**: Catatan riwayat siswa yang telah menuntaskan bacaan materi (`Started`, `Completed`) dengan batasan `UNIQUE(id_user, id_materi)`.
-8. **`quiz`**: Bank soal evaluasi pilihan ganda per bab/materi, dilengkapi berkas audio listening (`audio`, `audio_title`, `audio_petunjuk`), kunci jawaban A-D, dan poin.
+8. **`quiz`**: Bank soal evaluasi pilihan ganda per bab/materi, dilengkapi berkas audio listening (`audio`, `audio_title`, `audio_petunjuk`), kunci jawaban A-D, dan poin nilai.
 9. **`hasil_quiz`**: Rekapitulasi perolehan skor kuis siswa (`skor_diperoleh`).
 10. **`jawaban_user`**: Log jejak pilihan jawaban siswa (`jawaban_user`) dan evaluasi kebenaran (`benar`) untuk audit jawaban.
-11. **`pesan_admin`**: Notifikasi reminder dari Admin ke Siswa (`pesan`, `is_read`) dengan `onDelete('cascade')` pada `id_user` dan `id_admin`.
+11. **`pesan_admin`**: Notifikasi reminder dari Admin ke Siswa (`pesan`, `is_read`) dengan constraint `onDelete('cascade')` pada `id_user` dan `id_admin`.
 12. **`reviews`**: Testimoni ulasan dan rating bintang 1–5 untuk landing page publik dengan kolom moderasi `is_approved`.
 13. **`sessions`**: Penyimpanan sesi login database driver untuk proteksi multi-device dan anti-exit.
 14. **`cache`**: Tabel penyimpanan cache performa query aplikasi.
+15. **`cache_locks`**: Tabel pengendali konkurensi data atomik saat eksekusi proses bersamaan.
+16. **`migrations`**: Tabel riwayat status migrasi skema basis data Laravel.
 
 ---
 
 ## 5. SPESIFIKASI KEBUTUHAN FUNGSIONAL LENGKAP (DETAILED FUNCTIONAL REQUIREMENTS)
 
 ### 5.1 Modul 1: Autentikasi, Sesi & Keamanan Akun
-* **FR-AUTH-01 (Login Multi-Peran)**: Pengguna dapat masuk menggunakan alamat **Email** dan **Kata Sandi**. Sistem memverifikasi kredensial menggunakan Bcrypt dan mengarahkan otomatis ke rute dashboard sesuai perannya.
+* **FR-AUTH-01 (Login Multi-Peran Fleksibel)**: Pengguna dapat masuk menggunakan alamat **Email** atau **Username** beserta Kata Sandi. Sistem memverifikasi kredensial menggunakan Bcrypt dan mengarahkan otomatis ke rute dashboard sesuai perannya.
 * **FR-AUTH-02 (Wajib Ubah Password Siswa Perdana)**:
-  - Setiap akun siswa yang didaftarkan Superadmin memiliki flag `must_change_password = true`.
+  - Setiap akun siswa baru yang didaftarkan Superadmin memiliki flag `must_change_password = true`.
   - Saat siswa masuk pertama kali, middleware `ForcePasswordChange` langsung mencegat request dan memaksa masuk ke rute `/change-password`.
   - Siswa wajib memasukkan password baru minimal 6 karakter dan konfirmasi password baru. Seluruh rute lain diblokir hingga proses pergantian kata sandi berhasil.
 * **FR-AUTH-03 (Pemberhentian Sesi Akun Nonaktif)**:
-  - Middleware `redirectUsersTo` di `bootstrap/app.php` memvalidasi nilai `status` pengguna.
+  - Middleware memvalidasi nilai `status` pengguna pada setiap siklus request.
   - Jika SuperAdmin mengubah status pengguna menjadi `nonaktif`, sesi aktif pengguna yang bersangkutan langsung di-invalidasi seketika (*auto-logout*) dan diarahkan keluar dengan pesan 403 Forbidden.
 * **FR-AUTH-04 (Pemisahan Otorisasi URL Silang / Cross-Role Authorization)**:
   - Middleware `role:superadmin`, `role:admin`, dan `role:siswa` menjamin pengguna tidak dapat mengakses URL di luar wewenangnya. Upaya pelanggaran memicu respons 403 Forbidden.
-* **FR-AUTH-05 (Toggle Visibilitas Password / Eye Icon)**: Seluruh formulir input kata sandi (Login, Form Ganti Password, Profil) dilengkapi ikon mata interaktif untuk mempermudah pengguna melihat/menyembunyian teks kata sandi.
-* **FR-AUTH-06 (Pemilihan Avatar Profil Mandiri)**: Seluruh pengguna (Superadmin, Admin, Siswa) dapat memilih persona avatar karakter kucing edukasi Englify yang langsung tersimpan via endpoint `/profile/avatar` atau `/profil/avatar`.
+* **FR-AUTH-05 (Toggle Visibilitas Password / Eye Icon)**: Seluruh formulir input kata sandi (Login, Form Ganti Password, Profil) dilengkapi ikon mata interaktif untuk mempermudah pengguna melihat/menyembunyikan teks kata sandi.
+* **FR-AUTH-06 (Pemilihan Avatar Profil Mandiri)**: Seluruh pengguna (Superadmin, Admin, Siswa) dapat memilih persona avatar karakter kucing edukasi Englify yang langsung tersimpan via endpoint profil.
 
 ### 5.2 Modul 2: SuperAdmin (Pengelolaan Pengguna & Master Sistem)
-* **FR-SA-01 (Manajemen Siswa)**:
-  - Superadmin dapat melihat daftar seluruh siswa terdaftar dengan paginasi dan filter pencarian.
-  - Menambah siswa baru (Input: Nama Lengkap, Email, Password awal opsional). Username dibuat otomatis dari email.
+* **FR-SA-01 (Manajemen Akun Siswa)**:
+  - Superadmin dapat melihat daftar seluruh siswa terdaftar dengan paginasi dan pengurutan alfabetis (A-Z).
+  - Menambah siswa baru (Input: Nama Lengkap, Email, Password awal). Username dibuat otomatis dari email.
   - Mengubah status siswa (Aktif / Nonaktif).
   - Menghapus akun siswa. Penghapusan menerapkan pembersihan otomatis (*cascade clean*) pada pesan admin terkait.
 * **FR-SA-02 (Manajemen Admin Divisi)**:
@@ -471,12 +521,12 @@ erDiagram
 * **FR-SA-03 (Perlindungan Diri Akun SuperAdmin)**:
   - Sistem melarang penghapusan atau pengubahan akun ber-role SuperAdmin melalui endpoint manipulasi siswa/admin biasa untuk mencegah *lockout* master sistem.
 * **FR-SA-04 (Pencarian Cepat Live Search)**: Menyediakan API pencarian cepat pengguna global berdasarkan nama atau email yang langsung merespons ketikan pada bilah pencarian dashboard.
-* **FR-SA-05 (Metrik & Statistik Master)**: Menampilkan kartu ringkasan jumlah akun siswa, akun admin divisi, kategori divisi, serta total materi aktif pada dashboard Superadmin.
+* **FR-SA-05 (Metrik & Statistik Master Real-Time)**: Menampilkan kartu ringkasan jumlah akun siswa, akun admin divisi, kategori divisi, serta grafik pertumbuhan pengguna 7 hari terakhir yang kompatibel dengan mode SQL ketat (*strict mode group by*).
 
 ### 5.3 Modul 3: Admin Divisi (Kurikulum, Bank Soal & Monitoring Akademik)
 * **FR-AD-01 (Manajemen Bab & Urutan Unik)**:
   - Menambah, mengubah, dan menghapus Bab di bawah kategori divisinya.
-  - Sistem memvalidasi keunikan nomor urutan bab per divisi untuk mencegah tumpang tindih urutan materi.
+  - Sistem memvalidasi keunikan nomor urutan bab per divisi untuk mencegah nomor ganda.
   - Mengatur estimasi default durasi penyelesaian bab (`durasi_menit`) dan toggle keaktifan bab (`is_active`).
   - Menghapus bab menerapkan *cascade delete* pada materi dan kuis di bawahnya.
 * **FR-AD-02 (Editor Materi Word-Style & Mode Luas)**:
@@ -487,22 +537,21 @@ erDiagram
   - **Auto-Bold List Markers**: Marker huruf/angka otomatis ikut berformat tebal (*bold*) jika teks di sampingnya berformat anak judul tebal.
   - **Inline Image Upload & Captioning**: Mengunggah foto langsung ke dalam konten editor via API `/admin/materi/upload-image`, dilengkapi kontrol perataan (kiri, tengah, kanan), persentase ukuran (25%-100%), dan teks keterangan foto (*caption*).
   - **Preset Callout Berwarna**: Blok kutipan/catatan penting dengan aksen warna (Hijau = Benar, Merah = Salah, Biru = Info, Kuning = Penting, Ungu = Rumus, Abu = Netral).
-  - **Smart Paste Cleaner**: Otomatis menyaring kode kotor dari MS Word dan Google Docs tanpa merusak heading dan pemformatan teks.
   - Pratinjau POV Siswa (*Student View Simulation*) lengkap dengan tema warna per divisi.
 * **FR-AD-03 (Bank Soal Kuis & Audio Listening Passage)**:
   - Membuat soal kuis pilihan ganda 4 opsi (A, B, C, D) dengan bobot nilai standar 10 poin per soal.
-  - Mengunggah file rekaman suara listening (`.mp3`, `.wav`) yang otomatis ditautkan ke soal kuis siswa dilengkapi judul dan petunjuk pengerjaan.
+  - Mengunggah file rekaman suara listening (`.mp3`, `.wav`) atau memilih audio bersama yang tersedia pada folder `public/quiz_audio` dilengkapi judul dan petunjuk pengerjaan.
   - Menentukan kunci jawaban yang benar dan status keaktifan soal.
 * **FR-AD-04 (Monitoring Akumulasi Total Poin & Nilai)**:
   - Menampilkan tabel rekapitulasi siswa per divisi yang memuat: Nama Siswa, Total Materi Diselesaikan, Persentase Progres Belajar, Skor Kuis Rata-Rata, dan **Akumulasi Total Poin Gamifikasi**.
   - Menyediakan halaman rincian (*detail monitoring*) untuk mengaudit riwayat tanggal pengerjaan, skor per kuis, dan materi yang telah dituntaskan siswa tertentu.
 * **FR-AD-05 (Kirim Reminder / Pengingat Siswa)**:
-  - Admin Divisi dapat mengirimkan pesan motivasi atau instruksi pengingat batas waktu pengerjaan tugas langsung ke kotak masuk notifikasi siswa (baik ditujukan spesifik per siswa maupun secara broadcast).
+  - Admin Divisi dapat mengirimkan pesan motivasi atau instruksi pengingat batas waktu pengerjaan tugas langsung ke kotak masuk notifikasi siswa (baik ditujukan spesifik per siswa maupun secara broadcast seluruh siswa).
 
 ### 5.4 Modul 4: Siswa (Pembelajaran, Kuis Gamifikasi & Akun)
-* **FR-SW-01 (Dashboard Gamifikasi & Grafik Progres)**:
-  - Menampilkan kartu ringkasan: Total Materi Dikuasai, Total Poin Reputasi, Kuis yang Telah Lulus, dan Notifikasi Reminder Belum Dibaca.
-  - Menampilkan grafik interaktif *Chart.js* yang memvisualisasikan tren akumulasi nilai kuis dan progres materi per bab.
+* **FR-SW-01 (Dashboard Siswa Esensial & Fokus Tindakan)**:
+  - Menampilkan antarmuka yang bersih dan berorientasi tindakan: kartu "Lanjutkan Belajar" aktif, progres per divisi kategori, ringkasan capaian aktivitas mingguan, dan kotak pengingat dari admin.
+  - Menampilkan grafik interaktif *Chart.js* yang memvisualisasikan tren capaian nilai kuis.
 * **FR-SW-02 (Alur Belajar Sekuensial & Syarat Pembukaan)**:
   - Materi Bab 1 Materi 1 terbuka otomatis secara default.
   - Materi ke-n (n > 1) baru terbuka jika materi ke-(n-1) telah dituntaskan. Kriteria tuntas:
@@ -535,8 +584,8 @@ erDiagram
   - Siswa dapat memilih avatar karakter kucing Englify favoritnya.
 
 ### 5.5 Modul 5: Halaman Publik & Ulasan (Landing Page)
-* **FR-PUB-01 (Landing Page Publik)**:
-  - Menyajikan informasi interaktif tentang keunggulan platform Englify, kategori divisi pembelajaran, kartu fitur unggulan, dan statistik capaian siswa.
+* **FR-PUB-01 (Landing Page Publik Dinamis)**:
+  - Menyajikan informasi interaktif tentang keunggulan platform Englify, kategori divisi pembelajaran, kartu fitur unggulan, dan statistik capaian siswa yang dihitung secara dinamis dari database nyata.
 * **FR-PUB-02 (Formulir Ulasan & Testimoni)**:
   - Pengunjung umum maupun siswa yang telah masuk dapat mengirimkan testimoni ulasan lengkap dengan skor bintang (1 hingga 5).
   - Ulasan yang berstatus `is_approved = true` langsung tampil di carousel ulasan pada landing page.
@@ -554,7 +603,7 @@ erDiagram
 | | **Sanitasi Konten XSS** | Masukan teks ulasan dan rich text disaring menggunakan whitelist tag HTML aman (`strip_tags()` terstandar). |
 | **Kinerja (Performance)** | **14 Indeks Performa Basis Data** | Penerapan 14 indeks komposit dan indeks tunggal pada tabel operasional (`materi`, `progress_materi`, `quiz`, `hasil_quiz`, `jawaban_user`, `users`, `reviews`, `pesan_admin`) untuk waktu respon query < 50ms. |
 | | **Optimasi Kueri DB** | Mengimplementasikan teknik *Eager Loading* (`with(['bab', 'kategori', 'hasilQuizzes'])`) untuk mengeliminasi masalah performa klasik *N+1 Query Problem*. |
-| | **Paginasi Data** | Seluruh tabel data master menerapkan pembagian halaman (*pagination*) 10 data per halaman untuk menjaga konsumsi memori browser tetap ringan. |
+| | **Paginasi Data** | Seluruh tabel data master menerapkan pembagian halaman (*pagination*) untuk menjaga konsumsi memori browser tetap ringan. |
 | | **Waktu Respon Server** | Rata-rata *Time to First Byte* (TTFB) < 250ms pada server pengujian lokal/intranet. |
 | **Keandalan (Reliability)** | **Integritas Relasi Basis Data** | Seluruh relasi *foreign key* menggunakan constraint `onDelete('cascade')` atau `onDelete('set null')` guna mencegah *data orphan* (data yatim tanpa induk). |
 | | **Database Transactions** | Operasi krusial yang melibatkan multi-tabel (seperti submit kuis yang memperbarui `hasil_quiz`, `jawaban_user`, `progress_materi`, dan total poin) dibungkus dalam blok `DB::transaction()` ACID. |
@@ -566,72 +615,46 @@ erDiagram
 
 ## 7. MATRIKS VERIFIKASI PENGUJIAN OTOMATIS (QUALITY ASSURANCE)
 
-Sistem Englify telah melalui pengujian unit dan fungsional komprehensif menggunakan **PHPUnit 11.5+** dengan hasil **115 Tests PASSED (701 Assertions, 0 Failures - 100% SUCCESS RATE)**:
-
-```
-   PASS  Tests\Feature\AdminBabUniqueUrutanTest              (2 tests, 10 assertions)
-   PASS  Tests\Feature\AdminDivisiStoreTest                  (3 tests, 12 assertions)
-   PASS  Tests\Feature\AdminLoginTest                        (6 tests, 28 assertions)
-   PASS  Tests\Feature\AdminMateriBabGroupingTest            (5 tests, 49 assertions)
-   PASS  Tests\Feature\AdminRevisionsSpecificTest            (3 tests, 18 assertions)
-   PASS  Tests\Feature\ApiTest                               (4 tests, 20 assertions)
-   PASS  Tests\Feature\BabCascadeDeleteTest                  (3 tests, 16 assertions)
-   PASS  Tests\Feature\CurriculumWithoutSubbabTest           (9 tests, 78 assertions)
-   PASS  Tests\Feature\CustomErrorHandlingTest               (6 tests, 22 assertions)
-   PASS  Tests\Feature\ExampleTest                           (1 test,   2 assertions)
-   PASS  Tests\Feature\MateriAndQuizLockTest                 (2 tests, 14 assertions)
-   PASS  Tests\Feature\MateriPreviewAndEyeToggleTest         (3 tests, 14 assertions)
-   PASS  Tests\Feature\MonitoringTotalPoinTest               (3 tests, 18 assertions)
-   PASS  Tests\Feature\NavProbeTest                          (2 tests, 26 assertions)
-   PASS  Tests\Feature\PasswordChangeVerificationTest        (5 tests, 30 assertions)
-   PASS  Tests\Feature\PerformanceAndUsabilityS307Test       (6 tests, 28 assertions)
-   PASS  Tests\Feature\PolicyAuthorizationTest               (2 tests, 12 assertions)
-   PASS  Tests\Feature\QuizAudioPassageTest                  (3 tests, 18 assertions)
-   PASS  Tests\Feature\QuizTimeLimitAndShuffledOptionsTest   (5 tests, 34 assertions)
-   PASS  Tests\Feature\ReviewTest                            (4 tests, 20 assertions)
-   PASS  Tests\Feature\RoleSecurityMiddlewareTest            (10 tests, 42 assertions)
-   PASS  Tests\Feature\RouteSmokeTest                        (1 test, 162 assertions)
-   PASS  Tests\Feature\SiswaReviewAndSidebarTest             (3 tests, 16 assertions)
-   PASS  Tests\Feature\SiswaStoreTest                        (3 tests, 18 assertions)
-   PASS  Tests\Feature\UserProfileAvatarTest                 (8 tests, 30 assertions)
-   PASS  Tests\Feature\UserStatusNonaktifSecurityTest        (4 tests, 24 assertions)
-   PASS  Tests\Unit\ExampleTest                              (1 test,   2 assertions)
-
-   ====================================================================================
-   TOTAL HASIL PENGUJIAN: 115 PASSED (701 ASSERTIONS) - 0 FAILED - 100% SUKSES
-   ====================================================================================
-```
+Sistem Englify telah melalui pengujian unit dan fungsional komprehensif menggunakan **PHPUnit 11.5+** dengan hasil **34 Test Files, 125 Tests PASSED (762 Assertions, 0 Failures - 100% SUCCESS RATE)**:
 
 ### Tabel Rincian Cakupan Test Suite
 
 | No | Berkas Test Suite | Ruang Lingkup & Skenario Pengujian | Status |
 | :-: | :--- | :--- | :-: |
 | 1 | `AdminBabUniqueUrutanTest.php` | Validasi keunikan urutan bab per divisi, pencegahan nomor ganda. | **PASSED** |
-| 2 | `AdminDivisiStoreTest.php` | Pembuatan akun admin divisi oleh SuperAdmin, penugasan kategori divisi, keunikan email. | **PASSED** |
-| 3 | `AdminLoginTest.php` | Otentikasi login admin, validasi email/password, proteksi tamu, pengalihan rute dashboard. | **PASSED** |
-| 4 | `AdminMateriBabGroupingTest.php` | Pengelompokan materi per bab, Word Mode Luas/Standar, inline image upload, auto-bold markers. | **PASSED** |
-| 5 | `AdminRevisionsSpecificTest.php` | Revisi form admin spesifik, validasi modal form, dropdown divisi dinamis. | **PASSED** |
-| 6 | `ApiTest.php` | Pengujian endpoint API JSON siswa, superadmin, validasi token dan payload statistik. | **PASSED** |
-| 7 | `BabCascadeDeleteTest.php` | Verifikasi integritas cascade delete dari Bab -> Materi -> Quiz -> Hasil Kuis. | **PASSED** |
-| 8 | `CurriculumWithoutSubbabTest.php` | Alur kurikulum ringkas Bab -> Materi -> Kuis (bebas subbab redundan), sequential unlock logic. | **PASSED** |
-| 9 | `CustomErrorHandlingTest.php` | SOP S3-02: Render custom 404, 403, 500, database connection exception dengan pesan instruktif resmi. | **PASSED** |
-| 10 | `ExampleTest.php` | Smoke test halaman awal landing page root (`/`). | **PASSED** |
-| 11 | `MateriAndQuizLockTest.php` | **Focus Mode & Anti-Exit Lock**: Penyembunyian navigasi pada baca materi & kuis, proteksi URL via middleware `lock.learning`. | **PASSED** |
-| 12 | `MateriPreviewAndEyeToggleTest.php` | Mode pratinjau materi POV siswa di panel admin, verifikasi ketiadaan rute usang, script toggle mata password. | **PASSED** |
-| 13 | `MonitoringTotalPoinTest.php` | Tampilan kartu dan kolom akumulasi total poin siswa pada tabel monitoring admin divisi. | **PASSED** |
-| 14 | `NavProbeTest.php` | Pemeriksaan seluruh tautan bilah navigasi (navbar) dan fungsionalitas live search input. | **PASSED** |
-| 15 | `PasswordChangeVerificationTest.php` | Alur isolasi `must_change_password` siswa baru, verifikasi password lama, profil read-only siswa. | **PASSED** |
-| 16 | `PerformanceAndUsabilityS307Test.php` | Verifikasi 14 indeks performa database dan standar kegunaan antarmuka S3-07. | **PASSED** |
-| 17 | `PolicyAuthorizationTest.php` | Otorisasi Laravel Policies: Siswa hanya dapat melihat hasil kuis dan mengelola pesan reminder miliknya sendiri. | **PASSED** |
-| 18 | `QuizAudioPassageTest.php` | Unggah berkas audio listening oleh admin, integrasi tag audio HTML5 pada lembar kuis siswa. | **PASSED** |
-| 19 | `QuizTimeLimitAndShuffledOptionsTest.php` | Durasi waktu kuis mundur, pengacakan opsi jawaban (shuffled), auto-submit jika batas waktu tercapai. | **PASSED** |
-| 20 | `ReviewTest.php` | Pengiriman testimoni ulasan bintang, validasi form, penayangan ulasan di landing page publik. | **PASSED** |
-| 21 | `RoleSecurityMiddlewareTest.php` | Pengujian proteksi otorisasi URL silang (*cross-role*) antar SuperAdmin, Admin Divisi, dan Siswa. | **PASSED** |
-| 22 | `RouteSmokeTest.php` | Pengujian render seluruh rute GET yang terdaftar di aplikasi (HTTP 200/302). | **PASSED** |
-| 23 | `SiswaReviewAndSidebarTest.php` | Pembatasan pembahasan kuis HANYA 1 kali saat submit kuis; penyembunyian kunci jawaban saat akses ulang. | **PASSED** |
-| 24 | `SiswaStoreTest.php` | Penambahan siswa oleh SuperAdmin, penghapusan siswa beserta pembersihan pesan admin, proteksi akun SuperAdmin. | **PASSED** |
-| 25 | `UserProfileAvatarTest.php` | Pemilihan avatar kucing maskot Englify pada profil Siswa, Admin, dan Superadmin. | **PASSED** |
-| 26 | `UserStatusNonaktifSecurityTest.php` | Penolakan login akun nonaktif, pemutusan sesi aktif secara seketika saat status diubah nonaktif. | **PASSED** |
+| 2 | `AdminDashboardActivityTest.php` | Aktivitas real-time bulanan admin tanpa target buatan. | **PASSED** |
+| 3 | `AdminDivisiStoreTest.php` | Pembuatan akun admin divisi oleh SuperAdmin, penugasan kategori divisi, keunikan email. | **PASSED** |
+| 4 | `AdminHasilQuizDetailTest.php` | Rekapitulasi hasil kuis dan verifikasi urutan kolom pengerjaan. | **PASSED** |
+| 5 | `AdminKategoriBabIntegrationTest.php` | Integrasi kategori & bab divisi dengan tema warna konsisten. | **PASSED** |
+| 6 | `AdminLoginTest.php` | Otentikasi login admin, validasi email/password, proteksi tamu, pengalihan rute dashboard. | **PASSED** |
+| 7 | `AdminMateriBabGroupingTest.php` | Pengelompokan materi per bab, Word Mode Luas/Standar, inline image upload, auto-bold markers. | **PASSED** |
+| 8 | `AdminProfilDynamicStatsTest.php` | Statistik kurikulum dinamis pada profil admin divisi. | **PASSED** |
+| 9 | `AdminRevisionsSpecificTest.php` | Revisi form admin spesifik, validasi modal form, dropdown divisi dinamis. | **PASSED** |
+| 10 | `ApiTest.php` | Pengujian endpoint API JSON siswa, superadmin, validasi token dan payload statistik. | **PASSED** |
+| 11 | `BabCascadeDeleteTest.php` | Verifikasi integritas cascade delete dari Bab -> Materi -> Quiz -> Hasil Kuis. | **PASSED** |
+| 12 | `CurriculumWithoutSubbabTest.php` | Alur kurikulum ringkas Bab -> Materi -> Kuis (bebas subbab redundan), sequential unlock logic. | **PASSED** |
+| 13 | `CustomErrorHandlingTest.php` | SOP S3-02: Render custom 404, 403, 500, database connection exception dengan pesan instruktif resmi. | **PASSED** |
+| 14 | `DashboardPaginationTest.php` | Paginasi tabel pada dashboard superadmin. | **PASSED** |
+| 15 | `ExampleTest.php` | Smoke test halaman awal landing page root (`/`). | **PASSED** |
+| 16 | `MateriAndQuizLockTest.php` | **Focus Mode & Anti-Exit Lock**: Penyembunyian navigasi pada baca materi & kuis, proteksi URL via middleware `lock.learning`. | **PASSED** |
+| 17 | `MateriPreviewAndEyeToggleTest.php` | Mode pratinjau materi POV siswa di panel admin, verifikasi ketiadaan rute usang, script toggle mata password. | **PASSED** |
+| 18 | `MonitoringTotalPoinTest.php` | Tampilan kartu dan kolom akumulasi total poin siswa pada tabel monitoring admin divisi. | **PASSED** |
+| 19 | `NavProbeTest.php` | Pemeriksaan seluruh tautan bilah navigasi (navbar) dan fungsionalitas live search input. | **PASSED** |
+| 20 | `PasswordChangeVerificationTest.php` | Alur isolasi `must_change_password` siswa baru, verifikasi password lama, profil read-only siswa. | **PASSED** |
+| 21 | `PerformanceAndUsabilityS307Test.php` | Verifikasi 14 indeks performa database dan standar kegunaan antarmuka S3-07. | **PASSED** |
+| 22 | `PolicyAuthorizationTest.php` | Otorisasi Laravel Policies: Siswa hanya dapat melihat hasil kuis dan mengelola pesan reminder miliknya sendiri. | **PASSED** |
+| 23 | `QuizAudioPassageTest.php` | Unggah berkas audio listening oleh admin, integrasi tag audio HTML5 pada lembar kuis siswa. | **PASSED** |
+| 24 | `QuizTimeLimitAndShuffledOptionsTest.php` | Durasi waktu kuis mundur, pengacakan opsi jawaban (shuffled), auto-submit jika batas waktu tercapai. | **PASSED** |
+| 25 | `ReviewTest.php` | Pengiriman testimoni ulasan bintang, validasi form, penayangan ulasan di landing page publik. | **PASSED** |
+| 26 | `RoleSecurityMiddlewareTest.php` | Pengujian proteksi otorisasi URL silang (*cross-role*) antar SuperAdmin, Admin Divisi, dan Siswa. | **PASSED** |
+| 27 | `RouteSmokeTest.php` | Pengujian render seluruh rute GET yang terdaftar di aplikasi (HTTP 200/302). | **PASSED** |
+| 28 | `SiswaAlphabeticalOrderTest.php` | Pengurutan daftar siswa secara alfabetis A-Z. | **PASSED** |
+| 29 | `SiswaDashboardEssentialTest.php` | Verifikasi dashboard siswa esensial berorientasi tindakan ("intinya aja"). | **PASSED** |
+| 30 | `SiswaReviewAndSidebarTest.php` | Pembatasan pembahasan kuis HANYA 1 kali saat submit kuis; penyembunyian kunci jawaban saat akses ulang. | **PASSED** |
+| 31 | `SiswaStoreTest.php` | Penambahan siswa oleh SuperAdmin, penghapusan siswa beserta pembersihan pesan admin, proteksi akun SuperAdmin. | **PASSED** |
+| 32 | `UserProfileAvatarTest.php` | Pemilihan avatar kucing maskot Englify pada profil Siswa, Admin, dan Superadmin. | **PASSED** |
+| 33 | `UserStatusNonaktifSecurityTest.php` | Penolakan login akun nonaktif, pemutusan sesi aktif secara seketika saat status diubah nonaktif. | **PASSED** |
+| 34 | `Unit\ExampleTest.php` | Unit testing dasar framework. | **PASSED** |
 
 ---
 
@@ -642,7 +665,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 ### 8.1 Rute Publik & Autentikasi
 | Method | URI | Named Route | Middleware | Controller & Method |
 | :---: | :--- | :--- | :---: | :--- |
-| `GET` | `/` | `landing` | `web` | Closure (Landing Page View) |
+| `GET` | `/` | `landing` | `web` | Closure (Landing Page View Dinamis) |
 | `POST`| `/review` | `review.store` | `web` | `ReviewController@store` |
 | `GET` | `/login` | `login` | `guest` | `AuthController@showLogin` |
 | `POST`| `/login` | `login.proses` | `guest` | `AuthController@login` |
@@ -655,7 +678,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 
 | Method | URI | Named Route | Fungsi |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/superadmin/dashboard` | `superadmin.dashboard` | Dashboard Statistik Utama |
+| `GET` | `/superadmin/dashboard` | `superadmin.dashboard` | Dashboard Statistik Utama (Strict SQL Ready) |
 | `GET` | `/superadmin/dashboard/stats` | `superadmin.dashboard.stats` | API JSON Statistik Dashboard |
 | `GET` | `/superadmin/notifications` | `superadmin.notifications` | API Notifikasi Sistem |
 | `GET` | `/superadmin/search` | `superadmin.search` | API Live Search Pengguna |
@@ -663,16 +686,16 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 | `POST`| `/superadmin/users` | `superadmin.users.store` | Simpan Pengguna Baru |
 | `PUT` | `/superadmin/users/{id}` | `superadmin.users.update` | Perbarui Data Pengguna |
 | `DELETE`| `/superadmin/users/{id}`| `superadmin.users.destroy`| Hapus Pengguna |
-| `GET` | `/superadmin/siswa` | `superadmin.siswa` | Daftar Khusus Akun Siswa |
+| `GET` | `/superadmin/siswa` | `superadmin.siswa` | Daftar Khusus Akun Siswa (A-Z) |
 | `POST`| `/superadmin/siswa` | `superadmin.siswa.store` | Simpan Akun Siswa Baru |
 | `PUT` | `/superadmin/siswa/{id}` | `superadmin.siswa.update` | Perbarui Akun Siswa |
 | `DELETE`| `/superadmin/siswa/{id}`| `superadmin.siswa.destroy`| Hapus Akun Siswa (Cascade Clean) |
-| `GET` | `/superadmin/admin-divisi` | `superadmin.adminDivisi` | Daftar Khusus Akun Admin Divisi |
+| `GET` | `/superadmin/admin-divisi` | `superadmin.adminDivisi` | Daftar Khusus Akun Admin Divisi (A-Z) |
 | `POST`| `/superadmin/admin-divisi` | `superadmin.adminDivisi.store` | Simpan Akun Admin Divisi Baru |
 | `PUT` | `/superadmin/admin-divisi/{id}` | `superadmin.adminDivisi.update` | Perbarui Akun Admin Divisi |
 | `DELETE`| `/superadmin/admin-divisi/{id}`| `superadmin.adminDivisi.destroy`| Hapus Akun Admin Divisi |
 | `GET` | `/superadmin/divisi` | `superadmin.divisi` | Daftar Kategori Divisi |
-| `GET` | `/superadmin/data-sistem` | `superadmin.dataSistem` | Data Integritas Sistem |
+| `GET` | `/superadmin/data-sistem` | `superadmin.dataSistem` | Data Integritas Sistem & Server |
 | `GET` | `/superadmin/settings` | `superadmin.settings` | Pengaturan Platform |
 | `GET` | `/superadmin/profile` | `superadmin.profile` | Profil Superadmin |
 | `PUT` | `/superadmin/profile` | `superadmin.profile.update` | Perbarui Profil Superadmin |
@@ -697,19 +720,19 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 | `GET` | `/admin/materi` | `admin.materi` | Kelola Konten Materi Belajar (Grouped by Bab) |
 | `POST`| `/admin/materi` | `admin.materi.store` | Simpan Materi Baru |
 | `PUT` | `/admin/materi/{id}` | `admin.materi.update` | Perbarui Materi |
-| `DELETE`| `/admin/materi/{id}` | `admin.materi.destroy` | Hapus Materi |
+| `DELETE`| `/admin/materi/{id}` | `admin.materi.destroy` | Hapus Materi & Bersihkan File Yatim |
 | `POST`| `/admin/materi/upload-image`| `admin.materi.upload-image`| API Upload Foto Inline Editor Materi |
 | `GET` | `/admin/api/babs-by-kategori/{katId}`| `admin.api.babs` | API Daftar Bab per Kategori |
 | `GET` | `/admin/quiz` | `admin.quiz` | Bank Soal Kuis Pilihan Ganda |
 | `POST`| `/admin/quiz` | `admin.quiz.store` | Simpan Soal Kuis & Audio Listening |
 | `PUT` | `/admin/quiz/{id}` | `admin.quiz.update` | Perbarui Soal Kuis |
-| `DELETE`| `/admin/quiz/{id}` | `admin.quiz.destroy` | Hapus Soal Kuis |
+| `DELETE`| `/admin/quiz/{id}` | `admin.quiz.destroy` | Hapus Soal Kuis & File Audio |
 | `GET` | `/admin/hasil-quiz` | `admin.hasil-quiz` | Rekapitulasi Nilai Siswa |
 | `GET` | `/admin/hasil-quiz/{id}` | `admin.hasil-quiz.detail` | Detail Evaluasi Hasil Kuis |
 | `GET` | `/admin/monitoring-siswa` | `admin.monitoring-siswa` | Monitoring Progres & Total Poin Siswa |
 | `GET` | `/admin/monitoring-siswa/{id}`| `admin.monitoring-siswa.detail`| Detail Progres Belajar Siswa |
 | `GET` | `/admin/kirim-reminder` | `admin.kirim-reminder` | Formulir Kirim Pesan Pengingat |
-| `POST`| `/admin/kirim-reminder` | `admin.kirim-reminder.store` | Kirim Pesan Pengingat ke Siswa |
+| `POST`| `/admin/kirim-reminder` | `admin.kirim-reminder.store` | Kirim Pesan Pengingat (Indiv & Broadcast) |
 | `GET` | `/admin/profil` | `admin.profil` | Profil Akun Admin Divisi |
 | `PUT` | `/admin/profil` | `admin.profil.update` | Perbarui Profil Admin Divisi |
 | `POST`| `/admin/profil/avatar` | `admin.profil.avatar` | Simpan Pilihan Avatar Kucing Admin |
@@ -719,7 +742,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 
 | Method | URI | Named Route | Proteksi & Fungsi |
 | :---: | :--- | :--- | :--- |
-| `GET` | `/siswa/dashboard` | `siswa.dashboard` | Dashboard Siswa (Intersepsi jika Kuis Aktif) |
+| `GET` | `/siswa/dashboard` | `siswa.dashboard` | Dashboard Siswa Esensial (Intersepsi jika Kuis Aktif) |
 | `GET` | `/siswa/materi` | `siswa.materi` | Daftar Bab & Materi Belajar Sekuensial |
 | `GET` | `/siswa/materi/{id}` | `siswa.materi.baca` | **Halaman Baca Materi (Focus Mode Terkunci)** |
 | `GET` | `/siswa/peta-quiz` | `siswa.peta-quiz` | Peta Gamifikasi Jalur Kuis Visual |
@@ -744,13 +767,13 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 
 Untuk menjamin kelulusan predikat terbaik pada Uji Kompetensi Keahlian (UKK) Rekayasa Perangkat Lunak (RPL/PPLG), aplikasi Englify telah memenuhi 100% kriteria kelulusan berikut:
 
-- [x] **Separation of Roles**: Terdapat pemisahan tugas yang jelas antara SuperAdmin (Master Akun), Admin Divisi (Kurikulum & Bank Soal), dan Siswa (Pembelajar).
+- [x] **Separation of Roles**: Terdapat pemisahan wewenang yang tegas antara SuperAdmin (Master Akun), Admin Divisi (Kurikulum & Bank Soal), dan Siswa (Pembelajar).
 - [x] **Keamanan Autentikasi**: Password terenkripsi Bcrypt, proteksi CSRF di seluruh form, dan auto-invalidation sesi untuk status nonaktif.
 - [x] **Paksa Ganti Password Siswa Baru**: Siswa baru wajib mengubah password bawaan pada login pertama dan diisolasi oleh middleware.
 - [x] **Integritas Ujian & Anti-Kecurangan**:
   - Pilihan ganda diacak susunannya (*shuffled options*).
   - Countdown timer dinamis dengan submit otomatis jika waktu habis.
-  - Kunci jawaban dan pembahasan HANYA dapat diakses 1 kali saat submit kuis selesai, lalu dikosongkan pada kunjungan berikutnya.
+  - Kunci jawaban dan pembahasan HANYA dapat diakses 1 kali saat submit kuis selesai, lalu disembunyikan total pada kunjungan berikutnya.
 - [x] **Focus Mode & Anti-Keluar (Anti-Exit Lock)**:
   - Konfirmasi komitmen via modal SweetAlert2 sebelum membaca materi.
   - Seluruh navigasi (navbar, sidebar, bottom dock) dan tombol keluar disembunyikan saat membaca materi dan mengerjakan kuis.
@@ -761,18 +784,19 @@ Untuk menjamin kelulusan predikat terbaik pada Uji Kompetensi Keahlian (UKK) Rek
   - Dukungan unggah gambar inline dan caption keterangan gambar.
   - Pilihan preset blok catatan/callout berwarna.
 - [x] **Otorisasi Laravel Policy**: Menggunakan `HasilQuizPolicy` dan `PesanAdminPolicy` untuk menjamin perlindungan data privasi siswa.
-- [x] **Audio Listening Comprehension**: Integrasi pemutar audio HTML5 yang memutar file listening passage pada lembar kuis.
-- [x] **Gamifikasi & Avatar Karakter**: Akumulasi total poin reputasi, peta kuis visual, dan pemilihan 6 avatar maskot kucing edukasi Englify.
+- [x] **Audio Listening Comprehension**: Integrasi pemutar audio HTML5 yang memutar berkas listening passage pada lembar kuis dengan opsi upload atau pakai file yang ada.
+- [x] **Gamifikasi & Avatar Karakter**: Akumulasi total poin reputasi, peta kuis visual, dashboard siswa esensial, dan pemilihan 6 avatar maskot kucing edukasi Englify.
 - [x] **Kepatuhan SOP S3-02 Global Error Handling**:
   - `APP_DEBUG=false` aktif di lingkungan produksi.
   - Halaman error kustom 404, 403, 500 dengan desain terpadu.
   - Penanganan terisolasi saat database terputus/mati dengan pesan resmi: *"Terjadi kendala koneksi server. Silakan hubungi admin."*
-- [x] **Otomatisasi Pengujian (Automated Testing)**: Seluruh modul diuji dengan PHPUnit 11.5+ dengan capaian **115 tests passed (701 assertions)** tanpa satupun kegagalan (*zero failure, 100% success rate*).
+- [x] **Kesiapan Hosting & Asset Bundling**: Seluruh aset Vite dikompilasi ke `public/build/` sehingga aplikasi dapat langsung berjalan di hosting cPanel tanpa memerlukan Node.js/NPM di server.
+- [x] **Otomatisasi Pengujian (Automated Testing)**: Seluruh modul diuji dengan PHPUnit 11.5+ dengan capaian **34 test files, 125 tests passed (762 assertions)** tanpa satupun kegagalan (*zero failure, 100% success rate*).
 
 ---
 
 ## 10. KESIMPULAN
 
-Dokumen *Product Requirement Document* (PRD) versi **v4.0** ini menjadi landasan arsitektur resmi, panduan teknis implementasi, dan acuan evaluasi fungsional bagi seluruh pihak pengembang dan penguji sistem **Englify**.
+Dokumen *Product Requirement Document* (PRD) versi **v5.0 Final** ini menjadi landasan arsitektur resmi, panduan teknis implementasi, dan acuan evaluasi komprehensif bagi seluruh pengembang, penguji, dan asesor Uji Kompetensi Keahlian (UKK) untuk aplikasi **Englify**.
 
-Melalui arsitektur sistem yang bersih, struktur database 16 migrasi berindeks performa tanpa redundansi, antarmuka modern ramah pengguna berbasis Tailwind CSS v4 dan SweetAlert2, proteksi fokus belajar anti-keluar yang kokoh, kapabilitas penulisan materi tingkat lanjut (*Word Mode Luas* & *Auto-Bold Markers*), sistem evaluasi kuis terproteksi, serta kepatuhan penuh terhadap standar operasional prosedur penanganan error (SOP S3-02), aplikasi **Englify dinyatakan 100% Siap untuk Asesmen Uji Kompetensi Keahlian (UKK) dan Penerapan Produksi Nyata**.
+Melalui arsitektur sistem yang bersih, struktur database 16 migrasi berindeks performa tanpa redundansi, antarmuka modern ramah pengguna berbasis Tailwind CSS v4 dan SweetAlert2, proteksi fokus belajar anti-keluar yang kokoh, kapabilitas penulisan materi tingkat lanjut (*Word Mode Luas* & *Auto-Bold Markers*), sistem evaluasi kuis terproteksi, kesiapan kompilasi aset untuk hosting, serta kepatuhan penuh terhadap standar operasional prosedur penanganan error (SOP S3-02), aplikasi **Englify dinyatakan 100% Selesai, Terverifikasi, dan Siap untuk Asesmen UKK serta Penerapan Produksi Nyata di https://englify.my.id**.
