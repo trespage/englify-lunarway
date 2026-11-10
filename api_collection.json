@@ -1,0 +1,411 @@
+{
+	"info": {
+		"_postman_id": "englify-api-collection-ukk-2026",
+		"name": "ENGLIFY API Collection - UKK 2026",
+		"description": "Dokumentasi & Spesifikasi Endpoint REST API Englify Learning System (Siswa 2 - Backend). Mendukung pengujian lokal maupun production.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Data Master & Kurikulum",
+			"description": "Endpoint publik untuk mengakses kategori, bab, materi, kuis, dan review kurikulum.",
+			"item": [
+				{
+					"name": "GET Semua Kategori",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/kategori?q=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "kategori"],
+							"query": [
+								{
+									"key": "q",
+									"value": "",
+									"description": "Kata kunci pencarian nama kategori (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil seluruh daftar divisi kategori pembelajaran (Speaking, Writing, Listening, Reading) beserta jumlah bab dan materi."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Kategori",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/kategori/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "kategori", "1"]
+						},
+						"description": "Mengambil detail satu kategori berdasarkan ID beserta daftar bab dan materi di dalamnya."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Semua Bab",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/bab?id_kategori=&q=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "bab"],
+							"query": [
+								{
+									"key": "id_kategori",
+									"value": "",
+									"description": "Filter berdasarkan ID Kategori (opsional)"
+								},
+								{
+									"key": "q",
+									"value": "",
+									"description": "Filter pencarian judul bab (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil seluruh data bab terurut berdasarkan kategori dan urutan bab."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Bab",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/bab/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "bab", "1"]
+						},
+						"description": "Mengambil detail satu bab beserta materi dan kuis yang terasosiasi."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Semua Materi",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/materi?id_kategori=&id_bab=&q=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "materi"],
+							"query": [
+								{
+									"key": "id_kategori",
+									"value": "",
+									"description": "Filter ID Kategori (opsional)"
+								},
+								{
+									"key": "id_bab",
+									"value": "",
+									"description": "Filter ID Bab (opsional)"
+								},
+								{
+									"key": "q",
+									"value": "",
+									"description": "Filter pencarian judul materi (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil seluruh daftar materi yang dipublikasikan bagi siswa."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Materi",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/materi/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "materi", "1"]
+						},
+						"description": "Mengambil isi konten materi pembelajaran, referensi, dan info kuis pendukung."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Semua Soal Quiz",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/quiz?id_materi=&id_bab=&q=",
+							"host": ["{{base_url}}"],
+							"path": ["api", "quiz"],
+							"query": [
+								{
+									"key": "id_materi",
+									"value": "",
+									"description": "Filter kuis per ID Materi (opsional)"
+								},
+								{
+									"key": "id_bab",
+									"value": "",
+									"description": "Filter kuis per ID Bab (opsional)"
+								},
+								{
+									"key": "q",
+									"value": "",
+									"description": "Pencarian isi pertanyaan (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil butir pertanyaan kuis dan pilihan jawaban A-D. Kunci jawaban otomatis disembunyikan untuk non-admin."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Soal Quiz",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/quiz/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "quiz", "1"]
+						},
+						"description": "Mengambil satu butir soal kuis berdasarkan ID Quiz."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Reviews Publik",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reviews?limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reviews"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Batas jumlah ulasan (maksimal 100)"
+								}
+							]
+						},
+						"description": "Mengambil daftar ulasan dan testimoni siswa yang telah disetujui (is_approved = true)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Data Monitoring (Auth: Admin & Super Admin)",
+			"description": "Endpoint pemantauan statistik dan progres siswa. Wajib autentikasi dengan role Admin (2) atau Super Admin (1).",
+			"item": [
+				{
+					"name": "GET Monitoring Seluruh Siswa",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/monitoring?q=&status=aktif",
+							"host": ["{{base_url}}"],
+							"path": ["api", "monitoring"],
+							"query": [
+								{
+									"key": "q",
+									"value": "",
+									"description": "Pencarian nama atau email siswa (opsional)"
+								},
+								{
+									"key": "status",
+									"value": "aktif",
+									"description": "Filter status siswa: aktif / nonaktif (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil statistik rekap seluruh siswa: total kuis diselesaikan, total poin akumulasi, dan total materi yang tuntas dibaca."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Monitoring Siswa",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/monitoring/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "monitoring", "1"]
+						},
+						"description": "Mengambil rincian performa individu satu siswa: riwayat kuis, skor per kuis, daftar materi yang sudah dibaca, dan rata-rata nilai."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Manajemen Pengguna (Auth: Super Admin)",
+			"description": "Endpoint administrasi akun pengguna. Wajib autentikasi dengan role Super Admin (1).",
+			"item": [
+				{
+					"name": "GET Semua Pengguna",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users?q=&role=siswa&status=aktif",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "q",
+									"value": "",
+									"description": "Cari nama atau email pengguna (opsional)"
+								},
+								{
+									"key": "role",
+									"value": "siswa",
+									"description": "Filter role: superadmin, admin, siswa / 1, 2, 3 (opsional)"
+								},
+								{
+									"key": "status",
+									"value": "aktif",
+									"description": "Filter status: aktif / nonaktif (opsional)"
+								}
+							]
+						},
+						"description": "Mengambil daftar seluruh pengguna terdaftar di sistem beserta relasi role dan divisinya."
+					},
+					"response": []
+				},
+				{
+					"name": "GET Detail Pengguna",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Mengambil detail profil satu pengguna berdasarkan ID User."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Progress Siswa (Auth: Siswa / Sesi Login)",
+			"description": "Endpoint pelaporan progres belajar siswa aktif.",
+			"item": [
+				{
+					"name": "GET Progress Belajar Siswa Aktif",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/siswa/progress",
+							"host": ["{{base_url}}"],
+							"path": ["api", "siswa", "progress"]
+						},
+						"description": "Mengambil data rekap progres belajar milik siswa yang sedang login: total materi kurikulum, materi tuntas dibaca, total kuis diselesaikan, total skor/poin, dan riwayat nilai kuis."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
+

@@ -43,18 +43,25 @@ Route::get('/quiz/{id}', [QuizController::class, 'apiShow'])->name('api.quiz.det
 Route::get('/reviews', [ReviewController::class, 'apiIndex'])->name('api.reviews');
 
 // =================================================================
-// 2. DATA MONITORING & PENGGUNA
+// 2. DATA MONITORING (Wajib Login: Admin & Super Admin)
 // =================================================================
-Route::get('/monitoring', [MonitoringController::class, 'apiIndex'])->name('api.monitoring');
-Route::get('/monitoring/{id}', [MonitoringController::class, 'apiShow'])->name('api.monitoring.detail');
+Route::middleware(['web', 'auth', 'role:admin,superadmin'])->group(function () {
+    Route::get('/monitoring', [MonitoringController::class, 'apiIndex'])->name('api.monitoring');
+    Route::get('/monitoring/{id}', [MonitoringController::class, 'apiShow'])->name('api.monitoring.detail');
+});
 
-Route::get('/users', [SuperAdminController::class, 'apiUsers'])->name('api.users');
-Route::get('/users/{id}', [SuperAdminController::class, 'apiShowUser'])->name('api.users.detail');
+// =================================================================
+// 3. MANAJEMEN PENGGUNA (Wajib Login: Super Admin)
+// =================================================================
+Route::middleware(['web', 'auth', 'role:superadmin'])->group(function () {
+    Route::get('/users', [SuperAdminController::class, 'apiUsers'])->name('api.users');
+    Route::get('/users/{id}', [SuperAdminController::class, 'apiShowUser'])->name('api.users.detail');
+});
 
 // =================================================================
-// 3. PROGRESS SISWA (Memerlukan Sesi Login Siswa)
+// 4. PROGRESS SISWA (Memerlukan Sesi Login Siswa)
 // =================================================================
-Route::get('/siswa/progress', [SiswaController::class, 'apiProgress'])
-    ->middleware(['web', 'auth'])
-    ->name('api.siswa.progress');
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/siswa/progress', [SiswaController::class, 'apiProgress'])->name('api.siswa.progress');
+});
 

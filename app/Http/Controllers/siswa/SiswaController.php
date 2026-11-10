@@ -1072,11 +1072,11 @@ class SiswaController extends Controller
             'status'  => 'success',
             'message' => 'Data berhasil dimuat',
             'data'    => [
-                'total_materi' => Materi::count(),
-                'materi_dibaca' => ProgressMateri::where('id_user', $user->id_user)->count(),
-                'total_quiz' => $riwayat->count(),
-                'total_skor' => $riwayat->sum('skor_diperoleh'),
-                'riwayat' => $riwayat,
+                'total_materi'  => Materi::visibleForSiswa()->count(),
+                'materi_dibaca' => ProgressMateri::where('id_user', $user->id_user)->where('status', 'Completed')->count(),
+                'total_quiz'    => $riwayat->count(),
+                'total_skor'    => (int) $riwayat->sum('skor_diperoleh'),
+                'riwayat'       => $riwayat,
             ],
         ]);
     }

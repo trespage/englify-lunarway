@@ -18,7 +18,7 @@
 
 #### Tim Pengembang Proyek:
 1. **Anggia Tresa Putri** — *Backend & Database Developer*
-   - Penanggung jawab perancangan arsitektur basis data relasional (16 migrasi konsolidasian dengan 14 indeks performa InnoDB), konsistensi integritas relasi *foreign key cascade*, model Eloquent ORM, pencegahan query N+1 via *eager loading*, otorisasi Laravel Policies (`HasilQuizPolicy`, `PesanAdminPolicy`), rancang bangun middleware keamanan (`lock.learning`, `force.password.change`, `role`), penanganan exception terpusat SOP S3-02 (`APP_DEBUG=false`, custom 404, 403, 500, dan database exception), kompatibilitas query SQL agregasi strict mode MariaDB/MySQL, serta otomatisasi test suite PHPUnit (**34 berkas test feature/unit, 125 tests, 762 assertions, 100% passed**).
+   - Penanggung jawab perancangan arsitektur basis data relasional (16 migrasi konsolidasian dengan 19 indeks performa InnoDB), konsistensi integritas relasi *foreign key cascade*, model Eloquent ORM, pencegahan query N+1 via *eager loading*, otorisasi Laravel Policies (`HasilQuizPolicy`, `PesanAdminPolicy`), rancang bangun middleware keamanan (`lock.learning`, `force.password.change`, `role`), penanganan exception terpusat SOP S3-02 (`APP_DEBUG=false`, custom 404, 403, 500, dan database exception), kompatibilitas query SQL agregasi strict mode MariaDB/MySQL, serta otomatisasi test suite PHPUnit (**34 berkas test feature/unit, 125 tests, 762 assertions, 100% passed**).
 2. **Nur Aprilia** — *Frontend Developer & UI/UX Designer*
    - Penanggung jawab rancang antarmuka pengguna (Blade Master Layouts & Components), standarisasi desain visual modern berbasis Tailwind CSS v4, tipografi berstandar keterbacaan tinggi (Google Fonts: *Plus Jakarta Sans*, *Inter*, *Caveat Handwritten*), integrasi visualisasi Chart.js, standardisasi modal interaktif modern SweetAlert2 v11 (eliminasi total dialog bawaan browser), perancangan antarmuka *Focus Mode* (penyembunyian navigasi atas, samping, dan bawah saat membaca materi & mengerjakan kuis), integrasi *Word-Style Rich Text Editor Dual Mode*, fitur penanda anak judul tebal (*auto-bold list markers*), penyisipan foto langsung ke teks (*inline image upload*), dashboard siswa esensial ("intinya aja"), serta sistem kustomisasi persona avatar kucing edukasi Englify.
 
@@ -54,7 +54,7 @@
 |  DATABASE & STORAGE LAYER                                                                               |
 |  - Relational DBMS      : MySQL 8.x / MariaDB 10.x (InnoDB Engine, UTF8MB4 Unicode, ACID Compliant)     |
 |  - Migrations Management: 16 Consolidated Migrations (Zero Redundant Tables, Strict Constraints)        |
-|  - Indexing Strategy    : 14 Dedicated Performance Indexes (Foreign Keys & Frequent Lookup Composite)   |
+|  - Indexing Strategy    : 19 Dedicated Performance Indexes (Foreign Keys & Frequent Lookup Composite)   |
 |  - Object-Relational    : Eloquent ORM (Eager Loading, Cascade Lifecycle Hooks, Auto-cleanup Files)     |
 |  - Session Storage      : Database / File Driver (Tabel `sessions` Terisolasi)                          |
 |  - Cache Storage        : Database / Array Driver (Tabel `cache` & `cache_locks`)                       |
@@ -186,7 +186,7 @@ sequenceDiagram
         Frontend->>Frontend: Tutup Modal, tetap di daftar materi
     else Siswa Klik "Lanjutkan"
         Frontend->>SiswaCtrl: GET /siswa/materi/{id}
-        SiswaCtrl->>DB: Simpan session('active_materi_id', $id)
+        SiswaCtrl->>DB: Simpan session('active_materi_lock', $id) & session('active_quiz_lock', $targetQuizId)
         SiswaCtrl-->>Frontend: Render baca-materi.blade.php
         Note over Frontend: Focus Mode Aktif: Navbar, Sidebar, Bottom Bar DIHILANGKAN
         Note over Frontend: Tombol Keluar Dihilangkan, History PushState & BeforeUnload Aktif
@@ -194,14 +194,14 @@ sequenceDiagram
 
     alt Siswa Mencoba Navigasi URL Manual (misal /siswa/dashboard)
         Siswa->>Middleware: GET /siswa/dashboard
-        Middleware->>Middleware: Cek session('active_quiz_id') & session('active_materi_id')
+        Middleware->>Middleware: Cek session('active_quiz_lock') & session('active_materi_lock')
         Middleware-->>Frontend: Redirect paksa kembali ke /siswa/materi/{id}
     end
 
     Siswa->>Frontend: Selesai membaca, klik tombol "Lanjut ke Quiz"
     Frontend->>SiswaCtrl: GET /siswa/quiz/{id}
     SiswaCtrl->>DB: Ambil bank soal materi, acak urutan pilihan (shuffled), load audio
-    SiswaCtrl->>DB: Set session('active_quiz_id', $quizId)
+    SiswaCtrl->>DB: Set session('active_quiz_lock', $quizId) & session('active_materi_lock', $materiId)
     SiswaCtrl-->>Frontend: Render quiz/show.blade.php (Focus Mode Tetap Terkunci)
 
     loop Selama Kuis Berlangsung
@@ -211,9 +211,9 @@ sequenceDiagram
 
     alt Waktu Habis ATAU Siswa Klik "Submit Kuis"
         Frontend->>SiswaCtrl: POST /siswa/quiz/{id}/submit (jawaban)
-        SiswaCtrl->>DB: DB::transaction -> evaluasi jawaban, hitung skor, simpan hasil_quiz & progress_materi
-        SiswaCtrl->>DB: Perbarui akumulasi total poin siswa di DB
-        SiswaCtrl->>Frontend: Clear session('active_quiz_id') & Set Flash('can_review_quiz' = true)
+        SiswaCtrl->>DB: DB::transaction -> evaluasi jawaban, hitung skor, simpan hasil_quiz & jawaban_user
+        SiswaCtrl->>DB: Akumulasi total poin dihitung dinamis (agregasi SUM skor_diperoleh)
+        SiswaCtrl->>Frontend: Forget session(['active_quiz_lock', 'active_materi_lock']) & Flash('can_review_quiz', true)
         SiswaCtrl-->>Frontend: Redirect ke /siswa/quiz/{id}/hasil
         Frontend->>Frontend: Modal Perayaan Skor Muncul + TABEL PEMBAHASAN LENGKAP
     end
@@ -276,7 +276,7 @@ Pilihan avatar disimpan pada kolom `users.avatar` dan disinkronkan secara konsis
 
 ## 4. SKEMA BASIS DATA LENGKAP & ERD FINAL (16 TABEL MIGRASI & INDEKS PERFORMA)
 
-Struktur basis data Englify terdiri dari **16 tabel relasional** yang dinormalisasi ke Bentuk Normal Ketiga (3NF) dengan penyimpanan *storage engine* InnoDB serta 14 indeks performa:
+Struktur basis data Englify terdiri dari **16 tabel relasional** yang dinormalisasi ke Bentuk Normal Ketiga (3NF) dengan penyimpanan *storage engine* InnoDB serta 19 indeks performa komposit & tunggal:
 
 ```mermaid
 erDiagram
@@ -491,6 +491,28 @@ erDiagram
 15. **`cache_locks`**: Tabel pengendali konkurensi data atomik saat eksekusi proses bersamaan.
 16. **`migrations`**: Tabel riwayat status migrasi skema basis data Laravel.
 
+### 4.2 Daftar 19 Indeks Performa Basis Data (SOP S3-07)
+Sesuai migrasi konsolidasi performa, sistem menerapkan 19 indeks komposit dan indeks tunggal pada tabel operasional:
+1. **`materi`**: `idx_materi_status` (`status`)
+2. **`materi`**: `idx_materi_id_bab` (`id_bab`)
+3. **`materi`**: `idx_materi_bab_status` ([`id_bab`, `status`])
+4. **`materi`**: `idx_materi_kategori_status` ([`id_kategori`, `status`])
+5. **`progress_materi`**: `idx_progress_status` (`status`)
+6. **`progress_materi`**: `idx_progress_user_status` ([`id_user`, `status`])
+7. **`quiz`**: `idx_quiz_status` (`status`)
+8. **`quiz`**: `idx_quiz_id_bab` (`id_bab`)
+9. **`quiz`**: `idx_quiz_bab_status` ([`id_bab`, `status`])
+10. **`hasil_quiz`**: `idx_hasil_user_quiz` ([`id_user`, `id_quiz`])
+11. **`hasil_quiz`**: `idx_hasil_created_at` (`created_at`)
+12. **`jawaban_user`**: `idx_jawaban_hasil_benar` ([`id_hasil`, `benar`])
+13. **`users`**: `idx_users_status` (`status`)
+14. **`users`**: `idx_users_role_status` ([`id_role`, `status`])
+15. **`users`**: `idx_users_kategori_status` ([`id_kategori`, `status`])
+16. **`reviews`**: `idx_reviews_approved` (`is_approved`)
+17. **`reviews`**: `idx_reviews_approved_created` ([`is_approved`, `created_at`])
+18. **`pesan_admin`**: `idx_pesan_is_read` (`is_read`)
+19. **`pesan_admin`**: `idx_pesan_user_read` ([`id_user`, `is_read`])
+
 ---
 
 ## 5. SPESIFIKASI KEBUTUHAN FUNGSIONAL LENGKAP (DETAILED FUNCTIONAL REQUIREMENTS)
@@ -528,7 +550,7 @@ erDiagram
   - Menambah, mengubah, dan menghapus Bab di bawah kategori divisinya.
   - Sistem memvalidasi keunikan nomor urutan bab per divisi untuk mencegah nomor ganda.
   - Mengatur estimasi default durasi penyelesaian bab (`durasi_menit`) dan toggle keaktifan bab (`is_active`).
-  - Menghapus bab menerapkan *cascade delete* pada materi dan kuis di bawahnya.
+  - Menghapus bab menerapkan *Application-Level Managed Cascade Delete* di dalam `DB::transaction()` yang membersihkan berkas fisik dokumen/cover (`@unlink`), progress belajar, bank kuis, dan riwayat jawaban secara tuntas terverifikasi (diuji via `BabCascadeDeleteTest`).
 * **FR-AD-02 (Editor Materi Word-Style & Mode Luas)**:
   - Menulis dan mengedit materi dengan editor rich-text bergaya Microsoft Word.
   - Toggle ukuran editor: *Mode Standar* dan *Mode Luas Word* (layar penuh untuk kenyamanan menulis konten panjang).
@@ -569,7 +591,7 @@ erDiagram
   - Countdown timer dinamis dengan submit otomatis jika batas waktu habis.
   - Pilihan ganda diacak (*shuffled options*) setiap kali kuis dimulai guna mencegah kecurangan.
   - Pemutar audio listening passage responsif terintegrasi.
-  - Sesi kuis aktif dicatat pada `session('active_quiz_id')`.
+  - Sesi kuis aktif dikunci pada `session('active_quiz_lock')` dan `session('active_materi_lock')`.
 * **FR-SW-06 (Pembatasan Review Kunci Jawaban Hanya 1 Kali)**:
   - Tepat setelah submit kuis berhasil, sistem menyetel sesi flash `can_review_quiz = true` dan menampilkan modal perayaan kelulusan beserta pembahasan soal lengkap.
   - Jika siswa membuka kembali riwayat kuis di kemudian hari (`/siswa/quiz/{id}/hasil`), sistem secara sengaja **MENGOSONGKAN** daftar soal, kunci jawaban, dan pembahasan (hanya menampilkan skor akhir, jumlah benar/salah, dan tanggal pengerjaan) guna mencegah pembocoran bank soal.
@@ -601,11 +623,11 @@ erDiagram
 | | **Pencegahan Injeksi SQL** | Seluruh kueri data menggunakan *Eloquent ORM* dan *PDO Prepared Statements* yang otomatis menyaring karakter berbahaya. |
 | | **Isolasi Otorisasi Policy** | Menggunakan Laravel Policies (`HasilQuizPolicy`, `PesanAdminPolicy`) dengan pemanggilan `$this->authorize()` pada controller sehingga siswa tidak bisa mengintip hasil kuis atau notifikasi siswa lain via manipulasi ID URL. |
 | | **Sanitasi Konten XSS** | Masukan teks ulasan dan rich text disaring menggunakan whitelist tag HTML aman (`strip_tags()` terstandar). |
-| **Kinerja (Performance)** | **14 Indeks Performa Basis Data** | Penerapan 14 indeks komposit dan indeks tunggal pada tabel operasional (`materi`, `progress_materi`, `quiz`, `hasil_quiz`, `jawaban_user`, `users`, `reviews`, `pesan_admin`) untuk waktu respon query < 50ms. |
+| **Kinerja (Performance)** | **19 Indeks Performa Basis Data** | Penerapan 19 indeks komposit dan indeks tunggal pada tabel operasional (`materi`, `progress_materi`, `quiz`, `hasil_quiz`, `jawaban_user`, `users`, `reviews`, `pesan_admin`) untuk waktu respon query < 50ms. |
 | | **Optimasi Kueri DB** | Mengimplementasikan teknik *Eager Loading* (`with(['bab', 'kategori', 'hasilQuizzes'])`) untuk mengeliminasi masalah performa klasik *N+1 Query Problem*. |
 | | **Paginasi Data** | Seluruh tabel data master menerapkan pembagian halaman (*pagination*) untuk menjaga konsumsi memori browser tetap ringan. |
 | | **Waktu Respon Server** | Rata-rata *Time to First Byte* (TTFB) < 250ms pada server pengujian lokal/intranet. |
-| **Keandalan (Reliability)** | **Integritas Relasi Basis Data** | Seluruh relasi *foreign key* menggunakan constraint `onDelete('cascade')` atau `onDelete('set null')` guna mencegah *data orphan* (data yatim tanpa induk). |
+| **Keandalan (Reliability)** | **Integritas Relasi Basis Data** | Menerapkan *Dual-Layer Cascade Strategy*: Relasi langsung database menerapkan `onDelete('cascade')`, sedangkan relasi yang memiliki aset berkas fisik (seperti `bab` -> `materi` & `quiz`) dikelola melalui *Application-Level Cascade* via `DB::transaction()` guna membersihkan file fisik media di disk server (`@unlink`) sekaligus relasi data anak tanpa meninggalkan *orphaned files*. |
 | | **Database Transactions** | Operasi krusial yang melibatkan multi-tabel (seperti submit kuis yang memperbarui `hasil_quiz`, `jawaban_user`, `progress_materi`, dan total poin) dibungkus dalam blok `DB::transaction()` ACID. |
 | **Kepatuhan SOP (Compliance)**| **SOP S3-02 Global Error Handling** | - File konfigurasi `.env` diatur pada mode produksi `APP_DEBUG=false`.<br>- Menyediakan halaman kesalahan terpadu: `404.blade.php`, `403.blade.php`, `500.blade.php`.<br>- Menangani kegagalan koneksi database via `database.blade.php` dengan pesan instruktif kustom: *"Terjadi kendala koneksi server. Silakan hubungi admin."* |
 | **Ergonomi & UI/UX** | **Standardisasi Dialog Interaktif** | Mengganti seluruh fungsi bawaan browser primitif (`window.alert()`, `window.confirm()`) dengan modal bergaya modern **SweetAlert2 v11**. |
@@ -641,7 +663,7 @@ Sistem Englify telah melalui pengujian unit dan fungsional komprehensif mengguna
 | 18 | `MonitoringTotalPoinTest.php` | Tampilan kartu dan kolom akumulasi total poin siswa pada tabel monitoring admin divisi. | **PASSED** |
 | 19 | `NavProbeTest.php` | Pemeriksaan seluruh tautan bilah navigasi (navbar) dan fungsionalitas live search input. | **PASSED** |
 | 20 | `PasswordChangeVerificationTest.php` | Alur isolasi `must_change_password` siswa baru, verifikasi password lama, profil read-only siswa. | **PASSED** |
-| 21 | `PerformanceAndUsabilityS307Test.php` | Verifikasi 14 indeks performa database dan standar kegunaan antarmuka S3-07. | **PASSED** |
+| 21 | `PerformanceAndUsabilityS307Test.php` | Verifikasi 19 indeks performa database dan standar kegunaan antarmuka S3-07. | **PASSED** |
 | 22 | `PolicyAuthorizationTest.php` | Otorisasi Laravel Policies: Siswa hanya dapat melihat hasil kuis dan mengelola pesan reminder miliknya sendiri. | **PASSED** |
 | 23 | `QuizAudioPassageTest.php` | Unggah berkas audio listening oleh admin, integrasi tag audio HTML5 pada lembar kuis siswa. | **PASSED** |
 | 24 | `QuizTimeLimitAndShuffledOptionsTest.php` | Durasi waktu kuis mundur, pengacakan opsi jawaban (shuffled), auto-submit jika batas waktu tercapai. | **PASSED** |
@@ -698,6 +720,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 | `GET` | `/superadmin/data-sistem` | `superadmin.dataSistem` | Data Integritas Sistem & Server |
 | `GET` | `/superadmin/settings` | `superadmin.settings` | Pengaturan Platform |
 | `GET` | `/superadmin/profile` | `superadmin.profile` | Profil Superadmin |
+| `GET` | `/superadmin/profile/data` | `superadmin.profile.data` | API JSON Data Profil Superadmin |
 | `PUT` | `/superadmin/profile` | `superadmin.profile.update` | Perbarui Profil Superadmin |
 | `POST`| `/superadmin/profile/avatar` | `superadmin.profile.avatar` | Simpan Pilihan Avatar Kucing Superadmin |
 
@@ -713,7 +736,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 | `PUT` | `/admin/kategori/{id}` | `admin.kategori.update` | Perbarui Kategori |
 | `DELETE`| `/admin/kategori/{id}`| `admin.kategori.destroy` | Hapus Kategori |
 | `GET` | `/admin/bab` | `admin.bab` | Kelola Master Bab Kurikulum |
-| `GET` | `/admin/bab/next-urutan/{katId}`| `admin.bab.next-urutan`| API Auto-Urutan Bab Berikutnya |
+| `GET` | `/admin/bab/next-urutan/{kategoriId}`| `admin.bab.next-urutan`| API Auto-Urutan Bab Berikutnya |
 | `POST`| `/admin/bab` | `admin.bab.store` | Simpan Bab Baru (Urutan Unik per Divisi) |
 | `PUT` | `/admin/bab/{id}` | `admin.bab.update` | Perbarui Bab |
 | `DELETE`| `/admin/bab/{id}` | `admin.bab.destroy` | Hapus Bab (Cascade Clean) |
@@ -722,7 +745,7 @@ Aplikasi Englify mendefinisikan rute terstruktur di dalam `routes/web.php`:
 | `PUT` | `/admin/materi/{id}` | `admin.materi.update` | Perbarui Materi |
 | `DELETE`| `/admin/materi/{id}` | `admin.materi.destroy` | Hapus Materi & Bersihkan File Yatim |
 | `POST`| `/admin/materi/upload-image`| `admin.materi.upload-image`| API Upload Foto Inline Editor Materi |
-| `GET` | `/admin/api/babs-by-kategori/{katId}`| `admin.api.babs` | API Daftar Bab per Kategori |
+| `GET` | `/admin/api/babs-by-kategori/{kategoriId}`| `admin.api.babs` | API Daftar Bab per Kategori |
 | `GET` | `/admin/quiz` | `admin.quiz` | Bank Soal Kuis Pilihan Ganda |
 | `POST`| `/admin/quiz` | `admin.quiz.store` | Simpan Soal Kuis & Audio Listening |
 | `PUT` | `/admin/quiz/{id}` | `admin.quiz.update` | Perbarui Soal Kuis |
