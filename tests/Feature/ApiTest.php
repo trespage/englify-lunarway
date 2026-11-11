@@ -19,8 +19,6 @@ class ApiTest extends TestCase
             'api.materi',
             'api.quiz',
             'api.reviews',
-            'api.monitoring',
-            'api.users',
         ];
 
         foreach ($routes as $route) {
@@ -28,6 +26,48 @@ class ApiTest extends TestCase
             $res->assertOk();
             $res->assertJsonStructure(['status', 'message', 'data']);
         }
+    }
+
+    public function test_endpoint_monitoring_dan_users_terlindungi_rbac(): void
+    {
+        $siswaSample = User::where('id_role', 3)->first();
+        $userSample = User::first();
+
+        // 1. Tamu (tanpa login) wajib ditolak (401 Unauthorized)
+        $this->getJson(route('api.monitoring'))->assertUnauthorized();
+        $this->getJson(route('api.users'))->assertUnauthorized();
+        if ($siswaSample) {
+            $this->getJson(route('api.monitoring.detail', $siswaSample->id_user))->assertUnauthorized();
+        }
+        if ($userSample) {
+            $this->getJson(route('api.users.detail', $userSample->id_user))->assertUnauthorized();
+        }
+
+        // 2. Siswa wajib ditolak (403 Forbidden)
+        if ($siswaSample) {
+            $this->actingAs($siswaSample)->getJson(route('api.monitoring'))->assertForbidden();
+            $this->actingAs($siswaSample)->getJson(route('api.users'))->assertForbidden();
+        }
+
+        // 3. Admin Divisi boleh akses monitoring, tapi ditolak akses daftar semua users
+        $admin = User::where('id_role', 2)->first();
+        if ($admin) {
+            $this->actingAs($admin)->getJson(route('api.monitoring'))
+                ->assertOk()
+                ->assertJsonStructure(['status', 'message', 'data']);
+            $this->actingAs($admin)->getJson(route('api.users'))->assertForbidden();
+        }
+
+        // 4. Super Admin berhak mengakses keduanya
+        $superAdmin = User::where('id_role', 1)->first();
+        $this->assertNotNull($superAdmin);
+
+        $this->actingAs($superAdmin)->getJson(route('api.monitoring'))
+            ->assertOk()
+            ->assertJsonStructure(['status', 'message', 'data']);
+        $this->actingAs($superAdmin)->getJson(route('api.users'))
+            ->assertOk()
+            ->assertJsonStructure(['status', 'message', 'data']);
     }
 
     public function test_endpoint_detail_berfungsi(): void
@@ -69,16 +109,19 @@ class ApiTest extends TestCase
             $res->assertJsonStructure(['status', 'message', 'data']);
         }
 
+        $superAdmin = User::where('id_role', 1)->first();
+        $this->assertNotNull($superAdmin);
+
         $siswa = User::where('id_role', 3)->first();
         if ($siswa) {
-            $res = $this->getJson(route('api.monitoring.detail', $siswa->id_user));
+            $res = $this->actingAs($superAdmin)->getJson(route('api.monitoring.detail', $siswa->id_user));
             $res->assertOk();
             $res->assertJsonStructure(['status', 'message', 'data']);
         }
 
         $user = User::first();
         if ($user) {
-            $res = $this->getJson(route('api.users.detail', $user->id_user));
+            $res = $this->actingAs($superAdmin)->getJson(route('api.users.detail', $user->id_user));
             $res->assertOk();
             $res->assertJsonStructure(['status', 'message', 'data']);
         }
