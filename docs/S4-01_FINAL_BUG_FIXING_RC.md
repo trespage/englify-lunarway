@@ -14,7 +14,7 @@
 | **Kode & Nama Tugas** | **S4-01 — Final Bug Fixing (Release Candidate)** |
 | **Penanggung Jawab** | **Siswa 1:** Nur Aprilia (*Frontend Developer & UI/UX Designer*)<br>**Siswa 2:** Anggia Tresa Putri (*Backend & Database Developer*) |
 | **Repositori GitHub** | `https://github.com/trespage/englify-lunarway.git` |
-| **Branch & Commit RC** | `main` (`d5065f7`) |
+| **Branch & Commit RC** | `main` (Kode Final: `d5065f7` • Tag `v1.0.0-rc`: `b9d1e91`) |
 | **Git Release Tag** | **`v1.0.0-rc`** |
 | **URL Live Hosting** | `https://englify.my.id` |
 | **Tanggal Penyusunan** | 11 November 2026 |
@@ -91,13 +91,14 @@ Setelah seluruh perbaikan selesai (`BUG-01` s.d. `BUG-09`), dilakukan rangkaian 
 ### 5.1 Identitas Release Candidate di GitHub
 
 * **Repositori Remote:** `https://github.com/trespage/englify-lunarway.git`
-* **Branch Utama:** `main` (tersinkronisasi 100% dengan `origin/main`)
+* **Branch Utama:** `main` (tersinkronisasi dengan `origin/main` dan server produksi `englify.my.id`)
 * **Status Working Tree:** `nothing to commit, working tree clean` (saat penandaan tag final `v1.0.0-rc`)
-* **Release Tag Resmi:** **`v1.0.0-rc`** (Annotated Tag pada commit final rilis `v1.0.0-rc`)
+* **Release Tag Resmi:** **`v1.0.0-rc`** (Annotated Tag pada commit `b9d1e91`, di atas kode & test final `d5065f7`)
 
-### 5.2 Log Riwayat Commit Terakhir Menuju `v1.0.0-rc`
+### 5.2 Log Riwayat Commit Menuju `v1.0.0-rc`
 
 ```text
+b9d1e91 (tag: v1.0.0-rc) docs(s4-01): update Closed Issue Tracker Log with 126 passing tests
 d5065f7 test(api): align ApiTest assertions with RBAC API security
 3bffee9 fix(psr4): align controller namespaces and finalize README for v1.0.0-rc
 c40d41f Update README.md
