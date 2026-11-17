@@ -4085,7 +4085,30 @@ function fallbackInsertDataUrl(placeholder, file) {
     reader.onload = function(e) {
         replacePlaceholderWithImage(placeholder, e.target.result, file.name);
     };
-    reader.readAsDataURL(file);
+       reader.readAsDataURL(file);
 }
+
+@if($errors->any())
+document.addEventListener('DOMContentLoaded', function() {
+    openModal('add');
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal!',
+            html: `
+                <p class="text-sm text-slate-600 mb-2 font-medium">Periksa kembali data materi yang diinput:</p>
+                <ul class="text-xs text-rose-600 text-left list-disc pl-5 space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            `,
+            confirmButtonText: 'Tutup & Perbaiki',
+            confirmButtonColor: '#2563eb'
+        });
+    }
+});
+@endif
 </script>
 @endpush
