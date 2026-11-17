@@ -84,6 +84,9 @@ class KategoriController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:100|unique:kategori,nama_kategori',
             'deskripsi' => 'nullable|string',
+        ], [
+            'nama_kategori.required' => 'Nama kategori wajib diisi.',
+            'nama_kategori.unique'   => 'Kategori dengan nama ini sudah terdaftar. Silakan gunakan nama lain.',
         ]);
 
         Kategori::create($request->only(['nama_kategori', 'deskripsi']));
@@ -95,6 +98,9 @@ class KategoriController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:100|unique:kategori,nama_kategori,' . $id . ',id_kategori',
             'deskripsi' => 'nullable|string',
+        ], [
+            'nama_kategori.required' => 'Nama kategori wajib diisi.',
+            'nama_kategori.unique'   => 'Kategori dengan nama ini sudah terdaftar. Silakan gunakan nama lain.',
         ]);
 
         $kategori = Kategori::findOrFail($id);

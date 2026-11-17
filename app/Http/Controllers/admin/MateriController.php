@@ -8,6 +8,7 @@ use App\Models\Kategori;
 use App\Models\Materi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class MateriController extends Controller
 {
@@ -324,15 +325,31 @@ class MateriController extends Controller
      */
     private function validateData(Request $request, ?Materi $materi = null): array
     {
+        $idBab = $request->input('id_bab');
+
         $request->validate([
-            'judul'        => 'required|string|max:255',
+            'judul' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('materi', 'judul')
+                    ->where('id_bab', $idBab)
+                    ->ignore($materi?->id_materi, 'id_materi'),
+            ],
             'id_kategori'  => 'required|integer|exists:kategori,id_kategori',
             'id_bab'       => 'required|integer|exists:bab,id',
             'isi_materi'   => 'required|string',
             'deskripsi'    => 'nullable|string',
             'durasi_menit' => 'nullable|integer|min:1|max:300',
             'status'       => 'nullable|in:Draft,Published',
-            'urutan'       => 'nullable|integer|min:1',
+            'urutan' => [
+                'nullable',
+                'integer',
+                'min:1',
+                Rule::unique('materi', 'urutan')
+                    ->where('id_bab', $idBab)
+                    ->ignore($materi?->id_materi, 'id_materi'),
+            ],
             'gambar'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'urls'         => 'nullable|array',
             'urls.*'       => 'nullable|string|max:2000',
@@ -342,6 +359,8 @@ class MateriController extends Controller
             'id_bab.required'      => 'Materi harus memiliki Bab dan tidak bisa dibuat jika tidak memiliki Bab.',
             'id_bab.exists'        => 'Bab yang dipilih tidak valid atau belum terdaftar.',
             'judul.required'       => 'Judul materi wajib diisi.',
+            'judul.unique'         => 'Judul materi ini sudah digunakan pada Bab yang sama. Gunakan judul lain.',
+            'urutan.unique'        => 'Nomor urutan materi ini sudah terdaftar pada Bab yang dipilih.',
             'isi_materi.required'  => 'Konten materi wajib diisi.',
         ]);
 
