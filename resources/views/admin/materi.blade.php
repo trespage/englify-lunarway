@@ -1968,7 +1968,7 @@ function submitQuickAddBab(e) {
             }
         } else {
             const alertBox = document.getElementById('quickBabAlert');
-            const errorMsg = (data.errors && data.errors.urutan) ? data.errors.urutan[0] : (data.message || 'Gagal menambahkan bab');
+            const errorMsg = data.errors ? (data.errors.judul?.[0] || data.errors.urutan?.[0] || Object.values(data.errors)[0]?.[0]) : (data.message || 'Gagal menambahkan bab');
             alertBox.textContent = errorMsg;
             alertBox.className = 'p-3 rounded-xl text-xs bg-rose-50 text-rose-700 border border-rose-200 font-medium';
             alertBox.classList.remove('hidden');

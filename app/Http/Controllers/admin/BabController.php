@@ -65,7 +65,12 @@ class BabController extends Controller
 
         $validated = $request->validate([
             'id_kategori'  => 'required|exists:kategori,id_kategori',
-            'judul'        => 'required|string|max:255',
+            'judul'        => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('bab', 'judul')->where('id_kategori', $idKategori),
+            ],
             'urutan'       => [
                 'required',
                 'integer',
@@ -75,8 +80,10 @@ class BabController extends Controller
             'durasi_menit' => 'nullable|integer|min:1|max:300',
             'is_active'    => 'nullable|boolean',
         ], [
-            'urutan.unique' => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
-            'urutan.min'    => 'Nomor urutan bab minimal dimulai dari 1.',
+            'judul.required' => 'Judul bab wajib diisi.',
+            'judul.unique'   => 'Bab dengan judul ini sudah terdaftar pada kategori yang dipilih. Gunakan judul bab lain.',
+            'urutan.unique'  => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
+            'urutan.min'     => 'Nomor urutan bab minimal dimulai dari 1.',
         ]);
 
         if (empty($validated['durasi_menit'])) {
@@ -117,7 +124,12 @@ class BabController extends Controller
 
         $validated = $request->validate([
             'id_kategori'  => 'required|exists:kategori,id_kategori',
-            'judul'        => 'required|string|max:255',
+            'judul'        => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('bab', 'judul')->where('id_kategori', $idKategori)->ignore($bab->id),
+            ],
             'urutan'       => [
                 'required',
                 'integer',
@@ -127,8 +139,10 @@ class BabController extends Controller
             'durasi_menit' => 'nullable|integer|min:1|max:300',
             'is_active'    => 'nullable',
         ], [
-            'urutan.unique' => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
-            'urutan.min'    => 'Nomor urutan bab minimal dimulai dari 1.',
+            'judul.required' => 'Judul bab wajib diisi.',
+            'judul.unique'   => 'Bab dengan judul ini sudah terdaftar pada kategori yang dipilih. Gunakan judul bab lain.',
+            'urutan.unique'  => 'Bab dengan nomor urutan ini sudah terdaftar pada kategori yang dipilih. Nomor urutan bab harus bersusun dan tidak boleh sama.',
+            'urutan.min'     => 'Nomor urutan bab minimal dimulai dari 1.',
         ]);
 
         if (empty($validated['durasi_menit'])) {
