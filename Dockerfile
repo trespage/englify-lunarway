@@ -54,7 +54,7 @@ COPY . .
 
 # 5. Install library PHP & atur izin folder storage
 RUN composer install --no-dev --optimize-autoloader
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 EXPOSE 80 1013
 
