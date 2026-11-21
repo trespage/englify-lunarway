@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-lunarway-48
+    restart: unless-stopped
+    ports:
+      - "1013:80"
+    environment:
+      - APP_NAME=ENGLIFY
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=base64:0Y+OeWoN94nPwN9kAOb14qf/am2HPKfzQu2B+0/hfAI=
+      - APP_URL=http://localhost:1013

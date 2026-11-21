@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
 # 2. Konfigurasi Nginx untuk Laravel (DocumentRoot ke /public dan routing index.php)
 RUN cat <<'EOF' > /etc/nginx/sites-available/default
 server {
+    listen 80;
+    listen [::]:80;
     listen 1013;
     listen [::]:1013;
     server_name _;
@@ -54,7 +56,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 1013
+EXPOSE 80 1013
 
 # 6. Jalankan PHP-FPM di background dan Nginx di foreground
 CMD php-fpm -D && nginx -g "daemon off;"
