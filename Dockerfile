@@ -2,7 +2,7 @@ FROM php:8.2-fpm
 
 # 1. Install dependensi sistem, Nginx, & ekstensi PHP wajib Laravel
 RUN apt-get update && apt-get install -y \
-    nginx \
+    nginx wget \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
 # 2. Konfigurasi Nginx untuk Laravel (DocumentRoot ke /public dan routing index.php)
 RUN cat <<'EOF' > /etc/nginx/sites-available/default
 server {
-    listen 80;
-    listen [::]:80;
+    listen 1013;
+    listen [::]:1013;
     server_name _;
     root /var/www/html/public;
 
@@ -54,7 +54,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 80
+EXPOSE 1013
 
 # 6. Jalankan PHP-FPM di background dan Nginx di foreground
 CMD php-fpm -D && nginx -g "daemon off;"
