@@ -12,4 +12,10 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=base64:0Y+OeWoN94nPwN9kAOb14qf/am2HPKfzQu2B+0/hfAI=
-      - APP_URL=http://localhost:1013
+      - APP_URL=http://server.smkbudibakti.sch.id:1013
+      - DB_CONNECTION=mysql
+      - DB_HOST=ae8uor9sfqzp7gdcbvpji8av
+      - DB_PORT=3306
+      - DB_DATABASE=default
+      - DB_USERNAME=mysql
+      - DB_PASSWORD=nsqMlzkPngZWEVnru3htXk9DoEGiBd3CUPn5ieLnOgKgluIVroOQ3zJCoUxf5l96
