@@ -1,0 +1,35 @@
+name: CI/CD Build & Deploy UKK RPL 2026
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # JOB 1: CONTINUOUS INTEGRATION (Build & Test Image)
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: 2. Verifikasi Keberadaan Dockerfile
+        run: |
+          if [ ! -f Dockerfile ]; then
+            echo "Error: Dockerfile tidak ditemukan!"
+            exit 1
+          fi
+
+      - name: 3. Uji Build Docker Image
+        run: docker build -t ukk-app-test:latest .
+
+  # JOB 2: CONTINUOUS DEPLOYMENT (Trigger Deploy ke VPS / Coolify)
+  deploy-production:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 4. Trigger Auto-Deploy ke Server VPS
+        run: |
+          echo "Mengirim sinyal deployment otomatis ke server produksi..."
+          # Jika menggunakan Webhook Coolify:
+          # curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}"
