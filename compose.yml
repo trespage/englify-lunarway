@@ -19,3 +19,11 @@ services:
       - DB_DATABASE=default
       - DB_USERNAME=mysql
       - DB_PASSWORD=nsqMlzkPngZWEVnru3htXk9DoEGiBd3CUPn5ieLnOgKgluIVroOQ3zJCoUxf5l96
+    networks:
+      - default
+      - coolify
+
+networks:
+  coolify:
+    name: coolify
+    external: true
